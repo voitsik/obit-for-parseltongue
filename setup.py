@@ -6,7 +6,6 @@ import sys
 from distutils.command.build import build
 from pathlib import Path
 
-import pkgconfig
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
 
@@ -36,6 +35,8 @@ OBIT_EXT = Extension(
 
 def update_pkg(ext, package, macro=None):
     """Update extention cflags and libs according to pkg-config info."""
+    import pkgconfig
+
     if not pkgconfig.exists(package):
         print(f"Could not find package {package}", file=sys.stderr)
         sys.exit(1)
