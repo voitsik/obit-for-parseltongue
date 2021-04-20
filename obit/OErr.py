@@ -1,5 +1,5 @@
 # $Id$
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 #  Copyright (C) 2004,2019
 #  Associated Universities, Inc. Washington DC, USA.
 #
@@ -24,80 +24,92 @@
 #                         National Radio Astronomy Observatory
 #                         520 Edgemont Road
 #                         Charlottesville, VA 22903-2475 USA
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 
 # Python shadow class to ObitErr class
 from __future__ import absolute_import
 from __future__ import print_function
-import Obit, InfoList, _Obit
+from . import Obit, InfoList, _Obit
+
 
 class OErr(Obit.OErr):
     """
     Python ObitErr message and error stack
-    
+
     This is an error stack class for obtaining tracebacks for error conditions.
     This is also the mechanism for passing informative messages.
     No messages, error or informative, are displayed until the contents
     of the stack are explicitly printed
     """
-    def __init__(self) :
+
+    def __init__(self):
         super(OErr, self).__init__()
         Obit.CreateOErr(self.this)
+
     def __del__(self, DeleteOErr=_Obit.DeleteOErr):
-        if _Obit!=None:
+        if _Obit != None:
             DeleteOErr(self.this)
-    def __setattr__(self,name,value):
-        if name == "me" :
-            Obit.OErr_Set_me(self.this,value)
+
+    def __setattr__(self, name, value):
+        if name == "me":
+            Obit.OErr_Set_me(self.this, value)
             return
         self.__dict__[name] = value
-    def __getattr__(self,name):
-        if name == "me" : 
+
+    def __getattr__(self, name):
+        if name == "me":
             return Obit.OErr_Get_me(self.this)
-        if name == "isErr" : 
+        if name == "isErr":
             return PIsErr(self)
         raise AttributeError(name)
+
     def __repr__(self):
         return "<C OErr instance>"
+
     def __str__(self):
-        messages = ''
+        messages = ""
         msg = Obit.OErrMsg(self.me)
         while msg:
-            messages += '%s\n' % msg
+            messages += "%s\n" % msg
             msg = Obit.OErrMsg(self.me)
             continue
-        Obit.ObitErrClear (self.me);  # Clear stack
+        Obit.ObitErrClear(self.me)
+        # Clear stack
         return messages
+
     def Clear(self):
         """ Clear Obit error stack """
         PClear(self)
         # end Clear
-    def IsA (self):
+
+    def IsA(self):
         """
         Tells if input really a Python Obit OErr
-        
+
         return True, False
         * self   = Python OErr object
         """
         ################################################################
         # Allow derived types
-        return Obit.ObitErrIsA(self.me)!=0
+        return Obit.ObitErrIsA(self.me) != 0
         # end IsA
 
+
 # Error levels
-NoErr     = 0
-Info      = 1
-Warn      = 2
+NoErr = 0
+Info = 1
+Warn = 2
 Traceback = 3
 MildError = 4
-Error     = 5
+Error = 5
 StrongError = 6
-Fatal     = 7
+Fatal = 7
+
 
 def PIsErr(err):
     """
     Tells if an error condition exists
-    
+
     Returns True if error condition exists, else False
 
     * err      = Python Obit Error/message stack
@@ -105,10 +117,11 @@ def PIsErr(err):
     ################################################################
     # Checks
     if not OErrIsA(err):
-        print("calls itself",err,"\n\n")
+        print("calls itself", err, "\n\n")
         raise TypeError("err MUST be a Python ObitErr")
     return Obit.isError(err.me) != 0
     # end PIsErr
+
 
 def PInit(err, prtLv=0, taskLog="    "):
     """
@@ -124,10 +137,11 @@ def PInit(err, prtLv=0, taskLog="    "):
     if not OErrIsA(err):
         raise TypeError("err MUST be a Python ObitErr")
     info = InfoList.InfoList()
-    info.set("prtLv",prtLv)
-    info.set("taskLog",taskLog)
+    info.set("prtLv", prtLv)
+    info.set("taskLog", taskLog)
     Obit.ErrorInit(err.me, info.me)
     # end PInit
+
 
 def PClear(err):
     """
@@ -140,7 +154,8 @@ def PClear(err):
     if not OErrIsA(err):
         raise TypeError("err MUST be a Python ObitErr")
     Obit.ObitErrClear(err.me)
-    #end PClear
+    # end PClear
+
 
 def PSet(err):
     """
@@ -153,7 +168,8 @@ def PSet(err):
     if not OErrIsA(err):
         raise TypeError("err MUST be a Python ObitErr")
     Obit.SetError(err.me)
-    #end PSet
+    # end PSet
+
 
 def PLog(err, eCode, message):
     """
@@ -169,7 +185,8 @@ def PLog(err, eCode, message):
     if not OErrIsA(err):
         raise TypeError("err MUST be a Python ObitErr")
     Obit.LogError(err.me, eCode, message)
-    #end PLog
+    # end PLog
+
 
 def printErr(err):
     """
@@ -183,7 +200,8 @@ def printErr(err):
         raise TypeError("err MUST be a Python ObitErr")
     Obit.ObitErrLog(err.me)
     # end PrintErr
-     
+
+
 def printErrMsg(err, message="Error"):
     """
     Prints Obit error stack and throws runtime exception on error
@@ -201,11 +219,12 @@ def printErrMsg(err, message="Error"):
         print(message)
         raise Exception
     # end printErrMsg
-     
-def OErrIsA (err):
+
+
+def OErrIsA(err):
     """
     Tells if object thinks it's a Python ObitErr
-    
+
     return true, false (1,0)
 
     * err    = input Python ObitErr stack
@@ -218,7 +237,8 @@ def OErrIsA (err):
     return Obit.ObitErrIsA(err.me)
     # end OErrIsA
 
-def Bomb ():
+
+def Bomb():
     """
     Throws an exception to stop the debugger
     """
