@@ -102,4 +102,5 @@ setup(
     },
     python_requires=">=3.4",
     setup_requires=["pkgconfig"],
+    install_requires=["six"],
 )
