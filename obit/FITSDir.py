@@ -1,7 +1,6 @@
-""" Python Obit FITS file directory utilities
-"""
+"""Python Obit FITS file directory utilities."""
 # $Id$
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 #  Copyright (C) 2006,2019
 #  Associated Universities, Inc. Washington DC, USA.
 #
@@ -26,12 +25,18 @@
 #                         National Radio Astronomy Observatory
 #                         520 Edgemont Road
 #                         Charlottesville, VA 22903-2475 USA
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 
 # Python interface to FITS directory utilities
 from __future__ import absolute_import
-import Obit, OSystem, OErr, os, pydoc, string
-from six.moves import range
+
+import os
+import pydoc
+import string
+
+from . import Obit, OErr
+
+# from six.moves import range
 
 global FITSdisks, nFITS
 FITSdisks = []
@@ -40,52 +45,57 @@ nFITS = 0
 # ObitTalk Stuff
 try:
     import FITS
+
     # Get FITS disks Info from ObitTalk
-    nFITS = len(FITS.disks)-1
-    for i in range(1,nFITS+1):
-        AIPSdisks.append(FITS.disks[i].dirname)
-except:
+    nFITS = len(FITS.disks) - 1
+    for i in range(1, nFITS + 1):
+        FITSdisks.append(FITS.disks[i].dirname)
+except Exception:
     # Get list of FITS disks from os
-    for dsk in ["FITS","FITS01","FITS02","FITS03","FITS04","FITS05","FITS06"]:
+    for dsk in ["FITS", "FITS01", "FITS02", "FITS03", "FITS04", "FITS05", "FITS06"]:
         dir = os.getenv(dsk)
         if dir:
             FITSdisks.append(dir)
             nFITS = len(FITSdisks)
     del dsk, dir
-else:
-    pass
 
-        
+
 def PListDir(disk, dir=None):
     """
-    List files in FITS directory
+    List files in FITS directory.
 
     * disk = FITS disk number, <=0 -> current directory
     * dir  = relative or abs. path of directory, def. = cwd
       Only used if disk == 0
     """
     ################################################################
-    if disk>0:
-        flist = os.listdir(FITSdisks[disk-1])
-        dirlist = "FITS Directory listing for disk "+str(disk)+\
-                  ":"+FITSdisks[disk-1]+"\n"
+    if disk > 0:
+        flist = os.listdir(FITSdisks[disk - 1])
+        dirlist = (
+            "FITS Directory listing for disk "
+            + str(disk)
+            + ":"
+            + FITSdisks[disk - 1]
+            + "\n"
+        )
     else:  # current directory
-        if dir==None:
+        if dir is None:
             dir = "./"
         flist = os.listdir(dir)
-        dirlist = "File listing for directory "+dir+"\n"
-    i=0
+        dirlist = "File listing for directory " + dir + "\n"
+    i = 0
     for f in flist:
-        dirlist = dirlist +string.rjust(str(i),6)+" "+f+"\n"
-        i = i+1
+        dirlist = dirlist + string.rjust(str(i), 6) + " " + f + "\n"
+        i = i + 1
     # User pager
     pydoc.ttypager(dirlist)
     # end PListDir
 
+
 def PAddDir(newDir, err, URL=None):
     """
-    Add a new FITS directory
-    
+    Add a new FITS directory.
+
     returns FITS disk number
 
     * newDir   = new directory path
@@ -101,24 +111,23 @@ def PAddDir(newDir, err, URL=None):
     retDisk = Obit.FITSAddDir(newDir, err.me)
     FITSdisks.append(newDir)
     nFITS = len(FITSdisks)
-    #print "DEBUG nFITS",nFITS
+    # print "DEBUG nFITS",nFITS
     if err.isErr:
         OErr.printErrMsg(err, "Error adding FITS directory")
         # Update ObitTalk stuff
     try:
         FITS.FITS.disks.append(FITS.FITSDisk(URL, retDisk, newDir))
-    except:
+    except Exception:
         pass
-    else:
-        pass
-    return retDisk;
+
+    return retDisk
     # end PAddDir
 
 
 def PSetDir(newDir, disk, err, URL=None):
     """
-    replace FITS directory
-    
+    Replace FITS directory.
+
     returns FITS disk number
 
     * newDir   = new directory path
@@ -134,32 +143,30 @@ def PSetDir(newDir, disk, err, URL=None):
     retDisk = Obit.FITSSetDir(newDir, disk, err.me)
     FITSdisks[disk] = newDir
     nFITS = len(FITSdisks)
-    #print "DEBUG nFITS",nFITS
+    # print "DEBUG nFITS",nFITS
     if err.isErr:
         OErr.printErrMsg(err, "Error replacinging FITS directory")
         # Update ObitTalk stuff
     try:
         FITS.FITS.disks[disk] = FITS.FITSDisk(URL, disk, newDir)
-    except:
-        pass
-    else:
+    except Exception:
         pass
     # end PSetDir
 
 
 def PGetDir(disk, dir=None):
     """
-    Returns list of files in FITS directory
+    Return list of files in FITS directory.
 
     * disk = FITS disk number <=0 -> current directory
     * dir  = relative or abs. path of directory, def. = cwd
       Only used if disk == 0
     """
     ################################################################
-    if disk>0:
-        flist = os.listdir(FITSdisks[disk-1])
+    if disk > 0:
+        flist = os.listdir(FITSdisks[disk - 1])
     else:
-        if dir==None:
+        if dir is None:
             dir = "./"
         flist = os.listdir(dir)
     return flist
@@ -168,8 +175,8 @@ def PGetDir(disk, dir=None):
 
 def PExist(file, disk, err):
     """
-    Tests if FITS file exists
-    
+    Test if FITS file exists.
+
     return True if exists, else False
 
     * file     = FITS file name
@@ -177,6 +184,5 @@ def PExist(file, disk, err):
     """
     ################################################################
     exist = Obit.FITSFileExist(disk, file, err.me)
-    return exist!=0
+    return exist != 0
     # end PExist
-

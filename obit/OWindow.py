@@ -1,5 +1,5 @@
 # $Id$
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 #  Copyright (C) 2005,2019
 #  Associated Universities, Inc. Washington DC, USA.
 #
@@ -24,44 +24,53 @@
 #                         National Radio Astronomy Observatory
 #                         520 Edgemont Road
 #                         Charlottesville, VA 22903-2475 USA
-#-----------------------------------------------------------------------
- 
+# -----------------------------------------------------------------------
+
 # Python shadow class to ObitDConCleanWindow class
 from __future__ import absolute_import
-import Obit, _Obit, InfoList, OErr 
+
+from . import ImageMosaic, Obit, OErr, _Obit
+
 
 class OWindow(Obit.OWindow):
-    """ Python Obit Image descriptor class
+    """Python Obit Image descriptor class.
 
     This contains information about the Tables associated with an image or dataset
 
     Image Members with python interfaces:
     List      - (virtual) Python list of table names and numbers
     """
-    def __init__(self) :
+
+    def __init__(self):
         super(OWindow, self).__init__()
-        Obit.CreateOWindow (self.this)
+        Obit.CreateOWindow(self.this)
+
     def __del__(self, DeleteOWindow=_Obit.DeleteOWindow):
-        if _Obit!=None:
+        if _Obit is not None:
             DeleteOWindow(self.this)
-    def __setattr__(self,name,value):
-        if name == "me" :
-            Obit.OWindow_Set_me(self.this,value)
+
+    def __setattr__(self, name, value):
+        if name == "me":
+            Obit.OWindow_Set_me(self.this, value)
             return
         self.__dict__[name] = value
-    def __getattr__(self,name):
-        if name == "me" : 
+
+    def __getattr__(self, name):
+        if name == "me":
             return Obit.OWindow_Get_me(self.this)
         raise AttributeError(str(name))
+
     def __repr__(self):
         return "<C OWindow instance>"
+
 
 # Window type definitions (from ObitDConCleanWindow.h)
 RectangleType = 0
 RoundType = 1
-        
-def PCreate (name, mosaic, err):
-    """ Create OWindow from an ImageMosaic
+
+
+def PCreate(name, mosaic, err):
+    """Create OWindow from an ImageMosaic.
 
     name      = Name to be given to object
     mosaic    = Python ImageMosaic to attach
@@ -72,17 +81,18 @@ def PCreate (name, mosaic, err):
     if not ImageMosaic.PIsA(mosaic):
         raise TypeError("uvData MUST be a Python Obit UV")
     if err.isErr:
-        return None  # existing error 
+        return None  # existing error
     #
-    out = OWindow();
+    out = OWindow()
     out.me = Obit.OWindowCreate(name, mosaic.me, err.me)
     if err.isErr:
-        printErrMsg(err, "Error creating Window")
-    return out;
+        OErr.printErrMsg(err, "Error creating Window")
+    return out
     # end PCreate
 
-def PCreate1 (name, naxis, err):
-    """ Create single field OWindow
+
+def PCreate1(name, naxis, err):
+    """Create single field OWindow.
 
     name     = Name to be given to object
     naxis    = [x_dim,y_dim] size of image
@@ -91,18 +101,19 @@ def PCreate1 (name, naxis, err):
     ################################################################
     # Checks
     if err.isErr:
-        return None  # existing error 
+        return None  # existing error
     #
-    lnaxis =[int(naxis[0]),int(naxis[1])]
-    out = OWindow();
+    lnaxis = [int(naxis[0]), int(naxis[1])]
+    out = OWindow()
     out.me = Obit.OWindowCreate1(name, lnaxis, err.me)
     if err.isErr:
-        printErrMsg(err, "Error creating Window")
-    return out;
+        OErr.printErrMsg(err, "Error creating Window")
+    return out
     # end PCreate1
 
-def PGetList (inOW, field, err):
-    """ Returns the contents of an OWindow field as a Python list
+
+def PGetList(inOW, field, err):
+    """Return the contents of an OWindow field as a Python list.
 
     returns list of lists, one per window
     window list for each window is ID, type, followed by parameters
@@ -116,14 +127,14 @@ def PGetList (inOW, field, err):
     if not PIsA(inOW):
         raise TypeError("inOW MUST be a Python Obit OWindow")
     if err.isErr:
-        return None  # existing error 
+        return None  # existing error
     #
     return Obit.OWindowGetList(inOW.me, field, err.me)
     # end PGetList
 
 
-def PSetList (inOW, list, field, err):
-    """ Copies list as from PGetList to an OWindow field
+def PSetList(inOW, list, field, err):
+    """Copie list as from PGetList to an OWindow field.
 
     Previous contents are deleted
     inOW  = Python OWindow to read
@@ -138,15 +149,16 @@ def PSetList (inOW, list, field, err):
     if not PIsA(inOW):
         raise TypeError("inOW MUST be a Python Obit OWindow")
     if err.isErr:
-        return None  # existing error 
+        return None  # existing error
     #
     Obit.OWindowSetList(inOW.me, list, field, err.me)
     if err.isErr:
-        printErrMsg(err, "Error setting Window InfoList")
+        OErr.printErrMsg(err, "Error setting Window InfoList")
     # end PSetList
 
-def PAdd (inOW, field, type, window, err):
-    """ Adds new window, 
+
+def PAdd(inOW, field, type, window, err):
+    """Add new window.
 
     returns iD of new window
     inOW   = Python OWindow to read
@@ -160,13 +172,14 @@ def PAdd (inOW, field, type, window, err):
     if not PIsA(inOW):
         raise TypeError("inOW MUST be a Python Obit OWindow")
     if err.isErr:
-        return None  # existing error 
+        return None  # existing error
     #
     return Obit.OWindowAdd(inOW.me, field, type, window, err.me)
     # end PAdd
 
-def PUpdate (inOW, field, iD, type, window, err):
-    """ Updates window, creates new if iD doesn't exist
+
+def PUpdate(inOW, field, iD, type, window, err):
+    """Update window, creates new if iD doesn't exist.
 
     inOW   = Python OWindow to read
     field  = Which field if mosaic
@@ -180,15 +193,16 @@ def PUpdate (inOW, field, iD, type, window, err):
     if not PIsA(inOW):
         raise TypeError("inOW MUST be a Python Obit OWindow")
     if err.isErr:
-        return None  # existing error 
+        return None  # existing error
     #
     Obit.OWindowUpdate(inOW.me, field, iD, type, window, err.me)
     if err.isErr:
-        printErrMsg(err, "Error updating Window")
+        OErr.printErrMsg(err, "Error updating Window")
     # end PUpdate
 
-def PDel (inOW, field, iD, err):
-    """ Deletes window, creates new if iD doesn't exist
+
+def PDel(inOW, field, iD, err):
+    """Delete window, creates new if iD doesn't exist.
 
     inOW   = Python OWindow to read
     field  = Which field if mosaic
@@ -200,15 +214,16 @@ def PDel (inOW, field, iD, err):
     if not PIsA(inOW):
         raise TypeError("inOW MUST be a Python Obit OWindow")
     if err.isErr:
-        return None  # existing error 
+        return None  # existing error
     #
     Obit.OWindowDel(inOW.me, field, iD, err.me)
     if err.isErr:
-        printErrMsg(err, "Error deleting Window")
+        OErr.printErrMsg(err, "Error deleting Window")
     # end PDel
 
-def PGetMaxID (inOW, field):
-    """ Find highest version of a table of a given type
+
+def PGetMaxID(inOW, field):
+    """Find highest version of a table of a given type.
 
     returns list
     inOW    = Python OWindow
@@ -223,18 +238,17 @@ def PGetMaxID (inOW, field):
     return Obit.OWindowGetMaxID(inOW.me, field)
     # end PGetMaxID
 
-def PIsA (inOW):
-    """ Tells if the input really is a Python Obit OWindow
+
+def PIsA(inOW):
+    """Tell if the input really is a Python Obit OWindow.
 
     returns True or False
     inOW = Python OWindow to test
     """
     ################################################################
-     # Checks
+    # Checks
     if not isinstance(inOW, OWindow):
         return False
     #
-    return Obit.OWindowIsA(inOW.me)!=0
+    return Obit.OWindowIsA(inOW.me) != 0
     # end  PIsA
-
-

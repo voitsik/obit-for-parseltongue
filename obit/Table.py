@@ -1,4 +1,4 @@
-""" Python Obit Table class
+"""Python Obit Table class.
 
 This class contains tabular data and allows access.
 An ObitTable is the front end to a persistent disk resident structure.
@@ -13,7 +13,7 @@ member of a Table after the table has been opened.  These will be updated
 to disk when the table is closed.
 """
 # $Id$
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 #  Copyright (C) 2004-2019
 #  Associated Universities, Inc. Washington DC, USA.
 #
@@ -38,59 +38,65 @@ to disk when the table is closed.
 #                         National Radio Astronomy Observatory
 #                         520 Edgemont Road
 #                         Charlottesville, VA 22903-2475 USA
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 
 # Python shadow class to ObitTable class
 from __future__ import absolute_import
-import Obit, _Obit, OErr, InfoList, TableDesc
+
+from . import InfoList, Obit, OErr, TableDesc, _Obit
+
 
 class Table(Obit.Table):
-    def __init__(self,name) :
+    def __init__(self, name):
         super(Table, self).__init__()
         Obit.CreateTable(self.this, name)
+
     def __del__(self, DeleteTable=_Obit.DeleteTable):
-        if _Obit!=None:
+        if _Obit is not None:
             DeleteTable(self.this)
-    def __setattr__(self,name,value):
-        if name == "me" :
+
+    def __setattr__(self, name, value):
+        if name == "me":
             # Out with the old
-            if self.this!=None:
+            if self.this is not None:
                 Obit.TableUnref(Obit.Table_Get_me(self.this))
             # In with the new
-            Obit.Table_Set_me(self.this,value)
+            Obit.Table_Set_me(self.this, value)
             return
         self.__dict__[name] = value
-    def __getattr__(self,name):
+
+    def __getattr__(self, name):
         if not isinstance(self, Table):
-            return "Bogus Dude! "+str(self.__class__)
-        if name == "me" : 
+            return "Bogus Dude! " + str(self.__class__)
+        if name == "me":
             return Obit.Table_Get_me(self.this)
-         # Functions to return members
-        if name=="List":
+        # Functions to return members
+        if name == "List":
             return PGetList(self)
-        if name=="IOList":
+        if name == "IOList":
             return PGetIOList(self)
-        if name=="Desc":
+        if name == "Desc":
             return PGetDesc(self)
-        if name=="IODesc":
+        if name == "IODesc":
             return PGetIODesc(self)
         raise AttributeError(name)
+
     def __repr__(self):
         if self.__class__ != Table:
             return
         return "<C Table instance> " + Obit.TableGetName(self.me)
 
-    def Zap (self, err):
-        """ Delete underlying files and the basic object.
-        
+    def Zap(self, err):
+        """Delete underlying files and the basic object.
+
         self      = Python Table object
         err       = Python Obit Error/message stack
         """
-        PZap(self,err)
+        PZap(self, err)
         # end Zap
 
-    def Open (self, access, err):
-        """ Open an table persistent (disk) form
+    def Open(self, access, err):
+        """Open an table persistent (disk) form
 
         Specific table type keywords are written to the "keys" dict member
         self   = Python Table object
@@ -100,28 +106,28 @@ class Table(Obit.Table):
         POpen(self, access, err)
         # end Open
 
-    def Close (self, err):
-        """ Close an table  persistent (disk) form
-        
+    def Close(self, err):
+        """Close an table  persistent (disk) form
+
         Specific table type keywords are written from the "keys" dict member
         self      = Python Table object
         err       = Python Obit Error/message stack
         """
-        PClose (self, err)
+        PClose(self, err)
         # end Close
 
-    def ReadRow (self, rowno, err):
-        """ Read a specified row in a table and returns as a python Dict
+    def ReadRow(self, rowno, err):
+        """Read a specified row in a table and returns as a python Dict
 
         self   = Python Image object
         rowno     = row number (1-rel) to read
         err    = Python Obit Error/message stack
         """
-        return PReadRow (self, rowno, err)
+        return PReadRow(self, rowno, err)
         # end ReadFA
 
-    def WriteRow (self, rowno, rowDict, err):
-        """ Write an image  persistent (disk) form from a specified Dict
+    def WriteRow(self, rowno, rowDict, err):
+        """Write an image  persistent (disk) form from a specified Dict
 
         Writes a single row
         self      = Python Image object
@@ -129,28 +135,31 @@ class Table(Obit.Table):
         rowDict   = Python Dict of same form as returned by PReadRow
         err       = Python Obit Error/message stack
         """
-        PWriteRow (self, rowno, rowDict, err)
+        PWriteRow(self, rowno, rowDict, err)
         # end WriteRow
-    def IsA (self):
+
+    def IsA(self):
         """
         Tells if input really a Python Obit Table
-        
+
         return True, False
         * self   = Python Table object
         """
         ################################################################
         # Allow derived types
-        return Obit.TableIsA(self.me)!=0
+        return Obit.TableIsA(self.me) != 0
         # end IsA
         # End Table class definitions
 
+
 # Symbolic names for access codes
-READONLY  = 1
+READONLY = 1
 WRITEONLY = 2
 READWRITE = 3
 
-def PZap (inTab, err):
-    """ Destroy the persistent form of a Table
+
+def PZap(inTab, err):
+    """Destroy the persistent form of a Table
 
     inTab    = input Python Obit Table
     err      = Python Obit Error/message stack
@@ -161,14 +170,15 @@ def PZap (inTab, err):
         raise TypeError("inTab MUST be a Table")
     if not err.IsA():
         raise TypeError("err MUST be an OErr")
-    if err.isErr: # existing error?
+    if err.isErr:  # existing error?
         return
-   #
-    Obit.TableZap (inTab.me, err.me)
-    # end PZap 
+    #
+    Obit.TableZap(inTab.me, err.me)
+    # end PZap
 
-def PCopy (inTab, outTab, err):
-    """ Copy a Table including persistent forms
+
+def PCopy(inTab, outTab, err):
+    """Copy a Table including persistent forms
 
     inTab    = input Python Obit Table
     outTab   = extant output Python Obit Table
@@ -182,14 +192,15 @@ def PCopy (inTab, outTab, err):
         raise TypeError("outTab MUST be a Table")
     if not err.IsA():
         raise TypeError("err MUST be an OErr")
-    if err.isErr: # existing error?
+    if err.isErr:  # existing error?
         return
     #
     Obit.TableCopy(inTab.me, outTab.me, err.me)
     # end PCopy
 
-def PClone (inTab, outTab):
-    """ Copy the structure of a Table
+
+def PClone(inTab, outTab):
+    """Copy the structure of a Table
 
     inTab    = input Python Table
     outTab   = extant output Python Obit Table or None
@@ -208,8 +219,8 @@ def PClone (inTab, outTab):
     # end PClone
 
 
-def PConcat (inTab, outTab, err):
-    """ Copy row data from inTab to the end of outTab
+def PConcat(inTab, outTab, err):
+    """Copy row data from inTab to the end of outTab
 
     inTab    = input Python Obit Table
     outTab   = extant output Python Obit Table
@@ -223,15 +234,15 @@ def PConcat (inTab, outTab, err):
         raise TypeError("outTab MUST be a Table")
     if not err.IsA():
         raise TypeError("err MUST be an OErr")
-    if err.isErr: # existing error?
+    if err.isErr:  # existing error?
         return
     #
     Obit.TableConcat(inTab.me, outTab.me, err.me)
     # end PConcat
 
 
-def PFullInstantiate (inTab, access, err):
-    """ Open and close to fully instantiate
+def PFullInstantiate(inTab, access, err):
+    """Open and close to fully instantiate
 
     return 0 on success, else failure
     inTab    = input Python Table
@@ -245,13 +256,14 @@ def PFullInstantiate (inTab, access, err):
     if not err.IsA():
         raise TypeError("err MUST be an OErr")
     #
-    if err.isErr: # existing error?
+    if err.isErr:  # existing error?
         return None
     return Obit.TablefullInstantiate(inTab.me, access, err.me)
     # end PFullInstantiate
 
-def POpen (inTab, access, err):
-    """ Open a table persistent (disk) form
+
+def POpen(inTab, access, err):
+    """Open a table persistent (disk) form.
 
     Specific table type keywords are written to the "keys" dict member
     inTab     = Python Table object
@@ -264,79 +276,80 @@ def POpen (inTab, access, err):
         raise TypeError("inTab MUST be a Python Obit Table")
     if not err.IsA():
         raise TypeError("err MUST be an OErr")
-    if err.isErr: # existing error?
+    if err.isErr:  # existing error?
         return
     #
     Obit.TableOpen(inTab.me, access, err.me)
     #
     # Get specific type keywords as dict
     tabtype = inTab.Desc.Dict["Table name"]
-    if tabtype=="AIPS AN":
+    if tabtype == "AIPS AN":
         inTab.keys = Obit.TableANGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS AT":
+    elif tabtype == "AIPS AT":
         inTab.keys = Obit.TableATGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS BL":
+    elif tabtype == "AIPS BL":
         inTab.keys = Obit.TableBLGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS BP":
+    elif tabtype == "AIPS BP":
         inTab.keys = Obit.TableBPGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS CC":
+    elif tabtype == "AIPS CC":
         inTab.keys = Obit.TableCCGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS CD":
+    elif tabtype == "AIPS CD":
         inTab.keys = Obit.TableCDGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS CL":
+    elif tabtype == "AIPS CL":
         inTab.keys = Obit.TableCLGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS CP":
+    elif tabtype == "AIPS CP":
         inTab.keys = Obit.TableCPGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS CQ":
+    elif tabtype == "AIPS CQ":
         inTab.keys = Obit.TableCQGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS CT":
+    elif tabtype == "AIPS CT":
         inTab.keys = Obit.TableCTGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS FG":
+    elif tabtype == "AIPS FG":
         inTab.keys = Obit.TableFGGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS FQ":
+    elif tabtype == "AIPS FQ":
         inTab.keys = Obit.TableFQGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS FS":
+    elif tabtype == "AIPS FS":
         inTab.keys = Obit.TableFSGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS GC":
+    elif tabtype == "AIPS GC":
         inTab.keys = Obit.TableGCGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS IM":
+    elif tabtype == "AIPS IM":
         inTab.keys = Obit.TableIMGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS MC":
+    elif tabtype == "AIPS MC":
         inTab.keys = Obit.TableMCGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS MF":
+    elif tabtype == "AIPS MF":
         inTab.keys = Obit.TableMFGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS NI":
+    elif tabtype == "AIPS NI":
         inTab.keys = Obit.TableNIGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS NX":
+    elif tabtype == "AIPS NX":
         inTab.keys = Obit.TableNXGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS OB":
+    elif tabtype == "AIPS OB":
         inTab.keys = Obit.TableOBGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS OF":
+    elif tabtype == "AIPS OF":
         inTab.keys = Obit.TableOFGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS PC":
+    elif tabtype == "AIPS PC":
         inTab.keys = Obit.TablePCGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS PD":
+    elif tabtype == "AIPS PD":
         inTab.keys = Obit.TablePDGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS PO":
+    elif tabtype == "AIPS PO":
         inTab.keys = Obit.TablePOGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS PS":
+    elif tabtype == "AIPS PS":
         inTab.keys = Obit.TablePSGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS SN":
+    elif tabtype == "AIPS SN":
         inTab.keys = Obit.TableSNGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS SU":
+    elif tabtype == "AIPS SU":
         inTab.keys = Obit.TableSUGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS TY":
+    elif tabtype == "AIPS TY":
         inTab.keys = Obit.TableTYGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS VL":
+    elif tabtype == "AIPS VL":
         inTab.keys = Obit.TableVLGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS VZ":
+    elif tabtype == "AIPS VZ":
         inTab.keys = Obit.TableVZGetHeadKeys(inTab.me)
-    elif tabtype=="AIPS WX":
+    elif tabtype == "AIPS WX":
         inTab.keys = Obit.TableWXGetHeadKeys(inTab.me)
     # end POpen
 
-def PDirty (inTable):
-    """ Mark Table as needing a header update to disk file
+
+def PDirty(inTable):
+    """Mark Table as needing a header update to disk file
 
     inTable     = Python Table object
     """
@@ -345,11 +358,12 @@ def PDirty (inTable):
     if not PIsA(inTable):
         raise TypeError("inTable MUST be a Python Obit Table")
     #
-    Obit.TableDirty (inTable.me)
+    Obit.TableDirty(inTable.me)
     # end PDirty
 
-def PClose (inTab, err):
-    """ Close a table  persistent (disk) form
+
+def PClose(inTab, err):
+    """Close a table  persistent (disk) form
 
     Specific table type keywords are written from the "keys" dict member
     inTab     = Python Table object
@@ -362,79 +376,80 @@ def PClose (inTab, err):
     if not err.IsA():
         raise TypeError("err MUST be an OErr")
     #
-    if err.isErr: # existing error?
+    if err.isErr:  # existing error?
         return
     #
     # Set specific type keywords from dict
     tabtype = inTab.Desc.Dict["Table name"]
-    if tabtype=="AIPS AN" and inTab.keys:
+    if tabtype == "AIPS AN" and inTab.keys:
         Obit.TableANSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS AT" and inTab.keys:
+    elif tabtype == "AIPS AT" and inTab.keys:
         Obit.TableATSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS BL" and inTab.keys:
+    elif tabtype == "AIPS BL" and inTab.keys:
         Obit.TableBLSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS BP" and inTab.keys:
+    elif tabtype == "AIPS BP" and inTab.keys:
         Obit.TableBPSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS CC" and inTab.keys:
+    elif tabtype == "AIPS CC" and inTab.keys:
         Obit.TableCCSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS CD" and inTab.keys:
+    elif tabtype == "AIPS CD" and inTab.keys:
         Obit.TableCDSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS CL" and inTab.keys:
+    elif tabtype == "AIPS CL" and inTab.keys:
         Obit.TableCLSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS CP" and inTab.keys:
+    elif tabtype == "AIPS CP" and inTab.keys:
         Obit.TableCPSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS CQ" and inTab.keys:
+    elif tabtype == "AIPS CQ" and inTab.keys:
         Obit.TableCQSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS CT" and inTab.keys:
+    elif tabtype == "AIPS CT" and inTab.keys:
         Obit.TableCTSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS FG" and inTab.keys:
+    elif tabtype == "AIPS FG" and inTab.keys:
         Obit.TableFGSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS FQ" and inTab.keys:
+    elif tabtype == "AIPS FQ" and inTab.keys:
         Obit.TableFQSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS FS" and inTab.keys:
+    elif tabtype == "AIPS FS" and inTab.keys:
         Obit.TableFSSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS GC" and inTab.keys:
+    elif tabtype == "AIPS GC" and inTab.keys:
         Obit.TableGCSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS IM" and inTab.keys:
+    elif tabtype == "AIPS IM" and inTab.keys:
         Obit.TableIMSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS MC" and inTab.keys:
+    elif tabtype == "AIPS MC" and inTab.keys:
         Obit.TableMCSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS MF" and inTab.keys:
+    elif tabtype == "AIPS MF" and inTab.keys:
         Obit.TableMFSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS NI" and inTab.keys:
+    elif tabtype == "AIPS NI" and inTab.keys:
         Obit.TableNISetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS NX" and inTab.keys:
+    elif tabtype == "AIPS NX" and inTab.keys:
         Obit.TableNXSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS OB" and inTab.keys:
+    elif tabtype == "AIPS OB" and inTab.keys:
         Obit.TableOBSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS OF" and inTab.keys:
+    elif tabtype == "AIPS OF" and inTab.keys:
         Obit.TableOFSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS PC" and inTab.keys:
+    elif tabtype == "AIPS PC" and inTab.keys:
         Obit.TablePCSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS PD" and inTab.keys:
+    elif tabtype == "AIPS PD" and inTab.keys:
         Obit.TablePDSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS PO" and inTab.keys:
+    elif tabtype == "AIPS PO" and inTab.keys:
         Obit.TablePOSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS PS" and inTab.keys:
+    elif tabtype == "AIPS PS" and inTab.keys:
         Obit.TablePSSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS SN" and inTab.keys:
+    elif tabtype == "AIPS SN" and inTab.keys:
         Obit.TableSNSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS SU" and inTab.keys:
+    elif tabtype == "AIPS SU" and inTab.keys:
         Obit.TableSUSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS TY" and inTab.keys:
+    elif tabtype == "AIPS TY" and inTab.keys:
         Obit.TableTYSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS VL" and inTab.keys:
+    elif tabtype == "AIPS VL" and inTab.keys:
         Obit.TableVLSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS VZ" and inTab.keys:
+    elif tabtype == "AIPS VZ" and inTab.keys:
         Obit.TableVZSetHeadKeys(inTab.me, inTab.keys)
-    elif tabtype=="AIPS WX" and inTab.keys:
+    elif tabtype == "AIPS WX" and inTab.keys:
         Obit.TableWXSetHeadKeys(inTab.me, inTab.keys)
     #
-    Obit.TableClose (inTab.me, err.me)
+    Obit.TableClose(inTab.me, err.me)
     # end PClose
 
-def PReadRow (inTab, rowno, err):
-    """ Read a specified row in a table and returns as a python Dict
+
+def PReadRow(inTab, rowno, err):
+    """Read a specified row in a table and returns as a python Dict
 
     Dict has keys:
        "Table name"  to give the name of the table
@@ -450,14 +465,15 @@ def PReadRow (inTab, rowno, err):
         raise TypeError("inTab MUST be a Python Obit Table")
     if not err.IsA():
         raise TypeError("err MUST be an OErr")
-    if err.isErr: # existing error?
+    if err.isErr:  # existing error?
         return None
     #
-    return Obit.TableReadRow (inTab.me, rowno, err.me)
+    return Obit.TableReadRow(inTab.me, rowno, err.me)
     # end PReadRow
 
-def PWriteRow (inTab, rowno, rowDict, err):
-    """ Write an image  persistent (disk) form from a specified Dict
+
+def PWriteRow(inTab, rowno, rowDict, err):
+    """Write an image  persistent (disk) form from a specified Dict
 
     Writes a single row
     inTab     = Python Table object
@@ -471,31 +487,33 @@ def PWriteRow (inTab, rowno, rowDict, err):
         raise TypeError("inTab MUST be a Python Obit Table")
     if not err.IsA():
         raise TypeError("err MUST be an OErr")
-    if err.isErr: # existing error?
+    if err.isErr:  # existing error?
         return
     #
-    Obit.TableWriteRow (inTab.me, rowno, rowDict, err.me)
+    Obit.TableWriteRow(inTab.me, rowno, rowDict, err.me)
     OErr.printErr(err)
     # end PWriteRow
 
-def PUnref (inTab):
-    """ Decrement reference count
+
+def PUnref(inTab):
+    """Decrement reference count
 
     Decrement reference count which will destroy object if it goes to zero
     Python object stays defined.
     inTab   = Python Table object
     """
     ################################################################
-     # Checks
+    # Checks
     if not inTab.IsA():
         raise TypeError("inTab MUST be a Python Obit Table")
 
     inTab.me = Obit.TableUnref(inTab.me)
     # end PUnref
 
-def PGetList (inTab):
-    """ Return the InfoList from a Table
-    
+
+def PGetList(inTab):
+    """Return the InfoList from a Table
+
     returns InfoList
     inTab    = input Python Table
     """
@@ -504,14 +522,15 @@ def PGetList (inTab):
     if not inTab.IsA():
         raise TypeError("inTab MUST be a Table")
     #
-    out    = InfoList.InfoList()
+    out = InfoList.InfoList()
     out.me = Obit.TableGetList(inTab.me)
     return out
     # end PGetList
 
-def PGetIOList (inTab):
-    """ Return the InfoList from a Table's IO member
-    
+
+def PGetIOList(inTab):
+    """Return the InfoList from a Table's IO member
+
     returns InfoList from IO member (disk resident version)
     if the IO member is not defined a None is returned.
     For most reliable results, this routine should be called when
@@ -523,14 +542,15 @@ def PGetIOList (inTab):
     if not inTab.IsA():
         raise TypeError("inTab MUST be a Table")
     #
-    out    = InfoList.InfoList()
+    out = InfoList.InfoList()
     out.me = Obit.TableGetIOList(inTab.me)
     return out
     # end PGetIOList
 
-def PGetDesc (inTab):
-    """ Return the TableDesc from a Table
-    
+
+def PGetDesc(inTab):
+    """Return the TableDesc from a Table
+
     returns TableDesc
     inTab    = input Python Table
     """
@@ -539,14 +559,15 @@ def PGetDesc (inTab):
     if not inTab.IsA():
         raise TypeError("inTab MUST be a Table")
     #
-    out    = TableDesc.TableDesc("TableDesc")
+    out = TableDesc.TableDesc("TableDesc")
     out.me = Obit.TableGetDesc(inTab.me)
     return out
     # end PGetDesc
 
-def PGetIODesc (inTab):
-    """ Return the TableDesc from a Table's IO member
-    
+
+def PGetIODesc(inTab):
+    """Return the TableDesc from a Table's IO member
+
     returns TableDesc from IO member (disk resident version)
     if the IO member is not defined a None is returned.
     For most reliable results, this routine should be called when
@@ -558,13 +579,14 @@ def PGetIODesc (inTab):
     if not inTab.IsA():
         raise TypeError("inTab MUST be a Table")
     #
-    out    = TableDesc.TableDesc("TableDesc")
+    out = TableDesc.TableDesc("TableDesc")
     out.me = Obit.TableGetIODesc(inTab.me)
     return out
     # end PGetDesc
 
-def PGetVer (inTab):
-    """ Get table version number
+
+def PGetVer(inTab):
+    """Get table version number
 
     returns table version number
     inTab    = input Python Table
@@ -577,8 +599,9 @@ def PGetVer (inTab):
     return Obit.TableGetVer(inTab.me)
     # end PGetVer
 
-def PIsA (inTab):
-    """ Tells if object thinks it's a Python Obit Table
+
+def PIsA(inTab):
+    """Tells if object thinks it's a Python Obit Table
 
     return True, False
     inTab    = input Python Table
@@ -589,13 +612,14 @@ def PIsA (inTab):
         return False
     #
     try:
-        return Obit.TableIsA(inTab.me)!=0
+        return Obit.TableIsA(inTab.me) != 0
     except:
         return False
     # end PIsA
 
-def PGetName (inTab):
-    """ Returns object name (label)
+
+def PGetName(inTab):
+    """Returns object name (label)
 
     return name string
     inTab    = input Python Table
@@ -608,8 +632,9 @@ def PGetName (inTab):
     return Obit.TableGetName(inTab.me)
     # end PGetName
 
-def PSort (inTab, colName, desc, err):
-    """ Sort a table of a column
+
+def PSort(inTab, colName, desc, err):
+    """Sort a table of a column
 
     inTab    = input Python Obit Table to sort
     colName  = Column name (e.g. "Time")
@@ -622,9 +647,8 @@ def PSort (inTab, colName, desc, err):
         raise TypeError("inTab MUST be a Table")
     if not err.IsA():
         raise TypeError("err MUST be an OErr")
-    if err.isErr: # existing error?
+    if err.isErr:  # existing error?
         return
     #
     Obit.TableUtilSort(inTab.me, colName, desc, err.me)
     # end PSort
-

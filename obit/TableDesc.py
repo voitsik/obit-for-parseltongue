@@ -1,5 +1,5 @@
 # $Id$
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 #  Copyright (C) 2005,2019
 #  Associated Universities, Inc. Washington DC, USA.
 #
@@ -24,14 +24,16 @@
 #                         National Radio Astronomy Observatory
 #                         520 Edgemont Road
 #                         Charlottesville, VA 22903-2475 USA
-#-----------------------------------------------------------------------
- 
+# -----------------------------------------------------------------------
+
 # Python shadow class to ObitTableDesc class
 from __future__ import absolute_import
-import Obit, _Obit, InfoList, OErr
+
+from . import InfoList, Obit, _Obit
+
 
 class TableDesc(Obit.TableDesc):
-    """ Python Obit Image descriptor class
+    """Python Obit Image descriptor class.
 
     This contains information about the structure of a table
 
@@ -41,32 +43,38 @@ class TableDesc(Obit.TableDesc):
     Dict      - (virtual) Python dictionary with contents of descriptor
                 Member Dict
     """
-    def __init__(self, name) :
+
+    def __init__(self, name):
         super(TableDesc, self).__init__()
         Obit.CreateTableDesc(self.this, name)
+
     def __del__(self, DeleteTableDesc=_Obit.DeleteTableDesc):
         DeleteTableDesc(self.this)
-    def __setattr__(self,name,value):
-        if name == "me" :
-            Obit.TableDesc_Set_me(self.this,value)
+
+    def __setattr__(self, name, value):
+        if name == "me":
+            Obit.TableDesc_Set_me(self.this, value)
             return
-        if name=="Dict":
-            return PSetDict(self,value)
+        if name == "Dict":
+            return PSetDict(self, value)
         self.__dict__[name] = value
-    def __getattr__(self,name):
-        if name == "me" : 
+
+    def __getattr__(self, name):
+        if name == "me":
             return Obit.TableDesc_Get_me(self.this)
         # Functions to return members
-        if name=="List":
+        if name == "List":
             return PGetList(self)
-        if name=="Dict":
+        if name == "Dict":
             return PGetDict(self)
         raise AttributeError(str(name))
+
     def __repr__(self):
         return "<C TableDesc instance>"
 
-def PGetDict (inTD):
-    """ Returns the contents of an TableDesc as a Python Dictionary
+
+def PGetDict(inTD):
+    """Return the contents of an TableDesc as a Python Dictionary.
 
     returns dictionary
     inTD = Python TableDesc to read
@@ -80,8 +88,8 @@ def PGetDict (inTD):
     # end PGetDict
 
 
-def PSetDict (inTD, inDict):
-    """ Copies the contents of a Python Dictionary to a TableDesc
+def PSetDict(inTD, inDict):
+    """Copy the contents of a Python Dictionary to a TableDesc.
 
     Only write descriptive, not structural values
     It's best if this was created by PGetDict.
@@ -96,8 +104,9 @@ def PSetDict (inTD, inDict):
     Obit.TableDescSetDict(inTD.me, inDict)
     # end PSetDict
 
-def PDef (inDict):
-    """  Create TableDesc from the contents of a Python Dictionary
+
+def PDef(inDict):
+    """Create TableDesc from the contents of a Python Dictionary.
 
     Returns new Table Descriptor
     inDict = Python dictionary with values, must be in the form produced
@@ -113,8 +122,9 @@ def PDef (inDict):
     return outTD
     # end PDef
 
-def PGetList (inDesc):
-    """  Get InfoList from TableDesc
+
+def PGetList(inDesc):
+    """Get InfoList from TableDesc.
 
     returns InfoList
     inDesc  = Python Obit input TableDesc
@@ -124,40 +134,40 @@ def PGetList (inDesc):
     if not PIsA(inDesc):
         raise TypeError("inDesc MUST be a Python Obit TableDesc")
     #
-    out    = InfoList.InfoList()
+    out = InfoList.InfoList()
     out.me = Obit.TableDescGetList(inDesc.me)
     return out
-    # end PGetList 
+    # end PGetList
 
-def PIsA (inTD):
-    """ Tells if the input really is a Python Obit TableDesc
+
+def PIsA(inTD):
+    """Tell if the input really is a Python Obit TableDesc.
 
     returns True or False
     inTD = Python TableDesc to test
     """
     ################################################################
-     # Checks
+    # Checks
     if not isinstance(inTD, TableDesc):
         return False
     #
-    return Obit.TableDescIsA(inTD.me)!=0
+    return Obit.TableDescIsA(inTD.me) != 0
     # end  PIsA
 
-def PUnref (inTD):
-    """ Decrement reference count
+
+def PUnref(inTD):
+    """Decrement reference count.
 
     Decrement reference count which will destroy object if it goes to zero
     Python object stays defined.
     inTD   = Python TableDesc object
     """
     ################################################################
-    if inTD==None:
+    if inTD is None:
         return
-     # Checks
+    # Checks
     if not PIsA(inTD):
         raise TypeError("inTD MUST be a Python Obit TableDesc")
 
     inTD.me = Obit.TableDescUnref(inTD.me)
     # end PUnref
-
-

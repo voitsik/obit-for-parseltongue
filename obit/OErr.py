@@ -27,14 +27,12 @@
 # -----------------------------------------------------------------------
 
 # Python shadow class to ObitErr class
-from __future__ import absolute_import
-from __future__ import print_function
 from . import Obit, InfoList, _Obit
 
 
 class OErr(Obit.OErr):
     """
-    Python ObitErr message and error stack
+    Python ObitErr message and error stack.
 
     This is an error stack class for obtaining tracebacks for error conditions.
     This is also the mechanism for passing informative messages.
@@ -43,11 +41,11 @@ class OErr(Obit.OErr):
     """
 
     def __init__(self):
-        super(OErr, self).__init__()
+        super().__init__()
         Obit.CreateOErr(self.this)
 
     def __del__(self, DeleteOErr=_Obit.DeleteOErr):
-        if _Obit != None:
+        if _Obit is not None:
             DeleteOErr(self.this)
 
     def __setattr__(self, name, value):
@@ -78,13 +76,13 @@ class OErr(Obit.OErr):
         return messages
 
     def Clear(self):
-        """ Clear Obit error stack """
+        """Clear Obit error stack."""
         PClear(self)
         # end Clear
 
     def IsA(self):
         """
-        Tells if input really a Python Obit OErr
+        Tells if input really a Python Obit OErr.
 
         return True, False
         * self   = Python OErr object
@@ -108,7 +106,7 @@ Fatal = 7
 
 def PIsErr(err):
     """
-    Tells if an error condition exists
+    Tell if an error condition exists.
 
     Returns True if error condition exists, else False
 
@@ -125,7 +123,7 @@ def PIsErr(err):
 
 def PInit(err, prtLv=0, taskLog="    "):
     """
-    Initializes logging
+    Initialize logging.
 
     * err      = Python Obit Error/message stack to init
     * prtLv    = Message print level, 0=little, 5=LOTS
@@ -145,7 +143,7 @@ def PInit(err, prtLv=0, taskLog="    "):
 
 def PClear(err):
     """
-    Clear Obit error stack
+    Clear Obit error stack.
 
     * err      = Python Obit Error/message stack
     """
@@ -159,7 +157,7 @@ def PClear(err):
 
 def PSet(err):
     """
-    Set Obit error flag
+    Set Obit error flag.
 
     * err      = Python Obit Error/message stack
     """
@@ -173,7 +171,7 @@ def PSet(err):
 
 def PLog(err, eCode, message):
     """
-    Add message To Obit Error/message stack
+    Add message To Obit Error/message stack.
 
     * err      = Python Obit Error/message stack
     * eCode    = error code defined above:
@@ -190,7 +188,7 @@ def PLog(err, eCode, message):
 
 def printErr(err):
     """
-    Prints Obit error stack
+    Print Obit error stack.
 
     * err      = Python Obit Error/message stack
     """
@@ -204,7 +202,7 @@ def printErr(err):
 
 def printErrMsg(err, message="Error"):
     """
-    Prints Obit error stack and throws runtime exception on error
+    Print Obit error stack and throws runtime exception on error.
 
     * err     = Python Obit Error/message stack
     * message = message string for exception
@@ -223,7 +221,7 @@ def printErrMsg(err, message="Error"):
 
 def OErrIsA(err):
     """
-    Tells if object thinks it's a Python ObitErr
+    Tell if object thinks it's a Python ObitErr.
 
     return true, false (1,0)
 
@@ -239,9 +237,7 @@ def OErrIsA(err):
 
 
 def Bomb():
-    """
-    Throws an exception to stop the debugger
-    """
+    """Throw an exception to stop the debugger."""
     ################################################################
     #
     Obit.Bomb()

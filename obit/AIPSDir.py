@@ -1,6 +1,6 @@
-""" Python Obit AIPS directory utilities """
+"""Python Obit AIPS directory utilities."""
 # $Id$
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 #  Copyright (C) 2004-2019
 #  Associated Universities, Inc. Washington DC, USA.
 #
@@ -25,20 +25,29 @@
 #                         National Radio Astronomy Observatory
 #                         520 Edgemont Road
 #                         Charlottesville, VA 22903-2475 USA
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 
-from __future__ import absolute_import
-from __future__ import print_function
-from six.moves import range
+from __future__ import absolute_import, print_function
+
+import os
+import pydoc
+import re
+
+# Python interface to AIPS directory utilities
+from . import UV, Image, Obit, OErr, OSystem
+
+# from six.moves import range
+
+
 def ehex(n, width=0, padding=None):
     """
     Convert a number into "extended hex".
-    
+
     Returns the extended hex presentation for N, optionally padding it
     up to WIDTH with PADDING.
     """
-    ehex_digits = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    result = ''
+    ehex_digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    result = ""
 
     while n > 0:
         result = ehex_digits[n % len(ehex_digits)] + result
@@ -47,7 +56,7 @@ def ehex(n, width=0, padding=None):
         continue
 
     # Pad if requested to do so.
-    if padding != None:
+    if padding is not None:
         while width > 0:
             result = str(padding) + result
             width -= 1
@@ -55,41 +64,41 @@ def ehex(n, width=0, padding=None):
         pass
 
     return result
+
+
 # end ehex
 
-# Python interface to AIPS directory utilities
-import Obit, OSystem, OErr, pydoc, string, re, os, Image, UV
 global AIPSdisks, nAIPS
 nAIPS = 0
 AIPSdisks = []
 # Some routines need ObitTalk AIPS info
 try:
     import AIPS
+
     # Get AIPS disks Info from ObitTalk
-    nAIPS = len(AIPS.disks)-1
-    for i in range(1,nAIPS+1):
+    nAIPS = len(AIPS.disks) - 1
+    for i in range(1, nAIPS + 1):
         AIPSdisks.append(AIPS.disks[i].dirname)
-except:
+except ImportError:
     # Lookup disk info
     for disk in range(1, 35):
-        area = 'DA' + ehex(disk, 2, '0')
+        area = "DA" + ehex(disk, 2, "0")
         dir = os.getenv(area)
         if dir:
             AIPSdisks.append(dir)
             nAIPS = len(AIPSdisks)
-else:
-    pass
 
 # Get list of AIPS disks
 # Catalog types
 AllType = 0
-MAType  = 1
-UVType  = 2
+MAType = 1
+UVType = 2
+
 
 def Amatch(tmpl, strn):
     """
-    Test for AIPS match of string
-    
+    Test for AIPS match of string.
+
     A "?" matches one of any character, "*" matches any string
     all blanks matches anything
     Returns True or False
@@ -98,21 +107,22 @@ def Amatch(tmpl, strn):
     * strng    = String to search for occurance of tmpl
     """
     # All blank?
-    if re.match("^ *$",tmpl):
+    if re.match("^ *$", tmpl):
         return True
     # Full test
-    t   = re.escape(tmpl.strip())
-    tt  = t.replace("\\?",".")
-    ttt = tt.replace("\\*",".*")
-    pat = "^"+ttt+"$"
-    m = re.match(pat,strn.strip())
-    return m!=None
+    t = re.escape(tmpl.strip())
+    tt = t.replace("\\?", ".")
+    ttt = tt.replace("\\*", ".*")
+    pat = "^" + ttt + "$"
+    m = re.match(pat, strn.strip())
+    return m is not None
     # end Amatch
 
-def WantDir(line, type='  ', Aname=None, Aclass=None, Aseq=0):
+
+def WantDir(line, type="  ", Aname=None, Aclass=None, Aseq=0):
     """
-    Test if Catalog entry desired
-    
+    Test if Catalog entry desired.
+
     Compare PInfo catalog entry to see if it's selected
     Strings use AIPS wild cards:
 
@@ -121,7 +131,7 @@ def WantDir(line, type='  ', Aname=None, Aclass=None, Aseq=0):
         '?'    one of any character
         "*"    arbitrary string
         =====  ====================
-        
+
     Returns True or False
 
     * line      = catalog entry description from PInfo
@@ -131,13 +141,13 @@ def WantDir(line, type='  ', Aname=None, Aclass=None, Aseq=0):
     * Aseq      = desired sequence, 0=> any
     """
     # Valid entry?
-    if line==None:
+    if line is None:
         return False
     # Type match
-    if (type!="  ") and (type!=line[26:28]) :
+    if (type != "  ") and (type != line[26:28]):
         return False
     # Sequence match
-    if (Aseq>0) and (Aseq!=int(line[20:25])):
+    if (Aseq > 0) and (Aseq != int(line[20:25])):
         return False
     # Name and class defaults
     want = True
@@ -148,10 +158,11 @@ def WantDir(line, type='  ', Aname=None, Aclass=None, Aseq=0):
     return want
     # end WantDir
 
+
 def PFindCNO(disk, user, Aname, Aclass, Atype, seq, err):
     """
-    Lookup AIPS catalog slot number
-    
+    Lookup AIPS catalog slot number.
+
     returns AIPS cno
 
     * disk     = AIPS disk number
@@ -173,10 +184,11 @@ def PFindCNO(disk, user, Aname, Aclass, Atype, seq, err):
     return ret
     # end PFindCNO
 
+
 def PTestCNO(disk, user, Aname, Aclass, Atype, seq, err):
     """
-    Test if AIPS file exists
-    
+    Test if AIPS file exists.
+
     returns AIPS cno, -1 => not found
     * disk     = AIPS disk number
     * user     = AIPS user number
@@ -184,7 +196,7 @@ def PTestCNO(disk, user, Aname, Aclass, Atype, seq, err):
     * Aclass   = AIPS class name
     * Atype    = 'MA' or 'UV' for image or uv data
     * seq      = AIPS sequence number
-    * err      = Python Obit Error/message stack, 
+    * err      = Python Obit Error/message stack,
     """
     ################################################################
     # Checks
@@ -203,10 +215,11 @@ def PTestCNO(disk, user, Aname, Aclass, Atype, seq, err):
     return ret
     # end PTestCNO
 
+
 def PHiSeq(disk, user, Aname, Aclass, Atype, err):
     """
-    find highest sequence number for AIPS name, class...
-    
+    Find highest sequence number for AIPS name, class...
+
     returns highest sequence number, -1 => not found
 
     * disk     = AIPS disk number
@@ -214,7 +227,7 @@ def PHiSeq(disk, user, Aname, Aclass, Atype, err):
     * Aname    = AIPS file name
     * Aclass   = AIPS class name
     * Atype    = 'MA' or 'UV' for image or uv data
-    * err      = Python Obit Error/message stack, 
+    * err      = Python Obit Error/message stack,
     """
     ################################################################
     # Checks
@@ -230,8 +243,8 @@ def PHiSeq(disk, user, Aname, Aclass, Atype, err):
 
 def PAlloc(disk, user, Aname, Aclass, Atype, seq, err):
     """
-    Allocate AIPS catalog slot number
-    
+    Allocate AIPS catalog slot number.
+
     returns AIPS cno
 
     * disk     = AIPS disk number
@@ -253,10 +266,11 @@ def PAlloc(disk, user, Aname, Aclass, Atype, seq, err):
     return ret
     # end PAlloc
 
+
 def PRemove(disk, user, cno, err):
     """
-    Deallocate AIPS catalog slot number
-    
+    Deallocate AIPS catalog slot number.
+
     * disk     = AIPS disk number
     * user     = AIPS user number
     * cno      = AIPS catalog slot to deassign
@@ -272,11 +286,12 @@ def PRemove(disk, user, cno, err):
         OErr.printErrMsg(err, "Error removing AIPS catalog entry")
     return ret
     # end PRemove
-    
+
+
 def PNumber(disk, user, err):
     """
-    Return highest current allowed AIPS catalog Slot number
-    
+    Return highest current allowed AIPS catalog Slot number.
+
     * disk     = AIPS disk number
     * user     = AIPS user number
     * err      = Python Obit Error/message stack
@@ -292,10 +307,11 @@ def PNumber(disk, user, err):
     return ret
     # end PNumber
 
+
 def PInfo(disk, user, cno, err):
     """
-    Get information for a  AIPS catalog slot number
-    
+    Get information for a  AIPS catalog slot number.
+
     Returned string s:
         ======  =============
         Aname   s[0:12]
@@ -303,7 +319,7 @@ def PInfo(disk, user, cno, err):
         Aseq    int(s[20:25])
         Atype   s[26:28]
         ======  =============
-    
+
     returns string describing entry, None=>empty
 
     * disk     = AIPS disk number
@@ -322,10 +338,11 @@ def PInfo(disk, user, cno, err):
     return ret
     # end PInfo
 
+
 def PSetDir(disk, newName, err, URL=None):
     """
-    Set the directory name for a given AIPS directory
-    
+    Set the directory name for a given AIPS directory.
+
     returns disk number actually used
 
     * disk     = AIPS disk number, <=0 => assign
@@ -343,22 +360,30 @@ def PSetDir(disk, newName, err, URL=None):
         OErr.printErrMsg(err, "Error setting AIPS directory name")
     AIPSdisks.append(newName)
     nAIPS = len(AIPSdisks)
-    if (disk<=0):
+    if disk <= 0:
         try:
             AIPS.AIPS.disks.append(AIPS.AIPSDisk(URL, retDisk, newName))
-        except:
+        except Exception:
             pass
-        else:
-            pass
-    return retDisk;
+
+    return retDisk
     # end PSetDir
 
 
-def PListDir(disk, err, type = "  ", first=1, last=1000,
-             Aname=None, Aclass=None, Aseq=0, giveList=False):
+def PListDir(
+    disk,
+    err,
+    type="  ",
+    first=1,
+    last=1000,
+    Aname=None,
+    Aclass=None,
+    Aseq=0,
+    giveList=False,
+):
     """
-    List AIPS directory
-    
+    List AIPS directory.
+
     Entries can be selected using Aname, Aclass, Aseq, using AIPS wildcards
     A "?" matches one of any character, "*" matches any string
     all blanks matches anything
@@ -380,7 +405,7 @@ def PListDir(disk, err, type = "  ", first=1, last=1000,
         raise TypeError("err MUST be an OErr")
     #
     user = OSystem.PGetAIPSuser()
-    ncno = PNumber (disk, user, err)
+    ncno = PNumber(disk, user, err)
     OErr.printErrMsg(err, "Error getting number of cnos")
     # Init output
     if giveList:
@@ -388,28 +413,38 @@ def PListDir(disk, err, type = "  ", first=1, last=1000,
     else:
         olist = None
 
-    mincno = first;
-    maxcno = min (ncno, last)
-    dirlist = "AIPS Directory listing for disk "+str(disk)+"\n"
+    mincno = first
+    maxcno = min(ncno, last)
+    dirlist = "AIPS Directory listing for disk " + str(disk) + "\n"
     for cno in range(mincno, maxcno):
-        line=PInfo(disk, user, cno, err);
+        line = PInfo(disk, user, cno, err)
         if WantDir(line, type=type, Aname=Aname, Aclass=Aclass, Aseq=Aseq):
             OErr.printErrMsg(err, "Error reading entry")
-            dirlist = dirlist+str(cno).rjust(3)+" "+line+"\n"
+            dirlist = dirlist + str(cno).rjust(3) + " " + line + "\n"
             if giveList:
                 olist.append(cno)
     if err.isErr:
         OErr.printErrMsg(err, "Error getting AIPS directory listing")
-    # User pager 
+    # User pager
     pydoc.ttypager(dirlist)
     return olist
     # end PListDir
 
-def PListCat(cat, disk, type = "  ", first=1, last=1000,
-             Aname=None, Aclass=None, Aseq=0, giveList=False):
+
+def PListCat(
+    cat,
+    disk,
+    type="  ",
+    first=1,
+    last=1000,
+    Aname=None,
+    Aclass=None,
+    Aseq=0,
+    giveList=False,
+):
     """
-    List AIPS directory given as entries in cat
-    
+    List AIPS directory given as entries in cat.
+
     Entries can be selected using Aname, Aclass, Aseq, using AIPS wildcards
     A "?" matches one of any character, "*" matches any string
     all blanks matches anything
@@ -440,12 +475,12 @@ def PListCat(cat, disk, type = "  ", first=1, last=1000,
     else:
         olist = None
     ncno = len(cat)
-    mincno = first;
-    maxcno = min (ncno, last)
-    dirlist = "AIPS Directory listing for disk "+str(disk)+"\n"
-    for (cno,line) in cat:
+    mincno = first
+    maxcno = min(ncno, last)
+    dirlist = "AIPS Directory listing for disk " + str(disk) + "\n"
+    for (cno, line) in cat:
         if WantDir(line, type=type, Aname=Aname, Aclass=Aclass, Aseq=Aseq):
-            dirlist = dirlist+str(cno).rjust(3)+" "+line+"\n"
+            dirlist = dirlist + str(cno).rjust(3) + " " + line + "\n"
             if giveList:
                 olist.append(cno)
     # Use pager if giveList is False
@@ -454,10 +489,11 @@ def PListCat(cat, disk, type = "  ", first=1, last=1000,
     return olist
     # end PListCat
 
-def PAllDest(disk, err, Atype = "  ",  Aname=None, Aclass=None, Aseq=0):
+
+def PAllDest(disk, err, Atype="  ", Aname=None, Aclass=None, Aseq=0):
     """
-    Delete selected AIPS catalog entries
-    
+    Delete selected AIPS catalog entries.
+
     Entries can be selected using Atype, Aname, Aclass, Aseq,
     using AIPS wildcards
     A "?" matches one of any character, "*" matches any string
@@ -478,43 +514,52 @@ def PAllDest(disk, err, Atype = "  ",  Aname=None, Aclass=None, Aseq=0):
     if not OErr.OErrIsA(err):
         raise TypeError("err MUST be an OErr")
     #
-    if (disk<0) or (disk>(len(AIPS.AIPS.disks)+1)):
-        raise RuntimeError("Disk "+str(disk)+" out of range")
+    if (disk < 0) or (disk > (len(AIPS.AIPS.disks) + 1)):
+        raise RuntimeError("Disk " + str(disk) + " out of range")
     # disks
-    if disk>0:
-        disks=[disk]
+    if disk > 0:
+        disks = [disk]
     else:
-        disks= list(range(1,len(AIPS.AIPS.disks)))
+        disks = list(range(1, len(AIPS.AIPS.disks)))
     user = OSystem.PGetAIPSuser()
     # loop over disks
     for dsk in disks:
-        ncno = PNumber (dsk, user, err)
+        ncno = PNumber(dsk, user, err)
         OErr.printErrMsg(err, "Error getting number of cnos")
-        
+
         for cno in range(1, ncno):
-            line=PInfo(dsk, user, cno, err);
+            line = PInfo(dsk, user, cno, err)
             OErr.printErrMsg(err, "Error reading entry")
-            if WantDir(line, type=Atype, Aname=Aname, Aclass=Aclass,
-                       Aseq=Aseq):
+            if WantDir(line, type=Atype, Aname=Aname, Aclass=Aclass, Aseq=Aseq):
                 # parse directory string
                 Tname = line[0:12]
                 Tclass = line[13:19]
                 Tseq = int(line[20:25])
                 Ttype = line[26:28]
                 z = None
-                if Ttype == 'MA':
-                    z = Image.newPAImage("Zap image", Tname, Tclass, dsk, Tseq, True, err, \
-                               verbose=False)
-                    print("Zap AIPS Image",Tname, Tclass, dsk, Tseq)
-                elif Ttype == 'UV':
-                    z = UV.newPAUV("Zap UV data", Tname, Tclass, dsk, Tseq, True, err, \
-                                   verbose=False)
-                    print("Zap AIPS UV",Tname, Tclass, dsk, Tseq)
+                if Ttype == "MA":
+                    z = Image.newPAImage(
+                        "Zap image", Tname, Tclass, dsk, Tseq, True, err, verbose=False
+                    )
+                    print("Zap AIPS Image", Tname, Tclass, dsk, Tseq)
+                elif Ttype == "UV":
+                    z = UV.newPAUV(
+                        "Zap UV data",
+                        Tname,
+                        Tclass,
+                        dsk,
+                        Tseq,
+                        True,
+                        err,
+                        verbose=False,
+                    )
+                    print("Zap AIPS UV", Tname, Tclass, dsk, Tseq)
                 # Delete entry
                 if z:
                     z.Zap(err)
                     del z
         # end loop over cno
     # end loop over disk
-# end PAllDest
 
+
+# end PAllDest

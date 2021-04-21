@@ -27,12 +27,11 @@
 # -----------------------------------------------------------------------
 
 # Python shadow class to ObitSystem class
-from __future__ import absolute_import
-from . import Obit, _Obit
+from . import Obit, _Obit, OErr
 
 
 class OSystem(Obit.OSystem):
-    """Obit System Object class
+    """Obit System Object class.
 
     An Obit system is needed to access persistent forms of data objects.
     In particular, the ObitSystem keeps track of and scratch files creatd and deletes
@@ -80,7 +79,7 @@ class OSystem(Obit.OSystem):
         F_FALSE,
         err,
     ):
-        super(OSystem, self).__init__()
+        super().__init__()
         Obit.CreateOSystem(
             self.this,
             pgmName,
@@ -95,7 +94,7 @@ class OSystem(Obit.OSystem):
             err.me,
         )
         if err.isErr:
-            printErrMsg(err, "Error in Obit initialization")
+            OErr.printErrMsg(err, "Error in Obit initialization")
         # save info visible to python
         self.pgmName = pgmName
         self.pgmNumber = pgmNumber
@@ -104,7 +103,7 @@ class OSystem(Obit.OSystem):
 
     def __del__(self, DeleteOSystem=_Obit.DeleteOSystem):
         # Better not shutdown?
-        if _Obit != None and self != None:
+        if _Obit is not None and self is not None:
             DeleteOSystem(self.this)
 
     def __setattr__(self, name, value):
@@ -123,7 +122,7 @@ class OSystem(Obit.OSystem):
 
 def Shutdown(inObj=None):
     """
-    Shuts down Obit in all known IO related modules
+    Shut down Obit in all known IO related modules.
 
     * inObj   = Python Obit System object, defaults to OSystem.ObitSys
     """
@@ -140,7 +139,7 @@ def Shutdown(inObj=None):
 
 def PIsInit():
     """
-    Tells if Obit initialized
+    Tell if Obit initialized.
 
     returns True if Obit initialized else False
     """
@@ -152,7 +151,7 @@ def PIsInit():
 
 def PGetAIPSuser():
     """
-    Tells AIPS user number
+    Tell AIPS user number.
 
     returns AIPS user number
     """
@@ -163,7 +162,7 @@ def PGetAIPSuser():
 
 def PSetAIPSuser(user):
     """
-    Sets  AIPS user number
+    Set  AIPS user number.
 
     * user = AIPS user number
     """
@@ -174,7 +173,7 @@ def PSetAIPSuser(user):
 
 def PGetPgmName():
     """
-    Tells Program name
+    Tell Program name.
 
     returns name as character string
     """
@@ -185,7 +184,7 @@ def PGetPgmName():
 
 def PToday():
     """
-    Get today's date in string suitable for descriptors
+    Get today's date in string suitable for descriptors.
 
     returns date as character string
     """
@@ -196,7 +195,7 @@ def PToday():
 
 def PSetPgmName(pgmName):
     """
-    Sets Program name
+    Set Program name.
 
     * pgmName = new program name
     """
@@ -207,7 +206,7 @@ def PSetPgmName(pgmName):
 
 def PGetPgmNumber():
     """
-    Tells Program number
+    Tell Program number.
 
     returns number
     """
@@ -218,7 +217,7 @@ def PGetPgmNumber():
 
 def PSetPgmNumber(pgmNumber):
     """
-    Sets Program number
+    Set Program number.
 
     * pgmNumber = new program number
     """
@@ -228,9 +227,7 @@ def PSetPgmNumber(pgmNumber):
 
 
 def PMemPrint():
-    """
-    Prints contents of Obit Memory allocation on stdout
-    """
+    """Print contents of Obit Memory allocation on stdout."""
     ################################################################
     #
     Obit.MemPrint()
@@ -239,7 +236,7 @@ def PMemPrint():
 
 def PAllowThreads(nThreads):
     """
-    Sets maximum number of threads in an Obit thread pool
+    Set maximum number of threads in an Obit thread pool.
 
     nThreads maximum number of threads in an Obit thread pool
     """
@@ -250,7 +247,7 @@ def PAllowThreads(nThreads):
 
 def PGetNoThreads():
     """
-    Tells Number of Threads enabled in Obit
+    Tell Number of Threads enabled in Obit.
 
     returns number
     """

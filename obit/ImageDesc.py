@@ -1,6 +1,6 @@
-""" Python Obit Image descriptor class
+"""Python Obit Image descriptor class.
 
-This contains information about the observations and the size and 
+This contains information about the observations and the size and
 coordinates in the image.
 Also included are the current location of the image in an ObitImage
 image buffer and the specified subimaging parameters.
@@ -15,7 +15,7 @@ Member List (readonly)
   Member Dict
 """
 # $Id$
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 #  Copyright (C) 2004-2019
 #  Associated Universities, Inc. Washington DC, USA.
 #
@@ -40,49 +40,57 @@ Member List (readonly)
 #                         National Radio Astronomy Observatory
 #                         520 Edgemont Road
 #                         Charlottesville, VA 22903-2475 USA
-#-----------------------------------------------------------------------
- 
+# -----------------------------------------------------------------------
+
 # Python shadow class to ObitImageDesc class
-from __future__ import absolute_import
-from __future__ import print_function
-import Obit, _Obit, InfoList, OErr, string, math
-from six.moves import range
+from __future__ import absolute_import, print_function
+
+import math
+
+from . import InfoList, Obit, OErr, _Obit
+
+# from six.moves import range
+
 
 class ImageDesc(Obit.ImageDesc):
-    """
-    Python Obit Image descriptor class
-    """
-    def __init__(self, name) :
+    """Python Obit Image descriptor class."""
+
+    def __init__(self, name):
         super(ImageDesc, self).__init__()
         Obit.CreateImageDesc(self.this, name)
+
     def __del__(self, DeleteImageDesc=_Obit.DeleteImageDesc):
-        if _Obit!=None:
+        if _Obit is not None:
             DeleteImageDesc(self.this)
-    def __setattr__(self,name,value):
-        if name == "me" :
-            Obit.ImageDesc_Set_me(self.this,value)
+
+    def __setattr__(self, name, value):
+        if name == "me":
+            Obit.ImageDesc_Set_me(self.this, value)
             return
-        if name=="Dict":
-            return PSetDict(self,value)
+        if name == "Dict":
+            return PSetDict(self, value)
         self.__dict__[name] = value
-    def __getattr__(self,name):
-        if name == "me" : 
+
+    def __getattr__(self, name):
+        if name == "me":
             return Obit.ImageDesc_Get_me(self.this)
         # Functions to return members
-        if name=="List":
+        if name == "List":
             return PGetList(self)
-        if name=="Dict":
+        if name == "Dict":
             return PGetDict(self)
         raise AttributeError(str(name))
+
     def __repr__(self):
         return "<C ImageDesc instance>"
-    
-def PDefault (name):
-    """ 
+
+
+def PDefault(name):
+    """
     Default ImageDesc
-    
+
     returns new ImageDesc
-    
+
     * name = optional name for object
     """
     ################################################################
@@ -91,10 +99,11 @@ def PDefault (name):
     return out
     # end PDefault
 
-def PCopyDesc (inID, outID, err):
+
+def PCopyDesc(inID, outID, err):
     """
     Copy the descriptive information from one descriptor to another
-    
+
     Structural values not copied.
 
     * inID    = Python Obit ImageDesc for input
@@ -110,15 +119,16 @@ def PCopyDesc (inID, outID, err):
     if not OErr.OErrIsA(err):
         raise TypeError("err MUST be an OErr")
     #
-    Obit.ImageDescCopyDesc (inID.me, outID.me, err.me)
+    Obit.ImageDescCopyDesc(inID.me, outID.me, err.me)
     if err.isErr:
         OErr.printErrMsg(err, "Error copying Image descriptor")
     # end PCopyDesc
 
-def POverlap (inID1, inID2, err):
+
+def POverlap(inID1, inID2, err):
     """
     Determine if there is any overlap between images
-    
+
     Compares ImageDesc objects to see if the associated
     images overlap on the sky.
     Returns True if so sles False
@@ -136,16 +146,17 @@ def POverlap (inID1, inID2, err):
     if not OErr.OErrIsA(err):
         raise TypeError("err MUST be an OErr")
     #
-    res = Obit.ImageDescOverlap (inID1.me, inID2.me, err.me)
+    res = Obit.ImageDescOverlap(inID1.me, inID2.me, err.me)
     if err.isErr:
         OErr.printErrMsg(err, "Error determining overlap")
-    return res!=0
+    return res != 0
     # end POverlap
 
-def PCvtPixel (inID, inPixel, outID, err):
+
+def PCvtPixel(inID, inPixel, outID, err):
     """
     Return pixel location in outID corresponding to pixel inPixel in inID
-    
+
     returns array of 2 floats giving pixel position in outID.
 
     * inID    = Python Obit ImageDesc for input
@@ -163,22 +174,23 @@ def PCvtPixel (inID, inPixel, outID, err):
     if not OErr.OErrIsA(err):
         raise TypeError("err MUST be an OErr")
     if inPixel[0].__class__ != float:
-        print("class is" , inPixel[0].__class__)
+        print("class is", inPixel[0].__class__)
         raise TypeError("inPixel MUST be float")
     if len(inPixel) < 2:
         raise RuntimeError("inPixel has fewer then 2 entries")
     #
-    outTmp = Obit.ImageDescCvtPixel (inID.me, outID.me, inPixel, err.me)
+    outTmp = Obit.ImageDescCvtPixel(inID.me, outID.me, inPixel, err.me)
     if err.isErr:
         OErr.printErrMsg(err, "Error converting pixel location")
     out = outTmp[0:2]
     return out
     # end PCvtPixel
 
-def PGetPixel (inID, inPos, err):
+
+def PGetPixel(inID, inPos, err):
     """
     Return pixel location in inID corresponding position inPos
-    
+
     returns array of 2 floats giving pixel position in outID.
 
     * inID    = Python Obit ImageDesc for input
@@ -192,22 +204,23 @@ def PGetPixel (inID, inPos, err):
     if not OErr.OErrIsA(err):
         raise TypeError("err MUST be an OErr")
     if inPos[0].__class__ != float:
-        print("class is" , inPos[0].__class__)
+        print("class is", inPos[0].__class__)
         raise TypeError("inPos MUST be float")
     if len(inPos) < 2:
         raise RuntimeError("inPos has fewer then 2 entries")
     #
-    outTmp = Obit.ImageDescGetPixel (inID.me, inPos, err.me)
+    outTmp = Obit.ImageDescGetPixel(inID.me, inPos, err.me)
     if err.isErr:
         OErr.printErrMsg(err, "Error determining pixel")
     out = outTmp[0:2]
     return out
     # end PGetPixel
 
-def PGetPos (inID, inPixel, err):
+
+def PGetPos(inID, inPixel, err):
     """
     Return position of pixel inPixel in inID
-    
+
     returns array of 2 floats giving (RA, Dec) in deg of pixel inPixel
 
     * inID    = Python Obit ImageDesc for input
@@ -222,22 +235,23 @@ def PGetPos (inID, inPixel, err):
     if not OErr.OErrIsA(err):
         raise TypeError("err MUST be an OErr")
     if inPixel[0].__class__ != float:
-        print("class is" , inPixel[0].__class__)
+        print("class is", inPixel[0].__class__)
         raise TypeError("inPixel MUST be float")
     if len(inPixel) < 2:
         raise RuntimeError("inPixel has fewer then 2 entries")
     #
-    outTmp = Obit.ImageDescGetPos (inID.me, inPixel, err.me)
+    outTmp = Obit.ImageDescGetPos(inID.me, inPixel, err.me)
     if err.isErr:
         OErr.printErrMsg(err, "Error converting pixel location to position")
     out = outTmp[0:2]
     return out
     # end PGetPos
 
-def PGetDict (inID):
+
+def PGetDict(inID):
     """
     Returns the contents of an ImageDesc as a Python Dictionary
-    
+
     returns dictionary
 
     * inID = Python ImageDesc to read
@@ -251,10 +265,10 @@ def PGetDict (inID):
     # end PGetDict
 
 
-def PSetDict (inID, inDict):
+def PSetDict(inID, inDict):
     """
     Copies the contents of a Python Dictionary to an ImageDesc
-    
+
     No type or dimension checking.  Not all values are writeable.
     It's best if this was created by PGetDict.
 
@@ -269,7 +283,8 @@ def PSetDict (inID, inDict):
     Obit.ImageDescSetDict(inID.me, inDict)
     # end PSetDict
 
-def PHeader (inID):
+
+def PHeader(inID):
     """
     Print the contents of a descriptor
 
@@ -284,65 +299,89 @@ def PHeader (inID):
     PHeaderDict(dict)
     # end PHeader
 
-def PHeaderDict (dict):
+
+def PHeaderDict(dict):
     """
     Print the contents of a descriptor as python dict
 
     * dict   = Python ImageDesc to print as python dict
     """
     ################################################################
-    print("Object: %8s   Origin: %8s" % \
-          (dict["object"], dict["origin"])) #"date origin
-    print("Observed: %8s Telescope:  %8s Created: %8s" % \
-          (dict["obsdat"],dict["teles"],dict["date"]))
-    print("Observer: %8s   Instrument: %8s " % \
-          (dict["observer"],dict["instrume"]))
-    print("Minimum = %12.5g  Maximum =  %12.5g %8s" % \
-          (dict["minval"],dict["maxval"],dict["bunit"]))
+    print(
+        "Object: %8s   Origin: %8s" % (dict["object"], dict["origin"])
+    )  # "date origin
+    print(
+        "Observed: %8s Telescope:  %8s Created: %8s"
+        % (dict["obsdat"], dict["teles"], dict["date"])
+    )
+    print("Observer: %8s   Instrument: %8s " % (dict["observer"], dict["instrume"]))
+    print(
+        "Minimum = %12.5g  Maximum =  %12.5g %8s"
+        % (dict["minval"], dict["maxval"], dict["bunit"])
+    )
     if dict["areBlanks"]:
         print("Image contains magic value blanking")
     print("--------------------------------------------------------------")
     print("Type    Pixels   Coord value     at Pixel     Coord incr   Rotat")
     i = -1
     for ctype in dict["ctype"]:
-        i = i+1
+        i = i + 1
         if ctype != "        ":
             # Conversion on some types
-            stuff =  PPoslabel (ctype, dict["crval"][i], dict["cdelt"][i])
-            print("%8s%6d%16s%11.2f%15s%8.2f" % \
-                  (ctype, dict["inaxes"][i], stuff["crval"], dict["crpix"][i], \
-                  stuff["cdelt"] , dict["crota"][i]))
+            stuff = PPoslabel(ctype, dict["crval"][i], dict["cdelt"][i])
+            print(
+                "%8s%6d%16s%11.2f%15s%8.2f"
+                % (
+                    ctype,
+                    dict["inaxes"][i],
+                    stuff["crval"],
+                    dict["crpix"][i],
+                    stuff["cdelt"],
+                    dict["crota"][i],
+                )
+            )
     print("--------------------------------------------------------------")
-    print("Coordinate equinox %6.1f  Coordinate epoch %7.2f" % \
-          (dict["equinox"], dict["epoch"]))
-    print("Observed RA %16s Observed Dec %15s" % \
-          (PRA2HMS(dict["obsra"]),  PDec2DMS(dict["obsdec"])))
-    if dict["xshift"]!=0.0 or dict["yshift"]!=0.0:
-        print("Phase shifted in X %10.3f in Y %10.3f deg" % \
-              (dict["xshift"], dict["yshift"]))
+    print(
+        "Coordinate equinox %6.1f  Coordinate epoch %7.2f"
+        % (dict["equinox"], dict["epoch"])
+    )
+    print(
+        "Observed RA %16s Observed Dec %15s"
+        % (PRA2HMS(dict["obsra"]), PDec2DMS(dict["obsdec"]))
+    )
+    if dict["xshift"] != 0.0 or dict["yshift"] != 0.0:
+        print(
+            "Phase shifted in X %10.3f in Y %10.3f deg"
+            % (dict["xshift"], dict["yshift"])
+        )
     if not dict["do3D"]:
-        print("2D Image with pixel offsets %8.2f, %8.2f" % \
-              (dict["xpixoff"], dict["ypixoff"]))
-    if dict["niter"]>0:
+        print(
+            "2D Image with pixel offsets %8.2f, %8.2f"
+            % (dict["xpixoff"], dict["ypixoff"])
+        )
+    if dict["niter"] > 0:
         print("no. Comp %8d" % dict["niter"])
-    if dict["beamMaj"]>0.0:
-        print("Clean Beam %10g x %10g asec, PA %7.1f deg." % \
-              (3600.0*dict["beamMaj"], 3600.0*dict["beamMin"], \
-               dict["beamPA"]))
-    VelDef  = dict["VelDef"]
+    if dict["beamMaj"] > 0.0:
+        print(
+            "Clean Beam %10g x %10g asec, PA %7.1f deg."
+            % (3600.0 * dict["beamMaj"], 3600.0 * dict["beamMin"], dict["beamPA"])
+        )
+    VelDef = dict["VelDef"]
     VelDefStr = ["LSR", "Helio", "Observer"]
-    VelType  = dict["VelDef"]
+    VelType = dict["VelDef"]
     VelTypeStr = ["Optical", "radio"]
-    print("Rest freq %12g Vel type: %s,  wrt  %s" % \
-          (dict["restFreq"], VelDefStr[VelDef-1], VelTypeStr[VelType]))
-    print("Alt ref value %12.5g  wrt pixel %8.2f" % \
-          (dict["altRef"], dict["altCrpix"]))
+    print(
+        "Rest freq %12g Vel type: %s,  wrt  %s"
+        % (dict["restFreq"], VelDefStr[VelDef - 1], VelTypeStr[VelType])
+    )
+    print("Alt ref value %12.5g  wrt pixel %8.2f" % (dict["altRef"], dict["altCrpix"]))
     # end PHeaderDict
 
-def PGetList (inDesc):
+
+def PGetList(inDesc):
     """
     Get InfoList from ImageDesc
-    
+
     returns InfoList
 
     * inDesc  = Python Obit input ImageDesc
@@ -352,15 +391,16 @@ def PGetList (inDesc):
     if not PIsA(inDesc):
         raise TypeError("inDesc MUST be a Python Obit ImageDesc")
     #
-    out    = InfoList.InfoList()
+    out = InfoList.InfoList()
     out.me = Obit.ImageDescGetList(inDesc.me)
     return out
-    # end PGetList 
+    # end PGetList
 
-def PCheckCompat (in1Desc, in2Desc, chkPos=False):
+
+def PCheckCompat(in1Desc, in2Desc, chkPos=False):
     """
     Checks compatibility of two image descriptors
-    
+
     Raises error condition if  images do not have the same geometry
 
     * in1Desc  = Python Obit input ImageDesc 1
@@ -379,60 +419,79 @@ def PCheckCompat (in1Desc, in2Desc, chkPos=False):
     d1 = in1Desc.Dict
     d2 = in2Desc.Dict
     n = max(d1["naxis"], d2["naxis"])
-    for i in range (0,n):
-        if max(1,d1["inaxes"][i]) != max(1,d2["inaxes"][i]):
-            raise RuntimeError("in1Desc and in2Desc geometries axis "+str(i+1)+" are incompatible")
+    for i in range(0, n):
+        if max(1, d1["inaxes"][i]) != max(1, d2["inaxes"][i]):
+            raise RuntimeError(
+                "in1Desc and in2Desc geometries axis "
+                + str(i + 1)
+                + " are incompatible"
+            )
     # Need to also check positions?
     if chkPos:
-        for i in range (0,n):
-            if abs(d1["crval"][i]-d2["crval"][i]) > 0.01*abs(d1["cdelt"][i]):
-                raise RuntimeError("in1Desc and in2Desc coordinates axis "+str(i+1)+" are incompatible")
-            if abs(d1["crpix"][i]-d2["crpix"][i]) > 0.01:
-                raise RuntimeError("in1Desc and in2Desc ref. pixel axis "+str(i+1)+" are incompatible")
-            if abs(d1["cdelt"][i]-d2["cdelt"][i]) > 0.01*abs(d1["cdelt"][i]):
-                raise RuntimeError("in1Desc and in2Desc increments axis "+str(i+1)+" are incompatible")
-    # end PCheckCompat 
+        for i in range(0, n):
+            if abs(d1["crval"][i] - d2["crval"][i]) > 0.01 * abs(d1["cdelt"][i]):
+                raise RuntimeError(
+                    "in1Desc and in2Desc coordinates axis "
+                    + str(i + 1)
+                    + " are incompatible"
+                )
+            if abs(d1["crpix"][i] - d2["crpix"][i]) > 0.01:
+                raise RuntimeError(
+                    "in1Desc and in2Desc ref. pixel axis "
+                    + str(i + 1)
+                    + " are incompatible"
+                )
+            if abs(d1["cdelt"][i] - d2["cdelt"][i]) > 0.01 * abs(d1["cdelt"][i]):
+                raise RuntimeError(
+                    "in1Desc and in2Desc increments axis "
+                    + str(i + 1)
+                    + " are incompatible"
+                )
+    # end PCheckCompat
 
-def PIsA (inID):
+
+def PIsA(inID):
     """
     Tells if the input really is a Python Obit ImageDesc
-    
+
     returns True or False
 
     * inID = Python ImageDesc to test
     """
     ################################################################
-     # Checks
+    # Checks
     if not isinstance(inID, ImageDesc):
-        print("really",str(inID.__class__ ))
+        print("really", str(inID.__class__))
         return False
     #
-    return Obit.ImageDescIsA(inID.me)!=0
+    return Obit.ImageDescIsA(inID.me) != 0
     # end  PIsA
 
-def PUnref (inID):
+
+def PUnref(inID):
     """
     Decrement reference count
-    
+
     Decrement reference count which will destroy object if it goes to zero
     Python object stays defined.
 
     * inID   = Python ImageDesc object
     """
     ################################################################
-    if inID==None:
+    if inID == None:
         return
-     # Checks
+    # Checks
     if not PIsA(inID):
         raise TypeError("inID MUST be a Python Obit ImageDesc")
 
     inID.me = Obit.ImageDescUnref(inID.me)
     # end PUnref
 
-def PPoslabel (ctype, crval, cdelt):
+
+def PPoslabel(ctype, crval, cdelt):
     """
     Convert a coordinate for display
-    
+
     returns dict with entries "ctype", "crval", "cdelt"
     giving the relevant strings to display
 
@@ -441,14 +500,14 @@ def PPoslabel (ctype, crval, cdelt):
     * cdelt   = coordinate increment
     """
     ################################################################
-    out = {"ctype":ctype}
-    if ctype[0:2]=="RA":
-        out["crval"] = PRA2HMS (crval)
-        out["cdelt"] = "%15.6g" % (3600.0*cdelt)
-    elif ctype[0:3]=="DEC":
-        out["crval"] = PDec2DMS (crval)
-        out["cdelt"] = "%15.6g" % (3600.0*cdelt)
-    elif ctype[0:6]=="STOKES":
+    out = {"ctype": ctype}
+    if ctype[0:2] == "RA":
+        out["crval"] = PRA2HMS(crval)
+        out["cdelt"] = "%15.6g" % (3600.0 * cdelt)
+    elif ctype[0:3] == "DEC":
+        out["crval"] = PDec2DMS(crval)
+        out["cdelt"] = "%15.6g" % (3600.0 * cdelt)
+    elif ctype[0:6] == "STOKES":
         if crval == 1.0:
             out["crval"] = "      IPol      "
         elif crval == 2.0:
@@ -467,12 +526,12 @@ def PPoslabel (ctype, crval, cdelt):
     else:
         out["crval"] = "%16.5g" % crval
         out["cdelt"] = "%15.6g" % cdelt
-        
-    
+
     return out
     # end PPoslabel
 
-def PRA2HMS (ra):
+
+def PRA2HMS(ra):
     """
     Convert a right ascension in degrees to hours, min, seconds
 
@@ -484,11 +543,12 @@ def PRA2HMS (ra):
     p = (p - h) * 60.0
     m = int(p)
     s = (p - m) * 60.0
-    out = "  %2.2d %2.2d %08.5f" % (h,m,s)
+    out = "  %2.2d %2.2d %08.5f" % (h, m, s)
     return out
     # end PRA2HMS
 
-def PDec2DMS (dec):
+
+def PDec2DMS(dec):
     """
     Convert a declination in degrees to degrees, min, seconds
 
@@ -496,22 +556,23 @@ def PDec2DMS (dec):
     """
     ################################################################
     p = math.fabs(dec)
-    if dec>0.0:
+    if dec > 0.0:
         sgn = " "
     else:
         sgn = "-"
-    d = int (p)
+    d = int(p)
     p = (p - d) * 60.0
     m = int(p)
     s = (p - m) * 60.0
-    out = "%s%2.2d %2.2d %07.4f " % (sgn, d,m,s)
+    out = "%s%2.2d %2.2d %07.4f " % (sgn, d, m, s)
     return out
     # end PDec2DMS
 
-def PHMS2RA (rast,  sep=":"):
+
+def PHMS2RA(rast, sep=":"):
     """
     Convert a right ascension string to degrees
-    
+
     return RA in degrees
 
     * rast = RA string as "hh:mm:ss.s"
@@ -519,26 +580,27 @@ def PHMS2RA (rast,  sep=":"):
     """
     ################################################################
     pp = rast.split(sep)
-    if len(pp)>0:
+    if len(pp) > 0:
         hour = int(pp[0])
     else:
         hour = 0
-    if len(pp)>1:
+    if len(pp) > 1:
         min = int(pp[1])
     else:
         min = 0
-    if len(pp)>2:
+    if len(pp) > 2:
         ssec = float(pp[2])
     else:
         ssec = 0.0
-    ra =  hour + min/60.0 + ssec/3600.0
-    return ra*15.0
+    ra = hour + min / 60.0 + ssec / 3600.0
+    return ra * 15.0
     # end PHMS2RA
 
-def PDMS2Dec (decst, sep=":"):
+
+def PDMS2Dec(decst, sep=":"):
     """
     Convert a declination string to degrees
-    
+
     Returns dec in deg
 
     * decst = Dec string as "dd:mm:ss.s"
@@ -546,20 +608,20 @@ def PDMS2Dec (decst, sep=":"):
     """
     ################################################################
     pp = decst.split(sep)
-    if len(pp)>0:
+    if len(pp) > 0:
         deg = int(pp[0])
     else:
         deg = 0
-    if len(pp)>1:
+    if len(pp) > 1:
         min = int(pp[1])
     else:
         min = 0
-    if len(pp)>2:
+    if len(pp) > 2:
         ssec = float(pp[2])
     else:
         ssec = 0.0
-    dec =  abs(deg) + min/60.0 + ssec/3600.0
-    if pp[0].find("-") >=0:
+    dec = abs(deg) + min / 60.0 + ssec / 3600.0
+    if pp[0].find("-") >= 0:
         dec = -dec
     return dec
     # end PDec2DMS

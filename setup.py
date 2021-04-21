@@ -23,13 +23,11 @@ OBIT_EXT = Extension(
     sources=source_list,
     include_dirs=["include"],
     define_macros=[
-        # ("HAVE_GSL", "1"),
-        # ("HAVE_FFTW3", "1"),
-        # ("HAVE_PGPLOT", "1"),
         ("OBIT_THREADS_ENABLED", "1"),
         ("HAVE_SSE", "1"),
+        ("FASTOBITMEM", "1")
     ],
-    extra_compile_args=["-O2", "-march=native"],
+    extra_compile_args=["-g", "-O2", "-march=native"],
 )
 
 
@@ -70,7 +68,7 @@ class CustomBuildExt(build_ext):
         return build_ext.run(self)
 
     def swig_sources(self, sources, extension):
-        """Make Obit.i file from *.inc files."""
+        """Make Obit.i file from the *.inc files."""
         for source in sources:
             source_path = Path(source)
 
@@ -100,7 +98,7 @@ setup(
         "build": CustomBuild,
         "build_ext": CustomBuildExt,
     },
-    python_requires=">=3.4",
+    python_requires=">=3.6",
     setup_requires=["pkgconfig"],
     install_requires=["six"],
 )
