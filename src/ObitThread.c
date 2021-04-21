@@ -50,7 +50,7 @@ ObitThread* newObitThread (void)
 {
   ObitThread* me;
 #ifdef OBIT_THREADS_ENABLED
-  GRWLock *outRWLock=NULL;
+  GStaticRWLock *outRWLock=NULL;
 #endif  /* OBIT_THREADS_ENABLED */
 
   /* Has g_threads been initialized? */
@@ -76,7 +76,7 @@ ObitThread* newObitThread (void)
   me->myRWLock = NULL;
 #ifdef OBIT_THREADS_ENABLED
   me->myMutex  = g_mutex_new(); 
-  outRWLock = g_malloc0(sizeof(GRWLock));
+  outRWLock = g_malloc0(sizeof(GStaticRWLock));
   g_static_rw_lock_init(outRWLock);
   me->myRWLock = outRWLock;
 #endif  /* OBIT_THREADS_ENABLED */

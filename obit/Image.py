@@ -1867,54 +1867,54 @@ def PFullInstantiate(inImage, access, err):
     # end PFullInstantiate
 
 
-def PFArray2Image(inArray, outImage, err):
-    """
-    Attach an FArray to an image and write it
+# def PFArray2Image(inArray, outImage, err):
+#     """
+#     Attach an FArray to an image and write it
 
-    Very rudimentary header attached
+#     Very rudimentary header attached
 
-    * inArray   = Python Image object
-    * outImage  = Python Image to write
-    * err       = Python Obit Error/message stack
-    """
-    ################################################################
-    if ("myClass" in inImage.__dict__) and (inImage.myClass == "AIPSImage"):
-        raise TypeError("Function unavailable for " + inImage.myClass)
-    # Checks
-    if not FArray.PIsA(inArray):
-        raise TypeError("inArray MUST be a Python Obit FArray")
-    if not outImage.ImageIsA():
-        raise TypeError("outImage MUST be a Python Obit Image")
-    if not err.IsA():
-        raise TypeError("err MUST be an OErr")
-    #
-    # Get array info
-    naxis = inArray.Naxis[0:2]
-    naxis = [naxis[0], naxis[1], 1, 1, 1, 1, 1]
-    #
-    # Set size on image descriptor
-    desc = ImageDesc.PDefault("temp")
-    descDict = desc.Dict  # Input Python dict object
-    descDict["inaxes"] = naxis  # Update size
-    descDict["crpix"] = [
-        1.0 + naxis[0] * 0.5,
-        1.0 + naxis[1] * 0.5,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-    ]
-    descDict["bitpix"] = -32  # output floating
-    descDict["object"] = "Temp"
-    outImage.Desc.Dict = descDict
-    #
-    # Write output image
-    outImage.Open(WRITEONLY, err)
-    outImage.WriteFA(inArray, err)
-    outImage.Close(err)
-    # OErr.printErrMsg(err, "Error writing padded image for "+PGetName(outImage))
-    # end PFArray2Image
+#     * inArray   = Python Image object
+#     * outImage  = Python Image to write
+#     * err       = Python Obit Error/message stack
+#     """
+#     ################################################################
+#     if ("myClass" in inImage.__dict__) and (inImage.myClass == "AIPSImage"):
+#         raise TypeError("Function unavailable for " + inImage.myClass)
+#     # Checks
+#     if not FArray.PIsA(inArray):
+#         raise TypeError("inArray MUST be a Python Obit FArray")
+#     if not outImage.ImageIsA():
+#         raise TypeError("outImage MUST be a Python Obit Image")
+#     if not err.IsA():
+#         raise TypeError("err MUST be an OErr")
+#     #
+#     # Get array info
+#     naxis = inArray.Naxis[0:2]
+#     naxis = [naxis[0], naxis[1], 1, 1, 1, 1, 1]
+#     #
+#     # Set size on image descriptor
+#     desc = ImageDesc.PDefault("temp")
+#     descDict = desc.Dict  # Input Python dict object
+#     descDict["inaxes"] = naxis  # Update size
+#     descDict["crpix"] = [
+#         1.0 + naxis[0] * 0.5,
+#         1.0 + naxis[1] * 0.5,
+#         1.0,
+#         1.0,
+#         1.0,
+#         1.0,
+#         1.0,
+#     ]
+#     descDict["bitpix"] = -32  # output floating
+#     descDict["object"] = "Temp"
+#     outImage.Desc.Dict = descDict
+#     #
+#     # Write output image
+#     outImage.Open(WRITEONLY, err)
+#     outImage.WriteFA(inArray, err)
+#     outImage.Close(err)
+#     # OErr.printErrMsg(err, "Error writing padded image for "+PGetName(outImage))
+#     # end PFArray2Image
 
 
 def PFArray2FITS(inArray, outFile, err, outDisk=1, oDesc=None):

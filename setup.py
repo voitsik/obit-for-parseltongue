@@ -27,7 +27,7 @@ OBIT_EXT = Extension(
         ("HAVE_SSE", "1"),
         ("FASTOBITMEM", "1")
     ],
-    extra_compile_args=["-g", "-O2", "-march=native"],
+    extra_compile_args=["-fno-strict-aliasing", "-g", "-O2", "-march=native"],
 )
 
 

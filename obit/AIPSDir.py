@@ -73,7 +73,7 @@ nAIPS = 0
 AIPSdisks = []
 # Some routines need ObitTalk AIPS info
 try:
-    import AIPS
+    from parseltongue import AIPS
 
     # Get AIPS disks Info from ObitTalk
     nAIPS = len(AIPS.disks) - 1
