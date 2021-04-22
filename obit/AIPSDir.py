@@ -71,11 +71,11 @@ def ehex(n, width=0, padding=None):
 global AIPSdisks, nAIPS
 nAIPS = 0
 AIPSdisks = []
-# Some routines need ObitTalk AIPS info
+# Some routines need ParselTongue AIPS info
 try:
     from parseltongue import AIPS
 
-    # Get AIPS disks Info from ObitTalk
+    # Get AIPS disks Info from ParselTongue
     nAIPS = len(AIPS.disks) - 1
     for i in range(1, nAIPS + 1):
         AIPSdisks.append(AIPS.disks[i].dirname)
