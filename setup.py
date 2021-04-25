@@ -1,21 +1,27 @@
 #!/usr/bin/env python
-# -*- coding:utf-8 -*-
 
-"""Setup this SWIG library."""
+import shlex
+import subprocess
 import sys
 from distutils.command.build import build
 from pathlib import Path
 
 import pkgconfig
 from setuptools import Extension, setup
-from setuptools.command.build_ext import build_ext
 from setuptools.command.build_clib import build_clib
+from setuptools.command.build_ext import build_ext
 
+LIBS_BUILD_INFO = {
+    "include_dirs": [],
+    "define_macros": [],
+    "library_dirs": [],
+    "libraries": [],
+}
 
-cflags = ["-fno-strict-aliasing", "-O2", "-march=native"]
+CFLAGS = ["-fno-strict-aliasing", "-O2", "-march=native"]
 
 # Build C-part of Obit as static lib
-obit_lib = (
+OBIT_LIB = (
     "obit_lib",
     {
         "sources": sorted(str(p) for p in Path("src").glob("*.c")),
@@ -25,7 +31,7 @@ obit_lib = (
             ("HAVE_SSE", "1"),
             ("FASTOBITMEM", "1"),
         ],
-        "cflags": cflags,
+        "cflags": CFLAGS,
     },
 )
 
@@ -34,35 +40,61 @@ OBIT_EXT = Extension(
     name="obit._Obit",
     sources=["obit/Obit.i"],
     include_dirs=["include"],
-    extra_compile_args=cflags,
+    extra_compile_args=CFLAGS,
     libraries=["obit_lib"],
 )
 
 
-def update_build_info(ext, package, macro=None):
-    """Update extention or library build info according to pkg-config info."""
-    if not pkgconfig.exists(package):
-        print(f"Could not find package {package}", file=sys.stderr)
+def run_command(cmd):
+    """Run `cmd` and return its stdout."""
+    if isinstance(cmd, str):
+        cmd = shlex.split(cmd)
+
+    ret = subprocess.run(cmd, capture_output=True)
+
+    return ret.stdout.decode().strip()
+
+
+def update_build_info(build_info):
+    """Update LIBS_BUILD_INFO dictionary."""
+    # print("DEBUG: Start update_build_info", file=sys.stderr)
+    #
+    # For xmlrpc-c use xmlrpc-c-config command
+    #
+    try:
+        ret = run_command("xmlrpc-c-config --features")
+    except OSError as err:
+        print(err, file=sys.stderr)
+        print("Error: xmlrpc-c not found", file=sys.stderr)
         sys.exit(1)
 
-    if isinstance(ext, Extension):
-        for k, value in pkgconfig.parse(package).items():
-            getattr(ext, k).extend(value)
+    if "abyss-server" not in ret:
+        print("Error: xmlrpc-c does not support abyss-server feature", file=sys.stderr)
+        sys.exit(1)
 
-        if macro:
-            ext.define_macros.append((macro, "1"))
-    elif isinstance(ext, tuple):
-        pkg_info = pkgconfig.parse(package)
-        if "include_dirs" in pkg_info:
-            ext[1]["include_dirs"].extend(pkg_info["include_dirs"])
+    ret = run_command("xmlrpc-c-config abyss-server client --cflags")
+    include_dirs = [x[2:] for x in ret.split() if x[0:2] == "-I"]
+    ret = run_command("xmlrpc-c-config abyss-server client --libs")
+    libraries = [x[2:] for x in ret.split() if x[0:2] == "-l"]
+    library_dirs = [x[2:] for x in ret.split() if x[0:2] == "-L"]
 
-        if "define_macros" in pkg_info:
-            ext[1]["macros"].extend(pkg_info["define_macros"])
+    build_info["include_dirs"].extend(include_dirs)
+    build_info["libraries"].extend(libraries)
+    build_info["library_dirs"].extend(library_dirs)
 
-        if macro:
-            ext[1]["macros"].append((macro, "1"))
-    else:
-        assert False
+    #
+    # For the rest libs use pkg-config
+    #
+    try:
+        ret = pkgconfig.parse("glib-2.0 gthread-2.0 fftw3f gsl cfitsio")
+    except pkgconfig.PackageNotFoundError as err:
+        print(err, file=sys.stderr)
+        sys.exit(1)
+
+    for key, value in ret.items():
+        build_info[key].extend(value)
+
+    build_info["define_macros"].extend([("HAVE_FFTW3", 1), ("HAVE_GSL", 1)])
 
 
 class CustomBuild(build):
@@ -75,31 +107,35 @@ class CustomBuild(build):
 
 
 class CustomBuildClib(build_clib):
-    def run(self):
+    def finalize_options(self):
+        build_clib.finalize_options(self)
+
         ext = self.libraries[0]
         assert ext[0] == "obit_lib"
 
-        update_build_info(ext, "glib-2.0 gthread-2.0")
-        update_build_info(ext, "fftw3f", "HAVE_FFTW3")
-        update_build_info(ext, "gsl", "HAVE_GSL")
-        update_build_info(ext, "xmlrpc_server_abyss xmlrpc_client")
-        update_build_info(ext, "cfitsio")
+        if not LIBS_BUILD_INFO["define_macros"]:
+            update_build_info(LIBS_BUILD_INFO)
 
-        return build_clib.run(self)
+        ext[1]["include_dirs"].extend(LIBS_BUILD_INFO["include_dirs"])
+        ext[1]["macros"].extend(LIBS_BUILD_INFO["define_macros"])
+
+        # print("DEBUG: obit_lib build info:", file=sys.stderr)
+        # print(ext[1], file=sys.stderr)
+        # sys.exit(0)
 
 
 class CustomBuildExt(build_ext):
-    def run(self):
+    def finalize_options(self):
+        build_ext.finalize_options(self)
+
         ext = self.extensions[0]
         assert ext.name == "obit._Obit"
 
-        update_build_info(ext, "glib-2.0 gthread-2.0")
-        update_build_info(ext, "fftw3f", "HAVE_FFTW3")
-        update_build_info(ext, "gsl", "HAVE_GSL")
-        update_build_info(ext, "xmlrpc_server_abyss xmlrpc_client")
-        update_build_info(ext, "cfitsio")
+        if not LIBS_BUILD_INFO["define_macros"]:
+            update_build_info(LIBS_BUILD_INFO)
 
-        return build_ext.run(self)
+        for k, value in LIBS_BUILD_INFO.items():
+            getattr(ext, k).extend(value)
 
     def swig_sources(self, sources, extension):
         """Make Obit.i file from the *.inc files."""
@@ -128,7 +164,7 @@ setup(
     keywords=["SWIG", "Obit"],
     packages=["obit"],
     ext_modules=[OBIT_EXT],
-    libraries=[obit_lib],
+    libraries=[OBIT_LIB],
     cmdclass={
         "build": CustomBuild,
         "build_ext": CustomBuildExt,
