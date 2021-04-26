@@ -1538,7 +1538,7 @@ gainCalc (ofloat* vobs, olong *ant1, olong *ant2, ollong numBL, olong numAnt,
 	ph = 57.296 * atan2 (vobs[k*lenEntry+1], vobs[k*lenEntry]+1.0e-20);
 	g_snprintf (msgtxt,80," %4ld amp =%12.3e phase =%9.2f  %3d  %3d %12.3e", 
 		    k+1, amp, ph, ant1[k], ant2[k], vobs[k*lenEntry+2]);
-	Obit_log_error(err, OBIT_InfoErr, msgtxt);
+	Obit_log_error(err, OBIT_InfoErr, "%s", msgtxt);
       } 
     } /* end loop  L20:  */;
   } /* end if print */
@@ -1617,7 +1617,7 @@ gainCalc (ofloat* vobs, olong *ant1, olong *ant2, ollong numBL, olong numAnt,
     rms = sqrt (s/sumwt);
     it = 0;
     g_snprintf (msgtxt, 80, "iter= %5ld s=%15.5e rms=%15.5e", it, s, rms);
-    Obit_log_error(err, OBIT_InfoErr, msgtxt);
+    Obit_log_error(err, OBIT_InfoErr, "%s", msgtxt);
   } /* end print */
  
   /* Begin solution iteration */
@@ -1764,7 +1764,7 @@ gainCalc (ofloat* vobs, olong *ant1, olong *ant2, ollong numBL, olong numAnt,
       } /* end loop  L290: */;
       rms = sqrt (s/sumwt);
       g_snprintf (msgtxt,80,"iter= %5ld s=%15.5e rms=%15.5e", it, s, rms);
-      Obit_log_error(err, OBIT_InfoErr, msgtxt);
+      Obit_log_error(err, OBIT_InfoErr, "%s", msgtxt);
     } /* end print statistics */ 
 
     if (convgd) break;   /* Converged?  goto L400;*/
@@ -1801,7 +1801,7 @@ gainCalc (ofloat* vobs, olong *ant1, olong *ant2, ollong numBL, olong numAnt,
 	ph = 57.2958 * atan2 (g[i*2+1], g[i*2]);
 	g_snprintf (msgtxt,80,"ant=  %5ld amp=%12.5f phase=%12.2f", 
 		    i+1, amp, ph);
-	Obit_log_error(err, OBIT_InfoErr, msgtxt);
+	Obit_log_error(err, OBIT_InfoErr, "%s", msgtxt);
       } 
     } /* end loop  L610: */;
   } /* end of print */ 
@@ -1888,7 +1888,7 @@ gainCalcL1 (ofloat* vobs, olong *ant1, olong *ant2, ollong numBL,
       
       g_snprintf (msgtxt,80," %4ld real =%12.5e imag =%12.5e  %3d  %3d %12.5e", 
 		  k+1, vobs[k*lenEntry], vobs[k*lenEntry+1], ant1[k], ant2[k], vobs[k*lenEntry+2]);
-      Obit_log_error(err, OBIT_InfoErr, msgtxt);
+      Obit_log_error(err, OBIT_InfoErr, "%s", msgtxt);
     } 
     if (vobs[k*lenEntry+2] > 0.0) {
       i = ant1[k]-1;
@@ -1967,7 +1967,7 @@ gainCalcL1 (ofloat* vobs, olong *ant1, olong *ant2, ollong numBL,
       rmean = s / sumwt;
       it = 0;
       g_snprintf (msgtxt,80,"iter= %5d s=%15.5e rmean=%15.5e", it, s, rmean);
-      Obit_log_error(err, OBIT_InfoErr, msgtxt);
+      Obit_log_error(err, OBIT_InfoErr, "%s", msgtxt);
     } /* end of if print */
 
     /* Inner Solution loop */
@@ -2095,7 +2095,7 @@ gainCalcL1 (ofloat* vobs, olong *ant1, olong *ant2, ollong numBL,
 	} /* end loop  L290: */;
 	rmean = s / sumwt;
 	g_snprintf (msgtxt,80,"iter= %5d s=%15.5e rmean=%15.5e", it, s, rmean);
-	Obit_log_error(err, OBIT_InfoErr, msgtxt);
+	Obit_log_error(err, OBIT_InfoErr, "%s", msgtxt);
       } /* end print */
 
       /* Inner loop converged? */
@@ -2132,7 +2132,7 @@ gainCalcL1 (ofloat* vobs, olong *ant1, olong *ant2, ollong numBL,
 	ph = 57.2958 * atan2 (g[i*2+1], g[i*2]);
 	g_snprintf (msgtxt,80,"ant=  %5ld amp=%12.5f phase=%12.2f", 
 		    i+1, amp, ph);
-	Obit_log_error(err, OBIT_InfoErr, msgtxt);
+	Obit_log_error(err, OBIT_InfoErr, "%s", msgtxt);
       } /* end if valid */
     } /* end loop  L610: */;
   } /* end print */

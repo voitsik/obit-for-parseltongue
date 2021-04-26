@@ -1192,7 +1192,7 @@ gboolean ObitFileErrMsg (ObitErr *err)
 
   errMsg = strerror(errno);
 
-  Obit_log_error(err, OBIT_Error, errMsg); /* Set message */
+  Obit_log_error(err, OBIT_Error, "%s", errMsg); /* Set message */
 
   errno = 0;  /* reset errno */
 

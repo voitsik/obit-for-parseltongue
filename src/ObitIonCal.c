@@ -940,13 +940,13 @@ void ObitIonCaldoCal (ObitIonCal*in, ObitErr* err)
   if (prtLv>0) {
     g_snprintf (msgtxt,100,"calibrating ionosphere, max RMS seeing= %6.2f qual=%5d", 
 		MaxRMS, qual);
-    Obit_log_error(err, OBIT_InfoWarn, msgtxt);
+    Obit_log_error(err, OBIT_InfoWarn, "%s", msgtxt);
     
     g_snprintf (msgtxt,100,"observing date = %s", inUV->myDesc->obsdat);
-    Obit_log_error(err, OBIT_InfoWarn, msgtxt);
+    Obit_log_error(err, OBIT_InfoWarn, "%s", msgtxt);
     ObitImageDescGetPoint (myMosaic->images[0]->myDesc, &obsra, &obsdec);
     g_snprintf (msgtxt,100,"pointing ra=%10.6f dec=%10.6f deg", obsra, obsdec);
-    Obit_log_error(err, OBIT_InfoWarn, msgtxt);
+    Obit_log_error(err, OBIT_InfoWarn, "%s", msgtxt);
   }
 
   ObitErrLog(err); /* show any messages on err */

@@ -943,7 +943,7 @@ void ObitUVSolnRefAnt (ObitTableSN *SNTab, olong isuba, olong* refant, ObitErr* 
 
   /* Message about rereferencing. */
   g_snprintf (msgtxt,80, "Rereferencing phases to antenna %3d", *refant);
-  Obit_log_error(err, OBIT_InfoErr, msgtxt);
+  Obit_log_error(err, OBIT_InfoErr, "%s", msgtxt);
 
   /* Loop through antennas used as  secondary reference antennas. */
   for (ant= 1; ant<=numant; ant++) { /* loop 500 */
