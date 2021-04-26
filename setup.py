@@ -152,11 +152,6 @@ class CustomBuildExt(build_ext):
 
 setup(
     name="obit",
-    description="Obit for ParselTongue",
-    version="0.1.0",
-    author="Bill Cotton",
-    license="GPL-2",
-    keywords=["SWIG", "Obit"],
     packages=["obit"],
     ext_modules=[OBIT_EXT],
     libraries=[OBIT_LIB],
@@ -165,7 +160,4 @@ setup(
         "build_ext": CustomBuildExt,
         "build_clib": CustomBuildClib,
     },
-    python_requires=">=3.6",
-    setup_requires=["pkgconfig"],
-    install_requires=["six"],
 )
