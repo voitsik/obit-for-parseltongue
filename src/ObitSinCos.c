@@ -26,6 +26,7 @@
 /*;                         Charlottesville, VA 22903-2475 USA        */
 /*--------------------------------------------------------------------*/
 /* Utility routine for fast sine/cosine calculation                   */
+#define _GNU_SOURCE
 #include "ObitSinCos.h"
 #include "ObitVecFunc.h"
 #include <math.h>
