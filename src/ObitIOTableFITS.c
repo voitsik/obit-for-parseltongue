@@ -780,7 +780,7 @@ ObitIOCode ObitIOTableFITSReadRow (ObitIOTableFITS *in, olong rowno,
     }
 
     /* init '_status' column to 0 */
-    g_memmove (&cdata[offset+desc->byteOffset[desc->nfield-1]], 
+    memmove (&cdata[offset+desc->byteOffset[desc->nfield-1]], 
 	       (gchar*)&izero, sizeof(olong));
 
     offset  += len;       /* offset in data buffer in bytes */
@@ -948,7 +948,7 @@ ObitIOCode ObitIOTableFITSReadRowSelect (ObitIOTableFITS *in, olong rowno,
     }
 
     /* init '_status' column to 0 */
-    g_memmove (&cdata[offset+desc->byteOffset[desc->nfield-1]], 
+    memmove (&cdata[offset+desc->byteOffset[desc->nfield-1]], 
 	       (gchar*)&izero, sizeof(olong));
 
     offset  += len;       /* offset in data buffer in bytes */
@@ -1975,7 +1975,7 @@ void  ObitIOTableKeysOtherRead(ObitIOTableFITS *in, olong *lstatus,
 	case 'C':  /* Character string */
 	  first = index (value,'\'')+1; /* a string? */
 	  last = rindex(value,'\'')-1;
-	  g_memmove(svalue, first, (last-first+1));
+	  memmove(svalue, first, (last-first+1));
 	  svalue[last-first+1] = 0; /* null terminate */
 	  /* add to InfoList */
 	  dim[0] = strlen(svalue);

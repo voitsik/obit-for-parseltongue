@@ -228,7 +228,7 @@ void ObitAIPSCatImageGetDesc (ObitImageDesc *desc, gchar *buffer,
 
   /* WCS labels for each dimension of array. */
   for (i=0; i<ndim; i++) {
-    g_memmove (desc->ctype[i],  &header[myDHDR.KHCTP+i*2], 8);
+    memmove (desc->ctype[i],  &header[myDHDR.KHCTP+i*2], 8);
     desc->ctype[i][9] = 0; /* null terminate */
   }
 
@@ -245,23 +245,23 @@ void ObitAIPSCatImageGetDesc (ObitImageDesc *desc, gchar *buffer,
   for (i=0; i<ndim; i++) desc->crval[i] = dheader[myDHDR.KDCRV+i]; 
 
   /* Name of object. */
-  g_memmove (desc->object,  &header[myDHDR.KHOBJ], 8);
+  memmove (desc->object,  &header[myDHDR.KHOBJ], 8);
   desc->object[9] = 0; /* null terminate */
 
   /* Name of telescope making observation. */
-  g_memmove (desc->teles,  &header[myDHDR.KHTEL], 8);
+  memmove (desc->teles,  &header[myDHDR.KHTEL], 8);
   desc->teles[9] = 0; /* null terminate */
 
   /* Name of instrument making observation. */
-  g_memmove (desc->instrument,  &header[myDHDR.KHINS], 8);
+  memmove (desc->instrument,  &header[myDHDR.KHINS], 8);
   desc->instrument[9] = 0; /* null terminate */
 
   /* Name of observer. */
-  g_memmove (desc->observer,  &header[myDHDR.KHOBS], 8);
+  memmove (desc->observer,  &header[myDHDR.KHOBS], 8);
   desc->observer[9] = 0; /* null terminate */
 
   /* Observing date as yyyy-mm-dd ,  AIPS is YYYYMMDD */
-  g_memmove (temp,  &header[myDHDR.KHDOB], 8);
+  memmove (temp,  &header[myDHDR.KHDOB], 8);
   j = 0;
   for (i=0; i<4; i++) desc->obsdat[i] = temp[j++]; 
   desc->obsdat[4] = '-';
@@ -271,7 +271,7 @@ void ObitAIPSCatImageGetDesc (ObitImageDesc *desc, gchar *buffer,
   desc->obsdat[10] = 0; /* null terminate */
 
   /* Image creation date as yyyy-mm-dd,  AIPS is YYYYMMDD */
-  g_memmove (temp,  &header[myDHDR.KHDMP], 8);
+  memmove (temp,  &header[myDHDR.KHDMP], 8);
   j = 0;
   for (i=0; i<4; i++) desc->date[i] = temp[j++]; 
   desc->date[4] = '-';
@@ -281,11 +281,11 @@ void ObitAIPSCatImageGetDesc (ObitImageDesc *desc, gchar *buffer,
   desc->date[10] = 0; /* null terminate */
 
   /* Origin (software) of image. */
-  g_memmove (desc->origin,  "Obit    ", 8);
+  memmove (desc->origin,  "Obit    ", 8);
   desc->origin[9] = 0; /* null terminate */
 
   /* Units of image */
-  g_memmove (desc->bunit,  &header[myDHDR.KHBUN], 8);
+  memmove (desc->bunit,  &header[myDHDR.KHBUN], 8);
   desc->bunit[9] = 0; /* null terminate */
 
   /* Epoch (years) of celestial coordinates,
@@ -394,20 +394,20 @@ void ObitAIPSCatImageSetDesc (ObitImageDesc *desc, gchar *buffer,
 
     /* blank axis type values */
     for (i=0; i<header[myDHDR.KICTPN]; i++) 
-      g_memmove (&header[myDHDR.KHCTP+i*2], blank,  8);
+      memmove (&header[myDHDR.KHCTP+i*2], blank,  8);
 
     /* blank random parameter values */
     for (i=0; i<header[myDHDR.KIPTPN]; i++) 
-      g_memmove (&header[myDHDR.KHPTP+i*2], blank,  8);
+      memmove (&header[myDHDR.KHPTP+i*2], blank,  8);
 
     /* blank name class... */
-    g_memmove (&header[myDHDR.KHIMN], blank, 20);
+    memmove (&header[myDHDR.KHIMN], blank, 20);
 
     /* blank observers name */
-    g_memmove (&header[myDHDR.KHOBS], blank, 8);
+    memmove (&header[myDHDR.KHOBS], blank, 8);
 
     /* blank instrument name */
-    g_memmove (&header[myDHDR.KHINS], blank, 8);
+    memmove (&header[myDHDR.KHINS], blank, 8);
 
     /* Image sequence no. */
     header[myDHDR.KIIMS] = 0;
@@ -457,7 +457,7 @@ void ObitAIPSCatImageSetDesc (ObitImageDesc *desc, gchar *buffer,
     /* set extension files */
     for (i=0; i<myDHDR.KIEXTN; i++) {
       /* two character code of extension file. */
-      g_memmove (&header[myDHDR.KHEXT+i], blank, 2);
+      memmove (&header[myDHDR.KHEXT+i], blank, 2);
       /* Number of versions of corresponding extension file. */
       header[myDHDR.KIVER+i] = 0;
     }
@@ -627,7 +627,7 @@ void ObitAIPSCatUVGetDesc (ObitUVDesc *desc, gchar *buffer,
 
   /* WCS labels for each dimension of array. */
   for (i=0; i<ndim; i++) {
-    g_memmove (desc->ctype[i],  &header[myDHDR.KHCTP+i*2], 8);
+    memmove (desc->ctype[i],  &header[myDHDR.KHCTP+i*2], 8);
     desc->ctype[i][9] = 0; /* null terminate */
   }
 
@@ -640,12 +640,12 @@ void ObitAIPSCatUVGetDesc (ObitUVDesc *desc, gchar *buffer,
 
   /* WCS labels for random parameters. */
   for (i=0; i<desc->nrparm; i++) {
-    g_memmove (desc->ptype[i],  &header[myDHDR.KHPTP+i*2], 8);
+    memmove (desc->ptype[i],  &header[myDHDR.KHPTP+i*2], 8);
     desc->ptype[i][9] = 0; /* null terminate */
   }
 
   /*  Sort order */
-  g_memmove (desc->isort, &header[myDHDR.KITYP], 2);
+  memmove (desc->isort, &header[myDHDR.KITYP], 2);
   desc->isort[2] = 0;
     
   /* Axis coordinate increments. */
@@ -661,23 +661,23 @@ void ObitAIPSCatUVGetDesc (ObitUVDesc *desc, gchar *buffer,
   for (i=0; i<ndim; i++) desc->crval[i] = dheader[myDHDR.KDCRV+i]; 
 
   /* Name of object. */
-  g_memmove (desc->object,  &header[myDHDR.KHOBJ], 8);
+  memmove (desc->object,  &header[myDHDR.KHOBJ], 8);
   desc->object[9] = 0; /* null terminate */
 
   /* Name of telescope making observation. */
-  g_memmove (desc->teles,  &header[myDHDR.KHTEL], 8);
+  memmove (desc->teles,  &header[myDHDR.KHTEL], 8);
   desc->teles[9] = 0; /* null terminate */
 
   /* Name of instrument making observation. */
-  g_memmove (desc->instrument,  &header[myDHDR.KHINS], 8);
+  memmove (desc->instrument,  &header[myDHDR.KHINS], 8);
   desc->instrument[9] = 0; /* null terminate */
 
   /* Name of observer. */
-  g_memmove (desc->observer,  &header[myDHDR.KHOBS], 8);
+  memmove (desc->observer,  &header[myDHDR.KHOBS], 8);
   desc->observer[9] = 0; /* null terminate */
 
   /* Observing date as yyyy-mm-dd ,  AIPS is YYYMMDD */
-  g_memmove (temp,  &header[myDHDR.KHDOB], 8);
+  memmove (temp,  &header[myDHDR.KHDOB], 8);
   j = 0;
   for (i=0; i<4; i++) desc->obsdat[i] = temp[j++]; 
   desc->obsdat[4] = '-';
@@ -687,7 +687,7 @@ void ObitAIPSCatUVGetDesc (ObitUVDesc *desc, gchar *buffer,
   desc->obsdat[10] = 0; /* null terminate */
 
   /* Image creation date as yyyy-mm-dd,  AIPS is YYYMMDD */
-  g_memmove (temp,  &header[myDHDR.KHDMP], 8);
+  memmove (temp,  &header[myDHDR.KHDMP], 8);
   j = 0;
   for (i=0; i<4; i++) desc->date[i] = temp[j++]; 
   desc->date[4] = '-';
@@ -697,11 +697,11 @@ void ObitAIPSCatUVGetDesc (ObitUVDesc *desc, gchar *buffer,
   desc->date[10] = 0; /* null terminate */
 
   /* Origin (software) of image. */
-  g_memmove (desc->origin,  "Obit    ", 8);
+  memmove (desc->origin,  "Obit    ", 8);
   desc->origin[9] = 0; /* null terminate */
 
   /* Units of image */
-  g_memmove (desc->bunit,  &header[myDHDR.KHBUN], 8);
+  memmove (desc->bunit,  &header[myDHDR.KHBUN], 8);
   desc->bunit[9] = 0; /* null terminate */
 
   /* Epoch (years) of celestial coordinates,
@@ -788,20 +788,20 @@ void ObitAIPSCatUVSetDesc (ObitUVDesc *desc, gchar *buffer,
 
     /* blank axis type values */
     for (i=0; i<header[myDHDR.KICTPN]; i++) 
-      g_memmove (&header[myDHDR.KHCTP+i*2], blank,  8);
+      memmove (&header[myDHDR.KHCTP+i*2], blank,  8);
 
     /* blank random parameter values */
     for (i=0; i<header[myDHDR.KIPTPN]; i++) 
-      g_memmove (&header[myDHDR.KHPTP+i*2], blank,  8);
+      memmove (&header[myDHDR.KHPTP+i*2], blank,  8);
 
     /* blank name class... */
-    g_memmove (&header[myDHDR.KHIMN], blank, 20);
+    memmove (&header[myDHDR.KHIMN], blank, 20);
 
     /* blank observers name */
-    g_memmove (&header[myDHDR.KHOBS], blank, 8);
+    memmove (&header[myDHDR.KHOBS], blank, 8);
 
     /* blank instrument name */
-    g_memmove (&header[myDHDR.KHINS], blank, 8);
+    memmove (&header[myDHDR.KHINS], blank, 8);
 
     /* Image sequence no. */
     header[myDHDR.KIIMS] = 0;
@@ -840,7 +840,7 @@ void ObitAIPSCatUVSetDesc (ObitUVDesc *desc, gchar *buffer,
     header[myDHDR.KINIT] = 0;
     
     /*  Sort order */
-    g_memmove (&header[myDHDR.KITYP], blank, 2);
+    memmove (&header[myDHDR.KITYP], blank, 2);
     
     /* Velocity reference frame  */
     header[myDHDR.KIALT] = 1;
@@ -851,7 +851,7 @@ void ObitAIPSCatUVSetDesc (ObitUVDesc *desc, gchar *buffer,
     /* set extension files */
     for (i=0; i<myDHDR.KIEXTN; i++) {
       /* two character code of extension file. */
-      g_memmove (&header[myDHDR.KHEXT+i], blank, 2);
+      memmove (&header[myDHDR.KHEXT+i], blank, 2);
       /* Number of versions of corresponding extension file. */
       header[myDHDR.KIVER+i] = 0;
     }
@@ -872,7 +872,7 @@ void ObitAIPSCatUVSetDesc (ObitUVDesc *desc, gchar *buffer,
   header[myDHDR.KIIMU] = dirEntry->user; 
     
   /*  Sort order */
-  g_memmove (&header[myDHDR.KITYP], desc->isort, 2);
+  memmove (&header[myDHDR.KITYP], desc->isort, 2);
     
   /* Number of axes. */
   header[myDHDR.KIDIM] = desc->naxis;
@@ -1010,7 +1010,7 @@ void ObitAIPSCatGetTable (ObitTableList *tableList, gchar *buffer,
   /* loop over AIPS header */
   for (j = 0; j<myDHDR.KIEXTN; j++) {
     /* table name */
-    g_memmove (&name[5], (gchar*)&header[myDHDR.KHEXT+j], 2);
+    memmove (&name[5], (gchar*)&header[myDHDR.KHEXT+j], 2);
 
     if (header[myDHDR.KIVER+j] > 0) { /* occupied? */
       /* Crazy value? */
@@ -1310,24 +1310,24 @@ void ObitAIPSCatTableSetDesc (ObitTableDesc *desc, gboolean init,
     for (i=0; i<256; i++) record[i] = 0;
 
     /* Strings in controlBlock */
-    g_memmove ((gchar*)&controlBlock[16], blank, 48);
-    g_memmove ((gchar*)&controlBlock[28], blank,  8);
-    g_memmove ((gchar*)&controlBlock[38], blank, 48);
-    g_memmove ((gchar*)&controlBlock[53], "*AIPS TABLE*", 12);
-    g_memmove ((gchar*)&controlBlock[100], blank, 48);
-    g_memmove ((gchar*)&controlBlock[112], blank, 48);
-    g_memmove ((gchar*)&controlBlock[124], blank, 16);
+    memmove ((gchar*)&controlBlock[16], blank, 48);
+    memmove ((gchar*)&controlBlock[28], blank,  8);
+    memmove ((gchar*)&controlBlock[38], blank, 48);
+    memmove ((gchar*)&controlBlock[53], "*AIPS TABLE*", 12);
+    memmove ((gchar*)&controlBlock[100], blank, 48);
+    memmove ((gchar*)&controlBlock[112], blank, 48);
+    memmove ((gchar*)&controlBlock[124], blank, 16);
 
     /* Fill in title = AIPS XX */
-    g_memmove ((gchar*)&controlBlock[100], "AIPS", 4);
+    memmove ((gchar*)&controlBlock[100], "AIPS", 4);
     tt[0] = ' '; tt[1] = ' '; tt[2] = tabType[0]; tt[3] = tabType[1];
-    g_memmove ((gchar*)&controlBlock[101], tt, 4);
+    memmove ((gchar*)&controlBlock[101], tt, 4);
 
     /* Creator info */
     ObitAIPSCatUpdateAccess(&controlBlock[10]); /* date/time */
     pgmName = ObitSystemGetPgmName ();
     ll = MIN (12, strlen(pgmName));
-    g_memmove ((gchar*)&controlBlock[28], pgmName, ll); /* Creator */
+    memmove ((gchar*)&controlBlock[28], pgmName, ll); /* Creator */
 
     /* Number of logical records for expansion */
     controlBlock[41] = 100;
@@ -1447,7 +1447,7 @@ void ObitAIPSCatTableSetDesc (ObitTableDesc *desc, gboolean init,
   ObitAIPSCatUpdateAccess(&controlBlock[32]);
   pgmName = ObitSystemGetPgmName ();
   ll = MIN (12, strlen(pgmName));
-  g_memmove ((gchar*)&controlBlock[38], pgmName, ll); /* Creator */
+  memmove ((gchar*)&controlBlock[38], pgmName, ll); /* Creator */
 
   /* sort order (logical column numbers */
   itemp = abs (desc->sort[0]) % 256;

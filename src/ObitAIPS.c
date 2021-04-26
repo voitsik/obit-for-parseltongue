@@ -667,14 +667,14 @@ void ObitAIPSRename(ObitIO *in, ObitInfoList *info, ObitErr *err)
 
   /* Get old values */
   oldSeq = entry->seq;
-  g_memmove(oldName,  entry->name, 12); oldName[12] = 0;
-  g_memmove(oldClass, entry->class, 6); oldClass[6] = 0;
+  memmove(oldName,  entry->name, 12); oldName[12] = 0;
+  memmove(oldClass, entry->class, 6); oldClass[6] = 0;
 
   /* Default name to old */
   if (!strncmp (newName,  "    ", 4)) 
-    {g_memmove(newName,  entry->name, 12); newName[12] = 0;}
+    {memmove(newName,  entry->name, 12); newName[12] = 0;}
   if (!strncmp (newClass, "    ", 4)) 
-    {g_memmove(newClass, entry->class, 6); newClass[6] = 0;}
+    {memmove(newClass, entry->class, 6); newClass[6] = 0;}
 
   /* Default sequence number */
   if (newSeq<=0) {

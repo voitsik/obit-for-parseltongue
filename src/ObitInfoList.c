@@ -568,8 +568,8 @@ ObitInfoListGetTest(ObitInfoList *in,
   /* copy information */
   *type = elem->itype;
   size = MAXINFOELEMDIM * sizeof (gint32);
-  g_memmove (dim, elem->idim, size);
-  g_memmove (data, elem->data, elem->size);
+  memmove (dim, elem->idim, size);
+  memmove (data, elem->data, elem->size);
 
   return TRUE;
 } /* end ObitInfoListGetTest */
@@ -616,8 +616,8 @@ gboolean ObitInfoListGet(ObitInfoList *in,
   /* copy information */
   *type = elem->itype;
   size = MAXINFOELEMDIM * sizeof (gint32);
-  g_memmove (dim, elem->idim, size);
-  g_memmove (data, elem->data, elem->size);
+  memmove (dim, elem->idim, size);
+  memmove (data, elem->data, elem->size);
 
   return TRUE;
 } /* end ObitInfoListGet */
@@ -656,7 +656,7 @@ gboolean ObitInfoListInfo(ObitInfoList *in,
   /* copy information */
   *type = elem->itype;
   size = MAXINFOELEMDIM * sizeof (gint32);
-  g_memmove (dim, elem->idim, size);
+  memmove (dim, elem->idim, size);
 
   return TRUE;
 } /* end ObitInfoListInfo */
@@ -694,7 +694,7 @@ gboolean ObitInfoListGetP(ObitInfoList *in,
   /* copy information */
   *type = elem->itype;
   size = MAXINFOELEMDIM * sizeof (gint32);
-  g_memmove (dim, elem->idim, size);
+  memmove (dim, elem->idim, size);
   *data = elem->data; /* just pointer */
 
   return TRUE;
@@ -762,8 +762,8 @@ ObitInfoListGetNumber (ObitInfoList *in,  olong number,
   size = strlen (elem->iname);
   *name = elem->iname;  /* set output pointer rather than copy */
   size = MAXINFOELEMDIM * sizeof (gint32);
-  g_memmove (dim, elem->idim, size);
-  g_memmove (data, elem->data, elem->size);
+  memmove (dim, elem->idim, size);
+  memmove (data, elem->data, elem->size);
 
   return TRUE;
 } /* end ObitInfoListGetNumber */
@@ -817,7 +817,7 @@ ObitInfoListGetNumberP (ObitInfoList *in,  olong number,
   size = strlen (elem->iname);
   *name = elem->iname;  /* set output pointer rather than copy */
   size = MAXINFOELEMDIM * sizeof (gint32);
-  g_memmove (dim, elem->idim, size);
+  memmove (dim, elem->idim, size);
   *data = elem->data; /* just pointer */
 
   return TRUE;

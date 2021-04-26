@@ -3055,7 +3055,7 @@ void  ObitIOUVKeysOtherRead(ObitIOUVFITS *in, olong *lstatus,
 	case 'C':  /* Character string */
 	  first = index (value,'\'')+1; /* a string? */
 	  last = rindex(value,'\'')-1;
-	  g_memmove(svalue, first, (last-first+1));
+	  memmove(svalue, first, (last-first+1));
 	  svalue[last-first+1] = 0; /* null terminate */
 	  /* add to InfoList */
 	  dim[0] = strlen(svalue);

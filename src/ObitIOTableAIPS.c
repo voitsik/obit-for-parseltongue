@@ -985,8 +985,8 @@ ObitIOTableAIPSReadDescriptor (ObitIOTableAIPS *in, ObitErr *err)
     ndo = MIN (ndo, (nkey-ikey)); /* Not more than number of columns */
     ip = 0;
     for (j=0; j<ndo; j++) {
-      g_memmove (&keyName[0], (gchar*)&record[ip],   4);
-      g_memmove (&keyName[4], (gchar*)&record[ip+1], 4); keyName[8] = 0;
+      memmove (&keyName[0], (gchar*)&record[ip],   4);
+      memmove (&keyName[4], (gchar*)&record[ip+1], 4); keyName[8] = 0;
        /* Special trap for dates - AIPS cannot store the 10 char form 
 	 yyyy-mm-dd ,  AIPS is YYYYMMDD */
       if (!strncmp(keyName, "RDATE", 5)) {
@@ -995,12 +995,12 @@ ObitIOTableAIPSReadDescriptor (ObitIOTableAIPS *in, ObitErr *err)
 	temp[0] = ctemp[0]; temp[1] = ctemp[1]; temp[2] = ctemp[2]; temp[3] = ctemp[3];
 	temp[4]='-'; temp[5] = ctemp[4]; temp[6] = ctemp[5]; temp[7] = '-';
 	temp[8] = ctemp[6]; temp[9] = ctemp[7];
-	g_memmove (blob, temp, 10); blob[10] = 0;
+	memmove (blob, temp, 10); blob[10] = 0;
 	cdim = 10;
       } else {  /* nothing special */
 	/* Save 8 bytes of data */
 	cdim = 8;
-	g_memmove (blob, (gchar*)&record[ip+2], 8); blob[8] = 0;
+	memmove (blob, (gchar*)&record[ip+2], 8); blob[8] = 0;
       }
       /* type as ObitInfoType */
       keyType = OBIT_oint;
@@ -1184,18 +1184,18 @@ ObitIOCode ObitIOTableAIPSWriteDescriptor (ObitIOTableAIPS *in, ObitErr *err)
       /* Replace any non printing characters with blanks */
       for (k=0; k<8; k++) if (!g_ascii_isprint(keyName[k])) keyName[k]=' ';
       /* Copy to record */
-      g_memmove ((gchar*)&record[ip],  &keyName[0], 4);
-      g_memmove ((gchar*)&record[ip+1],&keyName[4], 4); 
+      memmove ((gchar*)&record[ip],  &keyName[0], 4);
+      memmove ((gchar*)&record[ip+1],&keyName[4], 4); 
       /* Special trap for dates - AIPS cannot store the 10 char form 
 	 yyyy-mm-dd ,  AIPS is YYYYMMDD */
       if (!strncmp(keyName, "RDATE", 5)) {
 	/* AN and others table RDATE */
 	temp[0] = blob[0]; temp[1] = blob[1]; temp[2] = blob[2]; temp[3] = blob[3];
 	temp[4] = blob[5]; temp[5] = blob[6]; temp[6] = blob[8]; temp[7] = blob[9];
-	g_memmove ((gchar*)&record[ip+2], temp, 8); 
+	memmove ((gchar*)&record[ip+2], temp, 8); 
       } else {  /* nothing special */
 	/* Save 8 bytes of data */
-	g_memmove ((gchar*)&record[ip+2], blob, 8); 
+	memmove ((gchar*)&record[ip+2], blob, 8); 
       }
       /* Convert type to AIPSish */
       record[ip+4] = 4; /* default int */
@@ -1210,7 +1210,7 @@ ObitIOCode ObitIOTableAIPSWriteDescriptor (ObitIOTableAIPS *in, ObitErr *err)
       else if (keyType==OBIT_long) { /* May have to convert long->oint */
 	record[ip+4] = 4;
 	oitemp[0] = (oint)*(olong*)blob;
-	g_memmove ((gchar*)&record[ip+2], oitemp, 8); blob[8] = 0;
+	memmove ((gchar*)&record[ip+2], oitemp, 8); blob[8] = 0;
       }
       else if (keyType==OBIT_long)   record[ip+4] = 4;
       else if (keyType==OBIT_long)   record[ip+4] = 4;
@@ -1263,7 +1263,7 @@ ObitIOCode ObitIOTableAIPSWriteDescriptor (ObitIOTableAIPS *in, ObitErr *err)
 	for (k=0; k<24; k++) FieldName[k] = ' ';
 	for (k=0; k<MIN (24, strlen(desc->FieldName[kkol])); k++) 
 	  FieldName[k] = desc->FieldName[kkol][k];
-	g_memmove ((gchar*)&record[ip], FieldName, 24);
+	memmove ((gchar*)&record[ip], FieldName, 24);
 	icol++;
 	ip +=6; /* next title in record */
       }
@@ -1295,7 +1295,7 @@ ObitIOCode ObitIOTableAIPSWriteDescriptor (ObitIOTableAIPS *in, ObitErr *err)
 	for (ii=0; ii<8; ii++) temp[i] = ' ';
 	strncpy(temp, desc->FieldUnit[kkol], 8);
 	for (ii=0; ii<8; ii++) if (temp[i]==0) temp[i] = ' ';
-	g_memmove ((gchar*)&record[ip], temp, 8);
+	memmove ((gchar*)&record[ip], temp, 8);
 	icol++;
 	ip +=2; /* next unit in record */
       }

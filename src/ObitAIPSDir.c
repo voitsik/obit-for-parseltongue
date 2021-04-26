@@ -327,9 +327,9 @@ olong ObitAIPSDirAlloc(olong disk, olong user,
   if (!*exist) { /* only if new entry */
     entry.user  = user;
     entry.seq   = seq;
-    g_memmove(entry.name,  lAname, 12);
-    g_memmove(entry.class, lAclass, 6);
-    g_memmove(entry.type,  lAtype, 2);
+    memmove(entry.name,  lAname, 12);
+    memmove(entry.class, lAclass, 6);
+    memmove(entry.type,  lAtype, 2);
   }
 
   /* access time time */
@@ -588,8 +588,8 @@ void ObitAIPSDirRename(olong disk, olong user,  olong cno, gchar *newName,
 
   /* Change info */
   entry.seq   = newSeq;
-  g_memmove(entry.name,  Aname, 12);
-  g_memmove(entry.class, Aclass, 6);
+  memmove(entry.name,  Aname, 12);
+  memmove(entry.class, Aclass, 6);
   
   /* access time time */
   ObitAIPSDirUpdateEntry(&entry);
@@ -1286,7 +1286,7 @@ ObitAIPSDirCopy(ObitAIPSDirCatEntry *in, ObitAIPSDirCatEntry *out)
   out->access[0] = in->access[0];
   out->access[1] = in->access[1];
   out->seq       = in->seq;
-  g_memmove (out->name, in-> name, 20);
+  memmove (out->name, in-> name, 20);
 
   /* replace any NULLs in the string with blanks */
   for (i=0; i<20; i++) 
@@ -1332,7 +1332,7 @@ ObitAIPSDirExtend(ObitAIPSDir* in, ObitErr *err)
     entry->access[0] = 0;
     entry->access[1] = 0;
     entry->seq       = 0;
-    g_memmove (entry->name, blank, 20);
+    memmove (entry->name, blank, 20);
     entry++; /* next */
   }
 

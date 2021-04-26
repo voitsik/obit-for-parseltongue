@@ -99,7 +99,7 @@ ObitInfoElem* ObitInfoElemCopy (ObitInfoElem *in)
   g_free(name);
   
   /* Copy data */
-  g_memmove (out->data, in->data, in->size);
+  memmove (out->data, in->data, in->size);
 
   return out; 
 } /* end ObitInfoElemCopy */ 
@@ -226,27 +226,27 @@ void ObitInfoElemSave (ObitInfoElem *me, gconstpointer data)
     ((gchar*)me->data)[me->size-1] = 0;
     ddata = data;
     if (me->idim[1]==1) { /* 1-D strings */
-      g_memmove (me->data, data, MIN (me->idim[0], strlen(ddata)));
+      memmove (me->data, data, MIN (me->idim[0], strlen(ddata)));
     } else if (me->idim[1]>1) { /* >=2-D strings */
       off = 0;
       if (me->idim[2]==1) { /* no third axis */
 	c2data = (const gchar**)data;
 	for (i=0; i<me->idim[1]; i++) {
-	  g_memmove (&((gchar*)me->data)[off], c2data[i], MIN (me->idim[0], strlen(c2data[i])));
+	  memmove (&((gchar*)me->data)[off], c2data[i], MIN (me->idim[0], strlen(c2data[i])));
 	  off += me->idim[0];
 	}
       } else if (me->idim[2]>1) { /* 3D array */
 	c3data = (const gchar***)data;
 	for (j=0; j<me->idim[2]; j++) {
 	  for (i=0; i<me->idim[1]; i++) {
-	    g_memmove (&((gchar*)me->data)[off], c3data[j][i], MIN (me->idim[0], strlen(c3data[j][i])));
+	    memmove (&((gchar*)me->data)[off], c3data[j][i], MIN (me->idim[0], strlen(c3data[j][i])));
 	    off += me->idim[0];
 	  }
 	}
       }
     }
   } else { /* anything else (nonstring) */
-    g_memmove (me->data, data, me->size);
+    memmove (me->data, data, me->size);
   }
 }  /*  End of  ObitInfoElemSave  */
   
