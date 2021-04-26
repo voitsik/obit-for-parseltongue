@@ -50,14 +50,13 @@ def run_command(cmd):
     if isinstance(cmd, str):
         cmd = shlex.split(cmd)
 
-    ret = subprocess.run(cmd, capture_output=True)
+    ret = subprocess.run(cmd, capture_output=True, check=True)
 
     return ret.stdout.decode().strip()
 
 
 def update_build_info(build_info):
     """Update LIBS_BUILD_INFO dictionary."""
-    # print("DEBUG: Start update_build_info", file=sys.stderr)
     #
     # For xmlrpc-c use xmlrpc-c-config command
     #
@@ -118,10 +117,6 @@ class CustomBuildClib(build_clib):
 
         ext[1]["include_dirs"].extend(LIBS_BUILD_INFO["include_dirs"])
         ext[1]["macros"].extend(LIBS_BUILD_INFO["define_macros"])
-
-        # print("DEBUG: obit_lib build info:", file=sys.stderr)
-        # print(ext[1], file=sys.stderr)
-        # sys.exit(0)
 
 
 class CustomBuildExt(build_ext):
