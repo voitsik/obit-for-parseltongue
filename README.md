@@ -10,3 +10,15 @@ Part of Obit software (https://github.com/bill-cotton/Obit), which is required f
 * `gsl`
 * `fftw3f`
 * `xmlrpc-c`
+
+### Ubuntu
+
+```bash
+sudo apt install libxmlrpc-core-c3-dev libglib2.0-dev libfftw3-dev libcfitsio-dev libgsl-dev libcurl4-gnutls-dev swig
+```
+
+### Mac OS X
+
+```bash
+sudo port install pkgconfig glib2 gsl fftw-3-single cfitsio xmlrpc-c
+```
