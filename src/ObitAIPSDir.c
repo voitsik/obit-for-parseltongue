@@ -1286,11 +1286,23 @@ ObitAIPSDirCopy(ObitAIPSDirCatEntry *in, ObitAIPSDirCatEntry *out)
   out->access[0] = in->access[0];
   out->access[1] = in->access[1];
   out->seq       = in->seq;
-  memmove (out->name, in-> name, 20);
 
   /* replace any NULLs in the string with blanks */
-  for (i=0; i<20; i++) 
-    if (out->name[i]==0) out->name[i]=' ';
+  for (i=0; i<12; i++){
+    out->name[i] = in->name[i];
+    if (out->name[i]==0)
+        out->name[i]=' ';
+  }
+  for (i=0; i<6; i++){
+    out->class[i] = in->class[i];
+    if (out->class[i]==0)
+        out->class[i]=' ';
+  }
+  for (i=0; i<2; i++){
+    out->type[i] = in->type[i];
+    if (out->type[i]==0)
+        out->type[i]=' ';
+  }
 
 } /* end ObitAIPSDirCopy */
 
