@@ -29,7 +29,11 @@
 #include "ObitSinCos.h"
 #include "ObitVecFunc.h"
 #include <math.h>
-void sincosf(float x, float *sin, float *cos);
+
+/* sincosf is not available on MacOS */
+#if defined(__APPLE__)
+#define sincosf __sincosf
+#endif
 
 #define OBITSINCOSNTAB  1024  /* tabulated points per turn */
 #define OBITSINCOSNTAB4 256   /* 1/4 size of table */
