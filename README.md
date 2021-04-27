@@ -20,5 +20,5 @@ sudo apt install libxmlrpc-core-c3-dev libglib2.0-dev libfftw3-dev libcfitsio-de
 ### Mac OS X
 
 ```bash
-sudo port install pkgconfig glib2 gsl fftw-3-single cfitsio xmlrpc-c
+sudo port install pkgconfig swig-python glib2 gsl fftw-3-single cfitsio xmlrpc-c
 ```
