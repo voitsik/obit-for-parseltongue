@@ -44,4 +44,5 @@ jobs:
             
       - name: Test Obit import
         run: |
+          cd ..
           python -c "from obit import Obit; print(Obit.Version())"
