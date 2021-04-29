@@ -1313,7 +1313,7 @@ static void rdmove (olong  yeari, olong yearf, olong mo, olong nda,
  * \param  year  Year
  * \return Julian date of begining of year
  */
-static olong julDay (year) {
+static olong julDay (olong year) {
   olong    julda, yearm1, ic;
   
   yearm1 = year-1;

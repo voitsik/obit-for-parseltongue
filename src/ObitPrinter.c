@@ -378,6 +378,7 @@ void ObitPrinterNewPage (ObitPrinter *in, gboolean *quit, ObitErr *err)
 {
   gchar lline[2048];
   gchar *routine = "ObitPrinterNewPage";
+  gchar *ret;
 
   /* error checks */
   if (err->error) return;
@@ -414,8 +415,8 @@ void ObitPrinterNewPage (ObitPrinter *in, gboolean *quit, ObitErr *err)
     /* Does the user want to quit */
     fprintf (in->outStream, "Type Q to stop, just hit RETURN to continue\n");
     /* Read response from stdin */
-    fgets (lline, 100, stdin);
-    if ((lline[0]=='q') || (lline[0]=='Q')) {
+    ret = fgets (lline, 100, stdin);
+    if (!ret || (lline[0]=='q') || (lline[0]=='Q')) {
       /* Bail */
       *quit = TRUE;
       in->myStatus  = OBIT_Inactive;
