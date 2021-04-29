@@ -30,7 +30,6 @@
 
 %{
 #include "ObitImageUtil.h"
-#include "ObitGPUImage.h"
 #include "ObitTable.h"
 #include "ObitTableCCUtil.h"
 #include "ObitPolnUnwind.h"
@@ -72,18 +71,6 @@ ImageUtilInterpolateImageXY (ObitImage *inImage, ObitImage *outImage,
   ObitImageUtilInterpolateImageXY (inImage, outImage, XPix, YPix,
                                    linPlane, loutPlane, hwidth, err);
 } // end ImageUtilInterpolateImageXY
-
-void 
-GPUImageInterpolateImageXY (ObitGPUFInterpolate *finterp,
-                            ObitImage *inImage, ObitImage *outImage, 
-			    long *inPlane, long *outPlane,
-			    ObitErr *err)
-{
-  olong i, linPlane[5], loutPlane[5];
-  for (i=0; i<5; i++) {linPlane[i] = inPlane[i]; loutPlane[i] = outPlane[i];}
-  ObitGPUImageInterpolateImageXY (finterp, inImage, outImage, 
-                                   linPlane, loutPlane, err);
-} // end GPUImageInterpolateImageXY
 
 void 
 ImageUtilGetXYPixels (ObitImage *inImage, ObitImage *outImage, 
