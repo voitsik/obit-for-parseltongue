@@ -46,22 +46,22 @@ static gchar *myClassName = "ObitAIPSDir";
 static ObitThread *myLock = NULL;
 
 /*------------------ Structures -----------------------------*/
-/** ObitAIPSDir Class Structure. */  
+/** ObitAIPSDir Class Structure. */
 typedef struct {
-  /** class name for verification */
-  gchar *className;
-  /** Open I/O channel */
-  ObitFile *myFile;
-  /** File name */
-  gchar      *CatFile;
-  /** disk number */
-  olong disk;
-  /** User id */
-  olong user;
-  /** maximum slot */
-  olong maxcno;
-  /** does the buffer need to be flushed? */
-  gboolean flush;
+    /** class name for verification */
+    gchar *className;
+    /** Open I/O channel */
+    ObitFile *myFile;
+    /** File name */
+    gchar      *CatFile;
+    /** disk number */
+    olong disk;
+    /** User id */
+    olong user;
+    /** maximum slot */
+    olong maxcno;
+    /** does the buffer need to be flushed? */
+    gboolean flush;
 } ObitAIPSDir;
 
 /**
@@ -69,51 +69,51 @@ typedef struct {
  * This is at the beginning of a catalog.
  */
 typedef struct {
-  /** disk number (not used?) */
-  olong disk;
-  olong dummy;
-  /** number of catalog entries */
-  olong ncat;
-  /** date created (y, m, d) */
-  olong date_created[3];
-  /** time created (h, m, s) */
-  olong time_created[3];
-  /** date of last access (y, m, d) */
-  olong date_access[3];
-  /** time of last access (h, m, s) */
-  olong time_access[3];
+    /** disk number (not used?) */
+    olong disk;
+    olong dummy;
+    /** number of catalog entries */
+    olong ncat;
+    /** date created (y, m, d) */
+    olong date_created[3];
+    /** time created (h, m, s) */
+    olong time_created[3];
+    /** date of last access (y, m, d) */
+    olong date_access[3];
+    /** time of last access (h, m, s) */
+    olong time_access[3];
 } ObitAIPSDirCatHead;
 
 /*---------------Private function prototypes----------------*/
 /** Private: Open catalog directory. */
-static ObitAIPSDir* 
-ObitAIPSDirOpen (olong disk, olong user, ObitErr *err);
+static ObitAIPSDir *
+ObitAIPSDirOpen(olong disk, olong user, ObitErr *err);
 
 /** Private: Close catalog directory. */
-static void 
-ObitAIPSDirClose (ObitAIPSDir* in, ObitErr *err);
+static void
+ObitAIPSDirClose(ObitAIPSDir *in, ObitErr *err);
 
 /** Private: Lookup AIPS file in directory. */
-static olong 
-ObitAIPSDirFindEntry (ObitAIPSDir* in, gchar Aname[13], 
-		      gchar Aclass[7], gchar Atype[3], 
-		      olong seq, ObitErr *err);
+static olong
+ObitAIPSDirFindEntry(ObitAIPSDir *in, gchar Aname[13],
+                     gchar Aclass[7], gchar Atype[3],
+                     olong seq, ObitErr *err);
 
 /** Private: Find first free entry in directory. */
-static olong 
-ObitAIPSDirFindFree (ObitAIPSDir* in, gchar Aname[13], 
-		      gchar Aclass[7], gchar Atype[3], 
-		      olong seq, ObitErr *err);
+static olong
+ObitAIPSDirFindFree(ObitAIPSDir *in, gchar Aname[13],
+                    gchar Aclass[7], gchar Atype[3],
+                    olong seq, ObitErr *err);
 
 /** Private: Read a Catalog directory entry. */
 static void
-ObitAIPSDirRead(ObitAIPSDir* in, olong cno,
-		ObitAIPSDirCatEntry *entry, ObitErr *err);
+ObitAIPSDirRead(ObitAIPSDir *in, olong cno,
+                ObitAIPSDirCatEntry *entry, ObitErr *err);
 
 /** Private: Write a Catalog directory entry. */
 static void
-ObitAIPSDirWrite(ObitAIPSDir* in, olong cno,
-		 ObitAIPSDirCatEntry *entry, ObitErr *err);
+ObitAIPSDirWrite(ObitAIPSDir *in, olong cno,
+                 ObitAIPSDirCatEntry *entry, ObitErr *err);
 
 /** Private: Copy a Catalog directory entry. */
 static void
@@ -121,7 +121,7 @@ ObitAIPSDirCopy(ObitAIPSDirCatEntry *in, ObitAIPSDirCatEntry *out);
 
 /** Private: Add a record block to the catalog directory. */
 static void
-ObitAIPSDirExtend(ObitAIPSDir* in, ObitErr *err);
+ObitAIPSDirExtend(ObitAIPSDir *in, ObitErr *err);
 
 /** Private: Initialize directory header */
 static void
@@ -136,26 +136,26 @@ static void
 ObitAIPSDirUpdateEntry(ObitAIPSDirCatEntry *entry);
 
 /** Private: Returns true if input is a  ObitAIPSDir* */
-gboolean ObitAIPSDirIsA (ObitAIPSDir* in);
+gboolean ObitAIPSDirIsA(ObitAIPSDir *in);
 
 /** Private: Convert packed time word to its parts */
-static void ObitAIPSDirUnpackTime (AIPSint pack, olong unpack[3]);
+static void ObitAIPSDirUnpackTime(AIPSint pack, olong unpack[3]);
 
 /** Private: Convert time triplet to packed. */
-static void ObitAIPSDirPackTime (AIPSint *pack, olong unpack[3]);
+static void ObitAIPSDirPackTime(AIPSint *pack, olong unpack[3]);
 
 /** Private: Convert packed date word to its parts */
-static void ObitAIPSDirUnpackDate (AIPSint pack, olong unpack[3]);
+static void ObitAIPSDirUnpackDate(AIPSint pack, olong unpack[3]);
 
 /** Private: Convert date triplet to packed. */
-static void ObitAIPSDirPackDate (AIPSint *pack, olong unpack[3]);
+static void ObitAIPSDirPackDate(AIPSint *pack, olong unpack[3]);
 
 /** Private: Class initializer. */
-void ObitAIPSDirClassInit (olong number, gchar* dir[]);
+void ObitAIPSDirClassInit(olong number, gchar *dir[]);
 
 /** Private: Sync head with actual contents of directory */
-static void SyncDir(ObitAIPSDir *out, ObitAIPSDirCatHead  *head, 
-		    ObitErr *err);
+static void SyncDir(ObitAIPSDir *out, ObitAIPSDirCatHead  *head,
+                    ObitErr *err);
 /*---------------Public functions---------------------------*/
 /**
  * Look through AIPS catalog on a given disk to find a given
@@ -169,76 +169,90 @@ static void SyncDir(ObitAIPSDir *out, ObitAIPSDirCatHead  *head,
  * \param err   Obit error stack
  * \return the catalog slot number or -1 if it was not found.
  */
-olong ObitAIPSDirFindCNO(olong disk, olong user, 
-		     gchar Aname[13], gchar Aclass[7], 
-		     gchar Atype[3], olong seq, ObitErr *err)
+olong ObitAIPSDirFindCNO(olong disk, olong user,
+                         gchar Aname[13], gchar Aclass[7],
+                         gchar Atype[3], olong seq, ObitErr *err)
 {
-  ObitAIPSDir         *myDir = NULL;
-  olong cno=-1, ndisk, i;
-  ObitAIPSDirCatEntry entry;
-  gchar lAname[13], lAclass[7], lAtype[3];
-  gchar *routine = "ObitAIPSDirFindCNO";
+    ObitAIPSDir         *myDir = NULL;
+    olong cno = -1, ndisk, i;
+    ObitAIPSDirCatEntry entry;
+    gchar lAname[13], lAclass[7], lAtype[3];
+    gchar *routine = "ObitAIPSDirFindCNO";
 
-  /* error checks */
-  g_assert(ObitErrIsA(err));
-  if (err->error) return -1;  /* previous error? */
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
-  /* protect against bad strings */
-  for (i=0; i<12; i++) lAname[i]  = Aname[i];  lAname[i] = 0;
-  for (i=0; i<6; i++)  lAclass[i] = Aclass[i]; lAclass[i] = 0;
-  for (i=0; i<2; i++)  lAtype[i]  = Atype[i];  lAtype[i] = 0;
-  
-  /* Check that disk legal */
-  ndisk = ObitAIPSGetNumDisk(err);
-  if ((disk <= 0) || (disk > ndisk)) {
-    Obit_log_error(err, OBIT_Error, 
-		   "%s: illegal AIPS disk number %d not in [1, %d]", 
-      routine, disk, ndisk);
-    return -1;
-  }
+    if (err->error) return -1;  /* previous error? */
 
- /* Open */
-  myDir =  ObitAIPSDirOpen (disk, user, err);
-  if (err->error) return -1;
+    /* protect against bad strings */
+    for (i = 0; i < 12; i++) lAname[i]  = Aname[i];
 
-  /* Find entry */
-  cno = ObitAIPSDirFindEntry (myDir, lAname, lAclass, lAtype, 
-			      seq, err);
-  if (err->error) { /* attempt close on error */
-    ObitAIPSDirClose (myDir, err); 
-    return -1;
-  }
+    lAname[i] = 0;
 
-  /* Log error and return */
-  if (cno<1) {
-    Obit_log_error(err, OBIT_InfoWarn, 
-		   "Could not find AIPS %s file %s %s seq %d disk %d", 
-		   lAtype, lAname, lAclass, seq, disk);
-    ObitAIPSDirClose (myDir, err); 
-    return -1;
-  }
+    for (i = 0; i < 6; i++)  lAclass[i] = Aclass[i];
 
-  /* Update last access */
-  ObitAIPSDirRead(myDir, cno, &entry, err);
-  if (err->error) { /* attempt close on error */
-    ObitAIPSDirClose (myDir, err); 
-    return -1;
-  }
+    lAclass[i] = 0;
 
-  /* change time */
-  ObitAIPSDirUpdateEntry(&entry);
+    for (i = 0; i < 2; i++)  lAtype[i]  = Atype[i];
 
-  /* write it back */
-  ObitAIPSDirWrite(myDir, cno, &entry, err);
-  if (err->error) { /* attempt close on error */
-    ObitAIPSDirClose (myDir, err); 
-    return -1;
-  }
-  
-  /* close file */
-  ObitAIPSDirClose (myDir, err);
+    lAtype[i] = 0;
 
-  return cno;
+    /* Check that disk legal */
+    ndisk = ObitAIPSGetNumDisk(err);
+
+    if ((disk <= 0) || (disk > ndisk)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s: illegal AIPS disk number %d not in [1, %d]",
+                       routine, disk, ndisk);
+        return -1;
+    }
+
+    /* Open */
+    myDir =  ObitAIPSDirOpen(disk, user, err);
+
+    if (err->error) return -1;
+
+    /* Find entry */
+    cno = ObitAIPSDirFindEntry(myDir, lAname, lAclass, lAtype,
+                               seq, err);
+
+    if (err->error) { /* attempt close on error */
+        ObitAIPSDirClose(myDir, err);
+        return -1;
+    }
+
+    /* Log error and return */
+    if (cno < 1) {
+        Obit_log_error(err, OBIT_InfoWarn,
+                       "Could not find AIPS %s file %s %s seq %d disk %d",
+                       lAtype, lAname, lAclass, seq, disk);
+        ObitAIPSDirClose(myDir, err);
+        return -1;
+    }
+
+    /* Update last access */
+    ObitAIPSDirRead(myDir, cno, &entry, err);
+
+    if (err->error) { /* attempt close on error */
+        ObitAIPSDirClose(myDir, err);
+        return -1;
+    }
+
+    /* change time */
+    ObitAIPSDirUpdateEntry(&entry);
+
+    /* write it back */
+    ObitAIPSDirWrite(myDir, cno, &entry, err);
+
+    if (err->error) { /* attempt close on error */
+        ObitAIPSDirClose(myDir, err);
+        return -1;
+    }
+
+    /* close file */
+    ObitAIPSDirClose(myDir, err);
+
+    return cno;
 } /* end ObitAIPSDirFindCNO */
 
 /**
@@ -252,107 +266,125 @@ olong ObitAIPSDirFindCNO(olong disk, olong user,
  * \param Aclass AIPS class.
  * \param Atype  AIPS file type (MA, UV, SC).
  * \param seq    AIPS sequence number.  If <=0 then one is assigned
- *               if a matching file exists, the highest sequence number, 
+ *               if a matching file exists, the highest sequence number,
  *               is used, else seq 1 is allocated.
  * \param exist  [out] TRUE iff the entry previously existed.
  * \param err    Obit error stack.
  * \return the catalog slot number or -1 if it was not found.
  */
-olong ObitAIPSDirAlloc(olong disk, olong user, 
-		     gchar Aname[13], gchar Aclass[7], gchar Atype[3], 
-		     olong seq, gboolean *exist, ObitErr *err)
+olong ObitAIPSDirAlloc(olong disk, olong user,
+                       gchar Aname[13], gchar Aclass[7], gchar Atype[3],
+                       olong seq, gboolean *exist, ObitErr *err)
 {
-  ObitAIPSDir         *myDir = NULL;
-  olong cno = -1, ndisk, i;
-  ObitAIPSDirCatEntry entry;
-  gchar lAname[13], lAclass[7], lAtype[3];
-  gchar *routine = "ObitAIPSDirAlloc";
+    ObitAIPSDir         *myDir = NULL;
+    olong cno = -1, ndisk, i;
+    ObitAIPSDirCatEntry entry;
+    gchar lAname[13], lAclass[7], lAtype[3];
+    gchar *routine = "ObitAIPSDirAlloc";
 
-  /* error checks */
-  g_assert(ObitErrIsA(err));
-  if (err->error) return -1;  /* previous error? */
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
-  /* protect against bad strings */
-  for (i=0; i<12; i++) lAname[i]  = Aname[i];  lAname[i] = 0;
-  for (i=0; i<6; i++)  lAclass[i] = Aclass[i]; lAclass[i] = 0;
-  for (i=0; i<2; i++)  lAtype[i]  = Atype[i];  lAtype[i] = 0;
-  
-  /* Check that disk legal */
-  ndisk = ObitAIPSGetNumDisk(err);
-  if ((disk <= 0) || (disk > ndisk)) {
-    Obit_log_error(err, OBIT_Error, 
-		   "%s: illegal AIPS disk number %d not in [1, %d]", 
-      routine, disk, ndisk);
-    return -1;
-  }
+    if (err->error) return -1;  /* previous error? */
 
-  /* Check/fix sequence number */
-  if (seq<1) {
-    seq = ObitAIPSDirHiSeq (disk, user, lAname, lAclass, lAtype, TRUE, err);
-    if (err->error) Obit_traceback_val (err, routine, "Catalog search", cno);
-  }
+    /* protect against bad strings */
+    for (i = 0; i < 12; i++) lAname[i]  = Aname[i];
 
-  /* Open */
-  myDir =  ObitAIPSDirOpen (disk, user, err);
-  if (err->error) return -1;
+    lAname[i] = 0;
 
-  /* is it already there */
-  cno = ObitAIPSDirFindEntry (myDir, lAname, lAclass, lAtype, 
-			      seq, err);
-  if (err->error) { /* attempt close on error */
-    ObitAIPSDirClose (myDir, err); 
-    return -1;
-  }
+    for (i = 0; i < 6; i++)  lAclass[i] = Aclass[i];
 
-  *exist = cno>0; /* find it? */
+    lAclass[i] = 0;
 
-  /* If not - find a free one */
-  if (!*exist) {
-    cno = ObitAIPSDirFindFree (myDir, lAname, lAclass, lAtype, 
-			       seq, err);
-    if (err->error) { /* attempt close on error */
-      ObitAIPSDirClose (myDir, err); 
-      return -1;
+    for (i = 0; i < 2; i++)  lAtype[i]  = Atype[i];
+
+    lAtype[i] = 0;
+
+    /* Check that disk legal */
+    ndisk = ObitAIPSGetNumDisk(err);
+
+    if ((disk <= 0) || (disk > ndisk)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s: illegal AIPS disk number %d not in [1, %d]",
+                       routine, disk, ndisk);
+        return -1;
     }
-  }
 
-  /* Enter values - read */
-  ObitAIPSDirRead(myDir, cno, &entry, err);
-  if (err->error) { /* attempt close on error */
-    ObitAIPSDirClose (myDir, err); 
-    return -1;
-  }
+    /* Check/fix sequence number */
+    if (seq < 1) {
+        seq = ObitAIPSDirHiSeq(disk, user, lAname, lAclass, lAtype, TRUE, err);
 
-  /* register information */
-  if (!*exist) { /* only if new entry */
-    entry.user  = user;
-    entry.seq   = seq;
-    memmove(entry.name,  lAname, 12);
-    memmove(entry.class, lAclass, 6);
-    memmove(entry.type,  lAtype, 2);
-  }
+        if (err->error) Obit_traceback_val(err, routine, "Catalog search", cno);
+    }
 
-  /* access time time */
-  ObitAIPSDirUpdateEntry(&entry);
+    /* Open */
+    myDir =  ObitAIPSDirOpen(disk, user, err);
 
-  /* write it back */
-  ObitAIPSDirWrite(myDir, cno, &entry, err);
-  if (err->error) { /* attempt close on error */
-    ObitAIPSDirClose (myDir, err); 
-    return -1;
-  }
-  
-  /* close file */
-  ObitAIPSDirClose (myDir, err);
-  if (err->error) Obit_traceback_val (err, routine, "Catalog search", cno);
+    if (err->error) return -1;
 
-  /* Write Dummy AIPS header */
-  if ((cno>0) && (!*exist)) {
-    ObitAIPSCatDummy(disk, user, Aname, Aclass, Atype, seq, cno, err);
-    if (err->error) Obit_traceback_val (err, routine, "Dummy header", cno);
-  }
+    /* is it already there */
+    cno = ObitAIPSDirFindEntry(myDir, lAname, lAclass, lAtype,
+                               seq, err);
 
-  return cno;
+    if (err->error) { /* attempt close on error */
+        ObitAIPSDirClose(myDir, err);
+        return -1;
+    }
+
+    *exist = cno > 0; /* find it? */
+
+    /* If not - find a free one */
+    if (!*exist) {
+        cno = ObitAIPSDirFindFree(myDir, lAname, lAclass, lAtype,
+                                  seq, err);
+
+        if (err->error) { /* attempt close on error */
+            ObitAIPSDirClose(myDir, err);
+            return -1;
+        }
+    }
+
+    /* Enter values - read */
+    ObitAIPSDirRead(myDir, cno, &entry, err);
+
+    if (err->error) { /* attempt close on error */
+        ObitAIPSDirClose(myDir, err);
+        return -1;
+    }
+
+    /* register information */
+    if (!*exist) { /* only if new entry */
+        entry.user  = user;
+        entry.seq   = seq;
+        memmove(entry.name,  lAname, 12);
+        memmove(entry.class, lAclass, 6);
+        memmove(entry.type,  lAtype, 2);
+    }
+
+    /* access time time */
+    ObitAIPSDirUpdateEntry(&entry);
+
+    /* write it back */
+    ObitAIPSDirWrite(myDir, cno, &entry, err);
+
+    if (err->error) { /* attempt close on error */
+        ObitAIPSDirClose(myDir, err);
+        return -1;
+    }
+
+    /* close file */
+    ObitAIPSDirClose(myDir, err);
+
+    if (err->error) Obit_traceback_val(err, routine, "Catalog search", cno);
+
+    /* Write Dummy AIPS header */
+    if ((cno > 0) && (!*exist)) {
+        ObitAIPSCatDummy(disk, user, Aname, Aclass, Atype, seq, cno, err);
+
+        if (err->error) Obit_traceback_val(err, routine, "Dummy header", cno);
+    }
+
+    return cno;
 } /* end ObitAIPSDirAlloc */
 
 /**
@@ -364,61 +396,66 @@ olong ObitAIPSDirAlloc(olong disk, olong user,
  */
 void ObitAIPSDirRemoveEntry(olong disk, olong user, olong cno, ObitErr *err)
 {
-  ObitAIPSDir         *myDir = NULL;
-  ObitAIPSDirCatEntry entry;
-  olong ndisk;
-  ObitAIPSDirStatusError retCode = OBIT_AIPS_Dir_StatusSpecErr;
-  gchar *routine = "ObitAIPSDirRemoveEntry";
+    ObitAIPSDir         *myDir = NULL;
+    ObitAIPSDirCatEntry entry;
+    olong ndisk;
+    ObitAIPSDirStatusError retCode = OBIT_AIPS_Dir_StatusSpecErr;
+    gchar *routine = "ObitAIPSDirRemoveEntry";
 
-  /* error checks */
-  g_assert(ObitErrIsA(err));
-  if (err->error) return;  /* previous error? */
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
-  /* Check that disk legal */
-  ndisk = ObitAIPSGetNumDisk(err);
-  if ((disk <= 0) || (disk > ndisk)) {
-    Obit_log_error(err, OBIT_Error, 
-		   "%s: illegal AIPS disk number %d not in [1, %d]", 
-      routine, disk, ndisk);
-    return;
-  }
+    if (err->error) return;  /* previous error? */
 
-  /* Open */
-  retCode = OBIT_AIPS_Dir_StatusIOErr;
-  myDir =  ObitAIPSDirOpen (disk, user, err);
-  if (err->error) return;
+    /* Check that disk legal */
+    ndisk = ObitAIPSGetNumDisk(err);
 
-  /* Read entry */
-  ObitAIPSDirRead(myDir, cno, &entry, err);
-  if (err->error) { /* attempt close on error */
-    ObitAIPSDirClose (myDir, err); 
-    return;
-  }
+    if ((disk <= 0) || (disk > ndisk)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s: illegal AIPS disk number %d not in [1, %d]",
+                       routine, disk, ndisk);
+        return;
+    }
 
-  /* Must have no read/write status */
-  if (entry.status!=0) {
-    Obit_log_error(err, OBIT_Error, 
-		   "Cannot remove Catalog entry - active status");
-    ObitAIPSDirClose (myDir, err); 
-    return;
-  }
-
-  /* Mark as unoccupied */
-  entry.user = -1;
-
-  /* access time time */
-  ObitAIPSDirUpdateEntry(&entry);
-
-  /* write it back */
-  ObitAIPSDirWrite(myDir, cno, &entry, err);
-  if (err->error) { /* attempt close on error */
+    /* Open */
     retCode = OBIT_AIPS_Dir_StatusIOErr;
-    ObitAIPSDirClose (myDir, err); 
-    return;
-  }
-  
-  /* close file */
-  ObitAIPSDirClose (myDir, err);
+    myDir =  ObitAIPSDirOpen(disk, user, err);
+
+    if (err->error) return;
+
+    /* Read entry */
+    ObitAIPSDirRead(myDir, cno, &entry, err);
+
+    if (err->error) { /* attempt close on error */
+        ObitAIPSDirClose(myDir, err);
+        return;
+    }
+
+    /* Must have no read/write status */
+    if (entry.status != 0) {
+        Obit_log_error(err, OBIT_Error,
+                       "Cannot remove Catalog entry - active status");
+        ObitAIPSDirClose(myDir, err);
+        return;
+    }
+
+    /* Mark as unoccupied */
+    entry.user = -1;
+
+    /* access time time */
+    ObitAIPSDirUpdateEntry(&entry);
+
+    /* write it back */
+    ObitAIPSDirWrite(myDir, cno, &entry, err);
+
+    if (err->error) { /* attempt close on error */
+        retCode = OBIT_AIPS_Dir_StatusIOErr;
+        ObitAIPSDirClose(myDir, err);
+        return;
+    }
+
+    /* close file */
+    ObitAIPSDirClose(myDir, err);
 
 } /* end ObitAIPSDirRemoveEntry */
 
@@ -431,40 +468,44 @@ void ObitAIPSDirRemoveEntry(olong disk, olong user, olong cno, ObitErr *err)
  */
 olong ObitAIPSDirNumber(olong disk, olong user, ObitErr *err)
 {
-  olong                ndisk, out = 0;
-  ObitAIPSDir         *myDir = NULL;
-  ObitAIPSDirStatusError retCode = OBIT_AIPS_Dir_StatusSpecErr;
-  gchar *routine = "ObitAIPSDirNumber";
+    olong                ndisk, out = 0;
+    ObitAIPSDir         *myDir = NULL;
+    ObitAIPSDirStatusError retCode = OBIT_AIPS_Dir_StatusSpecErr;
+    gchar *routine = "ObitAIPSDirNumber";
 
-  /* error checks */
-  g_assert(ObitErrIsA(err));
-  if (err->error) return out;  /* previous error? */
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
-  /* Check that disk legal */
-  ndisk = ObitAIPSGetNumDisk(err);
-  if ((disk <= 0) || (disk > ndisk)) {
-    Obit_log_error(err, OBIT_Error, 
-		   "%s: illegal AIPS disk number %d not in [1, %d]", 
-      routine, disk, ndisk);
+    if (err->error) return out;  /* previous error? */
+
+    /* Check that disk legal */
+    ndisk = ObitAIPSGetNumDisk(err);
+
+    if ((disk <= 0) || (disk > ndisk)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s: illegal AIPS disk number %d not in [1, %d]",
+                       routine, disk, ndisk);
+        return out;
+    }
+
+    /* Open */
+    retCode = OBIT_AIPS_Dir_StatusIOErr;
+    myDir =  ObitAIPSDirOpen(disk, user, err);
+
+    if (err->error) return out;
+
+    out = myDir->maxcno;  /* Get maximum allocate */
+
+    /* close file */
+    ObitAIPSDirClose(myDir, err);
+
     return out;
-  }
-
-  /* Open */
-  retCode = OBIT_AIPS_Dir_StatusIOErr;
-  myDir =  ObitAIPSDirOpen (disk, user, err);
-  if (err->error) return out;
-  out = myDir->maxcno;  /* Get maximum allocate */
-
-  /* close file */
-  ObitAIPSDirClose (myDir, err);
-
-  return out;
 } /* end ObitAIPSDirNumber */
 
 /**
  * Searches directory(ies) for matching file name to determine the highest
- * sequence number.  
- * If exist==TRUE and a match is found the highest value is returned.  
+ * sequence number.
+ * If exist==TRUE and a match is found the highest value is returned.
  * If If exist==FALSE and a match is found , the highest seq+1 is returned
  * If there are no matches, 1 is returned
  * \param disk   disk number., if 0, check all
@@ -476,74 +517,82 @@ olong ObitAIPSDirNumber(olong disk, olong user, ObitErr *err)
  * \param err    Obit error stack.
  * \return the desired AIPS sequence number, -1 on error
  */
-olong ObitAIPSDirHiSeq(olong disk, olong user, gchar Aname[13], gchar Aclass[7], 
-		      gchar Atype[3], gboolean exist, ObitErr *err)
+olong ObitAIPSDirHiSeq(olong disk, olong user, gchar Aname[13], gchar Aclass[7],
+                       gchar Atype[3], gboolean exist, ObitErr *err)
 {
-  olong i, outSeq = -1;
-  olong loDisk, hiDisk, iDisk;
-  ObitAIPSDir   *myDir = NULL;
-  olong cno = -1, ndisk;
-  ObitAIPSDirCatEntry entry;
-  gboolean found;
-  gchar *routine = "ObitAIPSDirHiSeq";
+    olong i, outSeq = -1;
+    olong loDisk, hiDisk, iDisk;
+    ObitAIPSDir   *myDir = NULL;
+    olong cno = -1, ndisk;
+    ObitAIPSDirCatEntry entry;
+    gboolean found;
+    gchar *routine = "ObitAIPSDirHiSeq";
 
-  /* error checks */
-  g_assert(ObitErrIsA(err));
-  if (err->error) return outSeq;  /* previous error? */
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
-  /* Clean input strings - make sure no nulls in characters to be
-     compared */
-  for (i=0; i<12; i++) if (Aname[i]==0)  Aname[i] = ' ';
-  for (i=0; i<6 ; i++) if (Aclass[i]==0) Aclass[i] = ' ';
-  for (i=0; i<2 ; i++) if (Atype[i]==0)  Atype[i] = ' ';
+    if (err->error) return outSeq;  /* previous error? */
 
-  /* Loop over disks */
-  ndisk = ObitAIPSGetNumDisk(err);
-  if (disk<=0) {
-    loDisk = 1;
-    hiDisk = ndisk;
-  } else {
-    loDisk = disk;
-    hiDisk = disk;
-  }
+    /* Clean input strings - make sure no nulls in characters to be
+       compared */
+    for (i = 0; i < 12; i++) if (Aname[i] == 0)  Aname[i] = ' ';
 
-  for (iDisk = loDisk; iDisk<= hiDisk; iDisk++) {
-    /* Open */
-    myDir =  ObitAIPSDirOpen (disk, user, err);
-    if (err->error) Obit_traceback_val (err, routine, "Catalog search", -1);
+    for (i = 0; i < 6 ; i++) if (Aclass[i] == 0) Aclass[i] = ' ';
 
-    /* Loop over slots */
-    for (cno=1; cno<=myDir->maxcno; cno++) {
-      ObitAIPSDirRead(myDir, cno, &entry, err);
-      if (err->error) { /* attempt close on error */
-	ObitAIPSDirClose (myDir, err); 
-	Obit_traceback_val (err, routine, "Catalog search", outSeq);
-      }
+    for (i = 0; i < 2 ; i++) if (Atype[i] == 0)  Atype[i] = ' ';
 
-      /* Does this match? */
-      found  = (user == entry.user) &&
-	(!strncmp (Aname,  entry.name, 12)) &&
-	(!strncmp (Aclass, entry.class, 6)) &&
-	(!strncmp (Atype,  entry.type,  2));
-      if (found) outSeq = MAX (outSeq, entry.seq);
+    /* Loop over disks */
+    ndisk = ObitAIPSGetNumDisk(err);
+
+    if (disk <= 0) {
+        loDisk = 1;
+        hiDisk = ndisk;
+    } else {
+        loDisk = disk;
+        hiDisk = disk;
     }
 
-    /* close directory */
-    ObitAIPSDirClose (myDir, err);
-    if (err->error) Obit_traceback_val (err, routine, "Catalog search", outSeq);
+    for (iDisk = loDisk; iDisk <= hiDisk; iDisk++) {
+        /* Open */
+        myDir =  ObitAIPSDirOpen(disk, user, err);
 
-  } /* end loop over disk */
+        if (err->error) Obit_traceback_val(err, routine, "Catalog search", -1);
 
-  /* One found? */
-  if (outSeq<=0) {    /* Nope - use 1 */
-    outSeq = 1;
-  } else if (exist) { /* Want existing one, use highest found */
-    outSeq = outSeq;
-  } else {            /* Want new one, use highest found + 1 */
-    outSeq++;
-  }
+        /* Loop over slots */
+        for (cno = 1; cno <= myDir->maxcno; cno++) {
+            ObitAIPSDirRead(myDir, cno, &entry, err);
 
-  return outSeq;
+            if (err->error) { /* attempt close on error */
+                ObitAIPSDirClose(myDir, err);
+                Obit_traceback_val(err, routine, "Catalog search", outSeq);
+            }
+
+            /* Does this match? */
+            found  = (user == entry.user) &&
+                     (!strncmp(Aname,  entry.name, 12)) &&
+                     (!strncmp(Aclass, entry.class, 6)) &&
+                     (!strncmp(Atype,  entry.type,  2));
+
+            if (found) outSeq = MAX(outSeq, entry.seq);
+        }
+
+        /* close directory */
+        ObitAIPSDirClose(myDir, err);
+
+        if (err->error) Obit_traceback_val(err, routine, "Catalog search", outSeq);
+
+    } /* end loop over disk */
+
+    /* One found? */
+    if (outSeq <= 0) {  /* Nope - use 1 */
+        outSeq = 1;
+    } else if (exist) { /* Want existing one, use highest found */
+        outSeq = outSeq;
+    } else {            /* Want new one, use highest found + 1 */
+        outSeq++;
+    }
+
+    return outSeq;
 } /* end ObitAIPSDirHiSeq */
 
 /**
@@ -556,147 +605,161 @@ olong ObitAIPSDirHiSeq(olong disk, olong user, gchar Aname[13], gchar Aclass[7],
  * \param newSeq   New AIPS sequence
  * \param err      Obit error stack.
  */
-void ObitAIPSDirRename(olong disk, olong user,  olong cno, gchar *newName, 
-			gchar newClass[7], olong newSeq, ObitErr *err)
+void ObitAIPSDirRename(olong disk, olong user,  olong cno, gchar *newName,
+                       gchar newClass[7], olong newSeq, ObitErr *err)
 {
-  ObitAIPSDir   *myDir = NULL;
-  ObitAIPSDirCatEntry entry;
-  olong i;
-  gchar Aname[13], Aclass[7];
-  gchar *routine = "ObitAIPSDirHiSeq";
-  
-  /* error checks */
-  g_assert(ObitErrIsA(err));
-  if (err->error) return;  /* previous error? */
-  
-  /* Clean input strings - make sure no nulls in characters to be
-     compared */
-  strncpy (Aname, newName,  12);
-  for (i=0; i<12; i++) if (Aname[i]==0)  Aname[i] = ' ';
-  strncpy (Aclass, newClass, 6);
-  for (i=0; i<6 ; i++) if (Aclass[i]==0) Aclass[i] = ' ';
-  
-  /* Open directory */
-  myDir =  ObitAIPSDirOpen (disk, user, err);
-  if (err->error) Obit_traceback_msg (err, routine, "Rename");
+    ObitAIPSDir   *myDir = NULL;
+    ObitAIPSDirCatEntry entry;
+    olong i;
+    gchar Aname[13], Aclass[7];
+    gchar *routine = "ObitAIPSDirHiSeq";
 
-  ObitAIPSDirRead(myDir, cno, &entry, err);
-  if (err->error) { /* attempt close on error */
-    ObitAIPSDirClose (myDir, err); 
-    Obit_traceback_msg (err, routine, "Rename");
-  }
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
-  /* Change info */
-  entry.seq   = newSeq;
-  memmove(entry.name,  Aname, 12);
-  memmove(entry.class, Aclass, 6);
-  
-  /* access time time */
-  ObitAIPSDirUpdateEntry(&entry);
-  
-  /* write it back */
-  ObitAIPSDirWrite(myDir, cno, &entry, err);
-  if (err->error) { /* attempt close on error */
-    ObitAIPSDirClose (myDir, err); 
-    return;
-  }
-  
-  /* close file */
-  ObitAIPSDirClose (myDir, err);
-  if (err->error) Obit_traceback_msg (err, routine, "Rename");
+    if (err->error) return;  /* previous error? */
+
+    /* Clean input strings - make sure no nulls in characters to be
+       compared */
+    strncpy(Aname, newName,  12);
+
+    for (i = 0; i < 12; i++) if (Aname[i] == 0)  Aname[i] = ' ';
+
+    strncpy(Aclass, newClass, 6);
+
+    for (i = 0; i < 6 ; i++) if (Aclass[i] == 0) Aclass[i] = ' ';
+
+    /* Open directory */
+    myDir =  ObitAIPSDirOpen(disk, user, err);
+
+    if (err->error) Obit_traceback_msg(err, routine, "Rename");
+
+    ObitAIPSDirRead(myDir, cno, &entry, err);
+
+    if (err->error) { /* attempt close on error */
+        ObitAIPSDirClose(myDir, err);
+        Obit_traceback_msg(err, routine, "Rename");
+    }
+
+    /* Change info */
+    entry.seq   = newSeq;
+    memmove(entry.name,  Aname, 12);
+    memmove(entry.class, Aclass, 6);
+
+    /* access time time */
+    ObitAIPSDirUpdateEntry(&entry);
+
+    /* write it back */
+    ObitAIPSDirWrite(myDir, cno, &entry, err);
+
+    if (err->error) { /* attempt close on error */
+        ObitAIPSDirClose(myDir, err);
+        return;
+    }
+
+    /* close file */
+    ObitAIPSDirClose(myDir, err);
+
+    if (err->error) Obit_traceback_msg(err, routine, "Rename");
 
 } /* end ObitAIPSDirRename */
 
-/** 
+/**
  * Returns the entry for a given catalog slot.
  * \param disk disk number.
  * \param user user id number.
  * \param cno  catalog slot number
  * \param  err ObitErr error stack.
- * \return pointer to a newly created ObitAIPSDirCatEntry, 
+ * \return pointer to a newly created ObitAIPSDirCatEntry,
  *         NULL on failure, this must be freed (g_free).
  */
-ObitAIPSDirCatEntry* 
+ObitAIPSDirCatEntry *
 ObitAIPSDirGetEntry(olong disk, olong user, olong cno, ObitErr *err)
 {
-  ObitAIPSDir         *myDir = NULL;
-  olong ndisk;
-  ObitAIPSDirCatEntry *entry;
-  gchar *routine = "ObitAIPSDirGetEntry";
+    ObitAIPSDir         *myDir = NULL;
+    olong ndisk;
+    ObitAIPSDirCatEntry *entry;
+    gchar *routine = "ObitAIPSDirGetEntry";
 
-  /* error checks */
-  g_assert(ObitErrIsA(err));
-  if (err->error) return NULL;  /* previous error? */
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
-  /* Check that disk legal */
-  ndisk = ObitAIPSGetNumDisk(err);
-  if ((disk <= 0) || (disk > ndisk)) {
-    Obit_log_error(err, OBIT_Error, 
-		   "%s: illegal AIPS disk number %d not in [1, %d]", 
-      routine, disk, ndisk);
-    return NULL;
-  }
+    if (err->error) return NULL;  /* previous error? */
 
-  /* Open */
-  myDir =  ObitAIPSDirOpen (disk, user, err);
-  if (err->error) return NULL;
+    /* Check that disk legal */
+    ndisk = ObitAIPSGetNumDisk(err);
 
-  /* create output */
-  entry = g_malloc0(sizeof(ObitAIPSDirCatEntry));
+    if ((disk <= 0) || (disk > ndisk)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s: illegal AIPS disk number %d not in [1, %d]",
+                       routine, disk, ndisk);
+        return NULL;
+    }
 
-  /* Read entry */
-  ObitAIPSDirRead(myDir, cno, entry, err);
-  if (err->error) { /* attempt close on error */
-    ObitAIPSDirClose (myDir, err); 
-    g_free(entry);
-    return NULL;
-  }
+    /* Open */
+    myDir =  ObitAIPSDirOpen(disk, user, err);
 
-  /* access time time
-     ObitAIPSDirUpdateEntry(entry); */
+    if (err->error) return NULL;
 
-  /* write it back */
-  ObitAIPSDirWrite(myDir, cno, entry, err);
-  if (err->error) { /* attempt close on error */
-    ObitAIPSDirClose (myDir, err); 
-    g_free(entry);
-    return NULL;
-  }
-  
-  /* close file */
-  ObitAIPSDirClose (myDir, err);
+    /* create output */
+    entry = g_malloc0(sizeof(ObitAIPSDirCatEntry));
 
-  return entry;
+    /* Read entry */
+    ObitAIPSDirRead(myDir, cno, entry, err);
+
+    if (err->error) { /* attempt close on error */
+        ObitAIPSDirClose(myDir, err);
+        g_free(entry);
+        return NULL;
+    }
+
+    /* access time time
+       ObitAIPSDirUpdateEntry(entry); */
+
+    /* write it back */
+    ObitAIPSDirWrite(myDir, cno, entry, err);
+
+    if (err->error) { /* attempt close on error */
+        ObitAIPSDirClose(myDir, err);
+        g_free(entry);
+        return NULL;
+    }
+
+    /* close file */
+    ObitAIPSDirClose(myDir, err);
+
+    return entry;
 } /* end ObitAIPSDirGetEntry */
 
-/** 
+/**
  * Gets time/date string from an AIPS directory entry
  * in the form "xx-Mon-yyyy hh:mm:ss"
  * \param entry    Structure whose access time is desired
  * \param timeDate String to accept date/time string
  *                 Must have at least 21 char allocated.
  */
-void ObitAIPSDirGetAccess(ObitAIPSDirCatEntry* entry, gchar *timeDate)
+void ObitAIPSDirGetAccess(ObitAIPSDirCatEntry *entry, gchar *timeDate)
 {
-  olong edate[3], etime[3];
-  gchar *months[12] = {"Jan","Feb","Mar","Apr","May","Jun","Jul",
-		       "Aug","Sep","Oct","Nov","Dec"};
+    olong edate[3], etime[3];
+    gchar *months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
+                         "Aug", "Sep", "Oct", "Nov", "Dec"
+                        };
 
-  /* Unpack */
-  ObitAIPSDirUnpackDate (entry->access[0], edate);
-  ObitAIPSDirUnpackTime (entry->access[1], etime);
+    /* Unpack */
+    ObitAIPSDirUnpackDate(entry->access[0], edate);
+    ObitAIPSDirUnpackTime(entry->access[1], etime);
 
-  /* encode */
-  g_snprintf (timeDate, 21, "%2.2d-%s-%4d %2.2d:%2.2d:%2.2d",
-	      edate[2], months[edate[1]-1], edate[0], 
-	      etime[0], etime[1], etime[2]);
+    /* encode */
+    g_snprintf(timeDate, 21, "%2.2d-%s-%4d %2.2d:%2.2d:%2.2d",
+               edate[2], months[edate[1] - 1], edate[0],
+               etime[0], etime[1], etime[2]);
 
 } /* end ObitAIPSDirGetAccess */
 
-/** 
+/**
  * Change the status of an AIPS catalog directory entry.
  * Only one program/thread can mark an entry write and if the
- * entry is marked write no reads can be added. 
+ * entry is marked write no reads can be added.
  * Errors are indicated in err and as the return code.
  * \param disk disk number.
  * \param user user id number.
@@ -712,144 +775,172 @@ void ObitAIPSDirGetAccess(ObitAIPSDirCatEntry* entry, gchar *timeDate)
  *         OBIT_AIPS_Dir_StatusOK on success.
  */
 ObitAIPSDirStatusError
-ObitAIPSDirStatus(olong disk, olong user, olong cno, 
-		  ObitAIPSDirStatusCode code, ObitErr *err)
+ObitAIPSDirStatus(olong disk, olong user, olong cno,
+                  ObitAIPSDirStatusCode code, ObitErr *err)
 {
-  ObitAIPSDir         *myDir = NULL;
-  ObitAIPSDirCatEntry entry;
-  ObitAIPSDirStatusError retCode = OBIT_AIPS_Dir_StatusSpecErr;
+    ObitAIPSDir         *myDir = NULL;
+    ObitAIPSDirCatEntry entry;
+    ObitAIPSDirStatusError retCode = OBIT_AIPS_Dir_StatusSpecErr;
 
-  /* error checks */
-  g_assert(ObitErrIsA(err));
-  if (err->error) return retCode;  /* previous error? */
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
-  /* Open */
-  retCode = OBIT_AIPS_Dir_StatusIOErr;
-  myDir =  ObitAIPSDirOpen (disk, user, err);
-  if (err->error) return retCode;
+    if (err->error) return retCode;  /* previous error? */
 
-  /* Read entry */
-  ObitAIPSDirRead(myDir, cno, &entry, err);
-  if (err->error) { /* attempt close on error */
-    ObitAIPSDirClose (myDir, err); 
-    return retCode;
-  }
-
-  /* Check if operation allowed */
-  retCode = OBIT_AIPS_Dir_StatusOK;
-  switch (code) { 
-  case OBIT_AIPS_Dir_AddWrite:
-    /* has a write status? */
-    if (entry.status<0) {
-      retCode = OBIT_AIPS_Dir_StatusWrite;
-      Obit_log_error(err, OBIT_Error, 
-		     "Cannot mark WRITE, Catalog Status already WRITE");
-    }
-    /* has a read status? */
-    if (entry.status>0) {
-      retCode = OBIT_AIPS_Dir_StatusRead;
-      Obit_log_error(err, OBIT_Error, 
-		     "Cannot mark WRITE, Catalog Status already Read");
-    }
-    break;
-  case OBIT_AIPS_Dir_ClearWrite:
-    /* Must be marked write */
-    if (entry.status>=0) {
-      retCode = OBIT_AIPS_Dir_StatusSpecErr;
-      Obit_log_error(err, OBIT_Error, 
-		     "Cannot clear WRITE, Catalog Status not WRITE");
-    }
-    break;
-  case OBIT_AIPS_Dir_IncRead:
-    /* has a write status? */
-    if (entry.status<0) {
-      retCode = OBIT_AIPS_Dir_StatusWrite;
-      Obit_log_error(err, OBIT_Error, 
-		     "Cannot mark WRITE, Catalog Status already WRITE");
-    }
-    break;
-  case OBIT_AIPS_Dir_DecRead:
-    /* Must be marked read */
-    if ((entry.status==0) || (entry.status==-1)) {
-      retCode = OBIT_AIPS_Dir_StatusSpecErr;
-      Obit_log_error(err, OBIT_Error, 
-		     "Cannot clear READ, Catalog Status not READ");
-    }
-    break;
-  case OBIT_AIPS_Dir_ClearAll:
-    /* Always succeed */
-    break;
-  default:
-    retCode = OBIT_AIPS_Dir_StatusSpecErr;
-    Obit_log_error(err, OBIT_Error, 
-		   "Unknown Catalog Status change code %d", 
-		   code);
-    g_assert_not_reached(); /* unknown, barf */
-  }; /* end switch to check if allowed */
-
-  /* Do operation if allowed */
-  if (retCode == OBIT_AIPS_Dir_StatusOK) {
-    switch (code) { 
-    case OBIT_AIPS_Dir_AddWrite:
-      if (entry.status==0) /* no previous status */
-	entry.status = -1;
-      else if (entry.status > 0) /* previous write+read */
-	entry.status = -(1+entry.status);
-      break;
-    case OBIT_AIPS_Dir_ClearWrite:
-      if (entry.status==0) /* no previous status */
-	/* Shouldn't happen (should have been caught earlier) */
-	retCode = OBIT_AIPS_Dir_StatusSpecErr;
-      else if (entry.status==-1) /* previous write */
-	entry.status = 0;
-      else if (entry.status < -1) /* previous write+read */
-	entry.status = -(1+entry.status);
-      break;
-    case OBIT_AIPS_Dir_IncRead:
-      if (entry.status>=0) /* no or only read previous status */
-	entry.status++;
-      else if (entry.status < 0) /* previous write+read? */
-	entry.status--;
-      break;
-    case OBIT_AIPS_Dir_DecRead:
-      if (entry.status==0) /* no previous status */
-	/* Shouldn't happen */
-	retCode = OBIT_AIPS_Dir_StatusSpecErr;
-      else if (entry.status>0) /* previous read */
-	entry.status--;
-      else if (entry.status < -1) /* previous write+read */
-	entry.status++;
-      else if (entry.status == -1) /* previous write */
-	/* should not occur - only marked as write */
-	retCode = OBIT_AIPS_Dir_StatusWrite;
-      break;
-    case OBIT_AIPS_Dir_ClearAll:
-      entry.status = 0;
-      break;
-    default:
-      g_assert_not_reached(); /* unknown, barf */
-    }; /* end switch */
-  } /* end of do operation */
-
-  /* access time time */
-  ObitAIPSDirUpdateEntry(&entry);
-
-  /* write it back */
-  ObitAIPSDirWrite(myDir, cno, &entry, err);
-  if (err->error) { /* attempt close on error */
+    /* Open */
     retCode = OBIT_AIPS_Dir_StatusIOErr;
-    ObitAIPSDirClose (myDir, err); 
-    return retCode;
-  }
-  
-  /* close file */
-  ObitAIPSDirClose (myDir, err);
+    myDir =  ObitAIPSDirOpen(disk, user, err);
 
-  return retCode;
+    if (err->error) return retCode;
+
+    /* Read entry */
+    ObitAIPSDirRead(myDir, cno, &entry, err);
+
+    if (err->error) { /* attempt close on error */
+        ObitAIPSDirClose(myDir, err);
+        return retCode;
+    }
+
+    /* Check if operation allowed */
+    retCode = OBIT_AIPS_Dir_StatusOK;
+
+    switch (code) {
+        case OBIT_AIPS_Dir_AddWrite:
+
+            /* has a write status? */
+            if (entry.status < 0) {
+                retCode = OBIT_AIPS_Dir_StatusWrite;
+                Obit_log_error(err, OBIT_Error,
+                               "Cannot mark WRITE, Catalog Status already WRITE");
+            }
+
+            /* has a read status? */
+            if (entry.status > 0) {
+                retCode = OBIT_AIPS_Dir_StatusRead;
+                Obit_log_error(err, OBIT_Error,
+                               "Cannot mark WRITE, Catalog Status already Read");
+            }
+
+            break;
+
+        case OBIT_AIPS_Dir_ClearWrite:
+
+            /* Must be marked write */
+            if (entry.status >= 0) {
+                retCode = OBIT_AIPS_Dir_StatusSpecErr;
+                Obit_log_error(err, OBIT_Error,
+                               "Cannot clear WRITE, Catalog Status not WRITE");
+            }
+
+            break;
+
+        case OBIT_AIPS_Dir_IncRead:
+
+            /* has a write status? */
+            if (entry.status < 0) {
+                retCode = OBIT_AIPS_Dir_StatusWrite;
+                Obit_log_error(err, OBIT_Error,
+                               "Cannot mark WRITE, Catalog Status already WRITE");
+            }
+
+            break;
+
+        case OBIT_AIPS_Dir_DecRead:
+
+            /* Must be marked read */
+            if ((entry.status == 0) || (entry.status == -1)) {
+                retCode = OBIT_AIPS_Dir_StatusSpecErr;
+                Obit_log_error(err, OBIT_Error,
+                               "Cannot clear READ, Catalog Status not READ");
+            }
+
+            break;
+
+        case OBIT_AIPS_Dir_ClearAll:
+            /* Always succeed */
+            break;
+
+        default:
+            retCode = OBIT_AIPS_Dir_StatusSpecErr;
+            Obit_log_error(err, OBIT_Error,
+                           "Unknown Catalog Status change code %d",
+                           code);
+            g_assert_not_reached(); /* unknown, barf */
+    }; /* end switch to check if allowed */
+
+    /* Do operation if allowed */
+    if (retCode == OBIT_AIPS_Dir_StatusOK) {
+        switch (code) {
+            case OBIT_AIPS_Dir_AddWrite:
+                if (entry.status == 0) /* no previous status */
+                    entry.status = -1;
+                else if (entry.status > 0) /* previous write+read */
+                    entry.status = -(1 + entry.status);
+
+                break;
+
+            case OBIT_AIPS_Dir_ClearWrite:
+                if (entry.status == 0) /* no previous status */
+                    /* Shouldn't happen (should have been caught earlier) */
+                    retCode = OBIT_AIPS_Dir_StatusSpecErr;
+                else if (entry.status == -1) /* previous write */
+                    entry.status = 0;
+                else if (entry.status < -1) /* previous write+read */
+                    entry.status = -(1 + entry.status);
+
+                break;
+
+            case OBIT_AIPS_Dir_IncRead:
+                if (entry.status >= 0) /* no or only read previous status */
+                    entry.status++;
+                else if (entry.status < 0) /* previous write+read? */
+                    entry.status--;
+
+                break;
+
+            case OBIT_AIPS_Dir_DecRead:
+                if (entry.status == 0) /* no previous status */
+                    /* Shouldn't happen */
+                    retCode = OBIT_AIPS_Dir_StatusSpecErr;
+                else if (entry.status > 0) /* previous read */
+                    entry.status--;
+                else if (entry.status < -1) /* previous write+read */
+                    entry.status++;
+                else if (entry.status == -1) /* previous write */
+                    /* should not occur - only marked as write */
+                    retCode = OBIT_AIPS_Dir_StatusWrite;
+
+                break;
+
+            case OBIT_AIPS_Dir_ClearAll:
+                entry.status = 0;
+                break;
+
+            default:
+                g_assert_not_reached(); /* unknown, barf */
+        }; /* end switch */
+    } /* end of do operation */
+
+    /* access time time */
+    ObitAIPSDirUpdateEntry(&entry);
+
+    /* write it back */
+    ObitAIPSDirWrite(myDir, cno, &entry, err);
+
+    if (err->error) { /* attempt close on error */
+        retCode = OBIT_AIPS_Dir_StatusIOErr;
+        ObitAIPSDirClose(myDir, err);
+        return retCode;
+    }
+
+    /* close file */
+    ObitAIPSDirClose(myDir, err);
+
+    return retCode;
 } /* end ObitAIPSDirStatus */
 
 /*---------------Private functions---------------------------*/
-/** 
+/**
  * Open catalog directory and lock against other thread access.
  * Updates last access time.
  * \param disk disk number.
@@ -858,121 +949,132 @@ ObitAIPSDirStatus(olong disk, olong user, olong cno,
  * \return pointer to a newly created ObitAIPSDir, NULL on failure,
  *         this must be freed by a call to ObitAIPSDirClose.
  */
-static ObitAIPSDir* 
-ObitAIPSDirOpen (olong disk, olong user, ObitErr *err)
+static ObitAIPSDir *
+ObitAIPSDirOpen(olong disk, olong user, ObitErr *err)
 {
-  ObitAIPSDir         *out = NULL;
-  ObitAIPSDirCatHead  *head=NULL;
-  AIPSint    buffer[256];
-  ObitIOCode status;
-  olong       ndisk;
-  gboolean   exist;
-  olong      size, wantPos;
-  gchar *routine = "ObitAIPSDirOpen";
+    ObitAIPSDir         *out = NULL;
+    ObitAIPSDirCatHead  *head = NULL;
+    AIPSint    buffer[256];
+    ObitIOCode status;
+    olong       ndisk;
+    gboolean   exist;
+    olong      size, wantPos;
+    gchar *routine = "ObitAIPSDirOpen";
 
-  /* create structure */
-  out = g_malloc0(sizeof(ObitAIPSDir));
-  out->className = myClassName;  /* class name pointer */
-  out->disk      = disk;
-  out->user      = user;
-  out->maxcno    = 0;
-  out->flush     = FALSE;
-  out->CatFile   = NULL;
-  out->myFile    = NULL;
+    /* create structure */
+    out = g_malloc0(sizeof(ObitAIPSDir));
+    out->className = myClassName;  /* class name pointer */
+    out->disk      = disk;
+    out->user      = user;
+    out->maxcno    = 0;
+    out->flush     = FALSE;
+    out->CatFile   = NULL;
+    out->myFile    = NULL;
 
-  /* Check that disk legal */
-  ndisk = ObitAIPSGetNumDisk(err);
-  if ((disk <= 0) || (disk > ndisk)) {
-    Obit_log_error(err, OBIT_Error, 
-		   "%s: illegal AIPS disk number %d not in [1, %d]", 
-      routine, disk, ndisk);
-    return out;
-  }
+    /* Check that disk legal */
+    ndisk = ObitAIPSGetNumDisk(err);
 
-  /* Lock directory aginst other threads */
-  if (myLock==NULL) myLock = newObitThread(); /* create lock first time */
-  ObitThreadLock(myLock);
-
-  /* Set file name */
-  out->CatFile = 
-    ObitAIPSFilename (OBIT_AIPS_Catalog, disk, 0, user, NULL, 0, err);
-  if (err->error) {
-    ObitThreadUnlock(myLock);
-    Obit_traceback_val (err, routine, "Catalog search", NULL);
-  }
-
-  /* Does it currently exist? */
-  if (out->myFile) ObitFileUnref(out->myFile);
-  out->myFile = newObitFile("Catalog search");
-  exist = ObitFileExist (out->CatFile, err);
-  if (err->error) {
-    ObitThreadUnlock(myLock);
-    Obit_traceback_val (err, routine, "Catalog search", NULL);
-  }
-
-  /* open */
-  size = 256 * sizeof(AIPSint);
-  if (ObitFileOpen (out->myFile, out->CatFile, OBIT_IO_ReadWrite, 
-		    OBIT_IO_Binary, size, err) || (err->error)) {
-     Obit_log_error(err, OBIT_Error, 
-		   "ERROR opening AIPS catalog file disk %d", out->disk);
-    g_free(out->CatFile); /* going up in flames - clean up */
-    g_free(out);  
-    ObitThreadUnlock(myLock);
-    Obit_traceback_val (err, routine, "Catalog search", NULL);
-  }
-
-  /* If it didn't previously exist - initialize buffer */
-  if (!exist) {
-    head = (ObitAIPSDirCatHead*)buffer;
-    ObitAIPSDirInitHead (head, disk);  
-    if (err->error) Obit_traceback_val (err, routine, "Catalog init", NULL);
-  } else { /* exists - read header block */
-    wantPos = 0;
-    status = ObitFileRead (out->myFile, wantPos, size, (gchar*)buffer, err);
-    if ((status!=OBIT_IO_OK) || (err->error)) {/* add traceback on error */
-      Obit_log_error(err, OBIT_Error, 
-		     "Status %d reading AIPS catalog file disk %d", status, out->disk);
-      ObitThreadUnlock(myLock);
-      Obit_traceback_val (err, routine, "Catalog search", NULL);
+    if ((disk <= 0) || (disk > ndisk)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s: illegal AIPS disk number %d not in [1, %d]",
+                       routine, disk, ndisk);
+        return out;
     }
-  } /* end init/read header */
 
-  /* to prevent directory from getting out of sync */
-  head = (ObitAIPSDirCatHead*)buffer;
-  SyncDir(out, head, err);
-  if (err->error) {
-    ObitThreadUnlock(myLock);
-    Obit_traceback_val (err, routine, "Catalog search", NULL);
-  }
+    /* Lock directory aginst other threads */
+    if (myLock == NULL) myLock = newObitThread(); /* create lock first time */
 
-  /* update last access */
-  /* Update header */
-  ObitAIPSDirUpdateHead(head);
+    ObitThreadLock(myLock);
 
-  /* How many entries */
-  out->maxcno = head->ncat;
+    /* Set file name */
+    out->CatFile =
+        ObitAIPSFilename(OBIT_AIPS_Catalog, disk, 0, user, NULL, 0, err);
 
-  /* rewrite */
-  /* position file to beginning */
-  wantPos = 0;
+    if (err->error) {
+        ObitThreadUnlock(myLock);
+        Obit_traceback_val(err, routine, "Catalog search", NULL);
+    }
 
-  /* write */
-  status = ObitFileWrite (out->myFile, wantPos, size, (gchar*)buffer, err);
-  if ((status!=OBIT_IO_OK) || (err->error)) {/* add traceback on error */
-    ObitThreadUnlock(myLock);
-    Obit_traceback_val (err, routine, "Catalog search", NULL);
-  }
+    /* Does it currently exist? */
+    if (out->myFile) ObitFileUnref(out->myFile);
 
-  /* If it didn't previously exist - add a block */
-  if (!exist) ObitAIPSDirExtend (out, err);
-  if (err->error)  {
-    ObitThreadUnlock(myLock);
-    Obit_traceback_val (err, routine, "Catalog extend", out);
-  }
+    out->myFile = newObitFile("Catalog search");
+    exist = ObitFileExist(out->CatFile, err);
 
-  out->flush = TRUE; /* something in buffer to write */
-  return out;
+    if (err->error) {
+        ObitThreadUnlock(myLock);
+        Obit_traceback_val(err, routine, "Catalog search", NULL);
+    }
+
+    /* open */
+    size = 256 * sizeof(AIPSint);
+
+    if (ObitFileOpen(out->myFile, out->CatFile, OBIT_IO_ReadWrite,
+                     OBIT_IO_Binary, size, err) || (err->error)) {
+        Obit_log_error(err, OBIT_Error,
+                       "ERROR opening AIPS catalog file disk %d", out->disk);
+        g_free(out->CatFile); /* going up in flames - clean up */
+        g_free(out);
+        ObitThreadUnlock(myLock);
+        Obit_traceback_val(err, routine, "Catalog search", NULL);
+    }
+
+    /* If it didn't previously exist - initialize buffer */
+    if (!exist) {
+        head = (ObitAIPSDirCatHead *)buffer;
+        ObitAIPSDirInitHead(head, disk);
+
+        if (err->error) Obit_traceback_val(err, routine, "Catalog init", NULL);
+    } else { /* exists - read header block */
+        wantPos = 0;
+        status = ObitFileRead(out->myFile, wantPos, size, (gchar *)buffer, err);
+
+        if ((status != OBIT_IO_OK) || (err->error)) { /* add traceback on error */
+            Obit_log_error(err, OBIT_Error,
+                           "Status %d reading AIPS catalog file disk %d", status, out->disk);
+            ObitThreadUnlock(myLock);
+            Obit_traceback_val(err, routine, "Catalog search", NULL);
+        }
+    } /* end init/read header */
+
+    /* to prevent directory from getting out of sync */
+    head = (ObitAIPSDirCatHead *)buffer;
+    SyncDir(out, head, err);
+
+    if (err->error) {
+        ObitThreadUnlock(myLock);
+        Obit_traceback_val(err, routine, "Catalog search", NULL);
+    }
+
+    /* update last access */
+    /* Update header */
+    ObitAIPSDirUpdateHead(head);
+
+    /* How many entries */
+    out->maxcno = head->ncat;
+
+    /* rewrite */
+    /* position file to beginning */
+    wantPos = 0;
+
+    /* write */
+    status = ObitFileWrite(out->myFile, wantPos, size, (gchar *)buffer, err);
+
+    if ((status != OBIT_IO_OK) || (err->error)) { /* add traceback on error */
+        ObitThreadUnlock(myLock);
+        Obit_traceback_val(err, routine, "Catalog search", NULL);
+    }
+
+    /* If it didn't previously exist - add a block */
+    if (!exist) ObitAIPSDirExtend(out, err);
+
+    if (err->error)  {
+        ObitThreadUnlock(myLock);
+        Obit_traceback_val(err, routine, "Catalog extend", out);
+    }
+
+    out->flush = TRUE; /* something in buffer to write */
+    return out;
 } /* end ObitAIPSDirOpen  */
 
 /**
@@ -981,33 +1083,34 @@ ObitAIPSDirOpen (olong disk, olong user, ObitErr *err)
  *           This will be deallocated.
  * \param  err ObitErr error stack.
  */
-static void 
-ObitAIPSDirClose (ObitAIPSDir* in, ObitErr *err)
+static void
+ObitAIPSDirClose(ObitAIPSDir *in, ObitErr *err)
 {
-   ObitIOCode status;
-   gchar *routine = "ObitAIPSDirClose";
+    ObitIOCode status;
+    gchar *routine = "ObitAIPSDirClose";
 
-  /* still unlock if in==NULL */
-  if (in!=NULL) {
-    /* close file */
-    status = ObitFileClose (in->myFile, err);
-    if ((status!=OBIT_IO_OK) || (err->error)) { /* add traceback on error */
-      ObitThreadUnlock(myLock);
-      Obit_traceback_msg (err, routine, "Catalog search");
-    }
+    /* still unlock if in==NULL */
+    if (in != NULL) {
+        /* close file */
+        status = ObitFileClose(in->myFile, err);
 
-    /* delete */
-    in->myFile = ObitFileUnref(in->myFile);
+        if ((status != OBIT_IO_OK) || (err->error)) { /* add traceback on error */
+            ObitThreadUnlock(myLock);
+            Obit_traceback_msg(err, routine, "Catalog search");
+        }
 
-    if (in->CatFile) g_free (in->CatFile);
+        /* delete */
+        in->myFile = ObitFileUnref(in->myFile);
 
-  } /* end of shutdown when in defined */
+        if (in->CatFile) g_free(in->CatFile);
 
-  /* Deallocate directory object */
-  if (in) g_free (in);
+    } /* end of shutdown when in defined */
 
-  /* Unlock directory against other threads */
-  ObitThreadUnlock(myLock);
+    /* Deallocate directory object */
+    if (in) g_free(in);
+
+    /* Unlock directory against other threads */
+    ObitThreadUnlock(myLock);
 } /* end ObitAIPSDirClose */
 
 /**
@@ -1020,74 +1123,82 @@ ObitAIPSDirClose (ObitAIPSDir* in, ObitErr *err)
  * \param err    Obit error stack
  * \return the catalog slot number or -1 if it was not found.
  */
-static olong 
-ObitAIPSDirFindEntry (ObitAIPSDir* in, gchar Aname[13], 
-		      gchar Aclass[7], gchar Atype[3], 
-		      olong seq, ObitErr *err)
+static olong
+ObitAIPSDirFindEntry(ObitAIPSDir *in, gchar Aname[13],
+                     gchar Aclass[7], gchar Atype[3],
+                     olong seq, ObitErr *err)
 {
-  olong       cno = 0;
-  AIPSint    buffer[256];
-  olong       i, nwpl, nlpr;
-  ObitIOCode status;
-  ObitFilePos size;
-  gboolean   anyType, found = FALSE;
-  olong      wantPos;
-  ObitAIPSDirCatEntry *entry=NULL;
-  gchar *routine = "ObitAIPSDirFindEntry";
+    olong       cno = 0;
+    AIPSint    buffer[256];
+    olong       i, nwpl, nlpr;
+    ObitIOCode status;
+    ObitFilePos size;
+    gboolean   anyType, found = FALSE;
+    olong      wantPos;
+    ObitAIPSDirCatEntry *entry = NULL;
+    gchar *routine = "ObitAIPSDirFindEntry";
 
-  /* error checks */
-  if (err->error) return -1;  /* previous error? */
-  g_assert (ObitAIPSDirIsA(in));
+    /* error checks */
+    if (err->error) return -1;  /* previous error? */
 
-  /* Clean input strings - make sure no nulls in characters to be
-     compared */
-  for (i=0; i<12; i++) if (Aname[i]==0)  Aname[i] = ' ';
-  for (i=0; i<6 ; i++) if (Aclass[i]==0) Aclass[i] = ' ';
-  for (i=0; i<2 ; i++) if (Atype[i]==0)  Atype[i] = ' ';
+    g_assert(ObitAIPSDirIsA(in));
 
-  /* position file to second block - first is header */
-  wantPos = 256 * sizeof(AIPSint);
-  size    = 256 * sizeof(AIPSint);
+    /* Clean input strings - make sure no nulls in characters to be
+       compared */
+    for (i = 0; i < 12; i++) if (Aname[i] == 0)  Aname[i] = ' ';
 
-  nwpl = 10;          /* number of AIPSint words per entry */
-  nlpr = 256 / nwpl;  /* number of entries per "record" (256 words) */
-  /* Blank type matches any */
-  anyType = (Atype[0] == ' ') && (Atype[1] == ' ');
-  /* Loop through file til found or EOF */
-  while (!found) {
+    for (i = 0; i < 6 ; i++) if (Aclass[i] == 0) Aclass[i] = ' ';
 
-    /* read next block */
-    status = ObitFileRead (in->myFile, wantPos, size, (gchar*)buffer, err);
-    if (((status!=OBIT_IO_OK) && (status!=OBIT_IO_EOF)) || 
-	(err->error)) /* add traceback on error */
-      Obit_traceback_val (err, routine, "Catalog search", -1);
-    wantPos = -1L; /* now sequential access */
+    for (i = 0; i < 2 ; i++) if (Atype[i] == 0)  Atype[i] = ' ';
 
-    /* EOF? - quit loop  */
-    if (status==OBIT_IO_EOF) break;
+    /* position file to second block - first is header */
+    wantPos = 256 * sizeof(AIPSint);
+    size    = 256 * sizeof(AIPSint);
 
-    entry = (ObitAIPSDirCatEntry*)buffer;  /* entry pointer into buffer */
-    /* look through this block */
-    for (i=0; i<nlpr; i++) {
-      cno++;   /* count how many have gone by */
+    nwpl = 10;          /* number of AIPSint words per entry */
+    nlpr = 256 / nwpl;  /* number of entries per "record" (256 words) */
+    /* Blank type matches any */
+    anyType = (Atype[0] == ' ') && (Atype[1] == ' ');
 
-      /* check if this one matches */
-      found  = (seq == entry->seq) &&
-	(in->user == entry->user) &&
-	(!strncmp (Aname,  entry->name, 12)) &&
-	(!strncmp (Aclass, entry->class, 6)) &&
-	((!strncmp (Atype,  entry->type,  2) || anyType));
-      if (found) break; 
+    /* Loop through file til found or EOF */
+    while (!found) {
 
-      entry++; /* advance pointer to next entry */
-    }
-  
-  } /*  end loop through file */
+        /* read next block */
+        status = ObitFileRead(in->myFile, wantPos, size, (gchar *)buffer, err);
 
-  /* Was it found? */
-  if (!found) cno = -1;
+        if (((status != OBIT_IO_OK) && (status != OBIT_IO_EOF)) ||
+                (err->error)) /* add traceback on error */
+            Obit_traceback_val(err, routine, "Catalog search", -1);
 
-  return cno;
+        wantPos = -1L; /* now sequential access */
+
+        /* EOF? - quit loop  */
+        if (status == OBIT_IO_EOF) break;
+
+        entry = (ObitAIPSDirCatEntry *)buffer; /* entry pointer into buffer */
+
+        /* look through this block */
+        for (i = 0; i < nlpr; i++) {
+            cno++;   /* count how many have gone by */
+
+            /* check if this one matches */
+            found  = (seq == entry->seq) &&
+                     (in->user == entry->user) &&
+                     (!strncmp(Aname,  entry->name, 12)) &&
+                     (!strncmp(Aclass, entry->class, 6)) &&
+                     ((!strncmp(Atype,  entry->type,  2) || anyType));
+
+            if (found) break;
+
+            entry++; /* advance pointer to next entry */
+        }
+
+    } /*  end loop through file */
+
+    /* Was it found? */
+    if (!found) cno = -1;
+
+    return cno;
 } /* end ObitAIPSDirFindEntry */
 
 /**
@@ -1101,63 +1212,73 @@ ObitAIPSDirFindEntry (ObitAIPSDir* in, gchar Aname[13],
  * \param  err ObitErr error stack.
  * \return the catalog slot number.
  */
-static olong ObitAIPSDirFindFree (ObitAIPSDir* in, gchar Aname[13], 
-		      gchar Aclass[7], gchar Atype[3], 
-		      olong seq, ObitErr *err)
+static olong ObitAIPSDirFindFree(ObitAIPSDir *in, gchar Aname[13],
+                                 gchar Aclass[7], gchar Atype[3],
+                                 olong seq, ObitErr *err)
 {
-  olong       cno = 0;
-  AIPSint    buffer[256];
-  olong       i, nwpl, nlpr;
-  ObitIOCode status;
-  ObitFilePos   wantPos, size;
-  gboolean   found = FALSE;
-  ObitAIPSDirCatEntry *entry=NULL;
-  gchar *routine = "ObitAIPSDirFindFree";
+    olong       cno = 0;
+    AIPSint    buffer[256];
+    olong       i, nwpl, nlpr;
+    ObitIOCode status;
+    ObitFilePos   wantPos, size;
+    gboolean   found = FALSE;
+    ObitAIPSDirCatEntry *entry = NULL;
+    gchar *routine = "ObitAIPSDirFindFree";
 
-  /* error checks */
-  g_assert(ObitErrIsA(err));
-  if (err->error) return -1;  /* previous error? */
-  g_assert (ObitAIPSDirIsA(in));
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
-  /* position file to second block - first is header */
-  wantPos = 256 * sizeof(AIPSint);
-  size    = 256 * sizeof(AIPSint);
+    if (err->error) return -1;  /* previous error? */
 
-  nwpl = 10;          /* number of AIPSint words per entry */
-  nlpr = 256 / nwpl;  /* number of entries per "record" (256 words) */
-  /* A free entry has userid < 0 */
-  /* Loop through file til found or EOF */
-  while (!found) {
+    g_assert(ObitAIPSDirIsA(in));
 
-    /* read next block */
-    status = ObitFileRead (in->myFile, wantPos, size, (gchar*)buffer, err);
-    if (status==OBIT_IO_EOF) break;  /* EOF? - quit loop  */
+    /* position file to second block - first is header */
+    wantPos = 256 * sizeof(AIPSint);
+    size    = 256 * sizeof(AIPSint);
 
-    if ((status!=OBIT_IO_OK) || (err->error)) /* add traceback on error */
-      Obit_traceback_val (err, routine, "Catalog search", -1);
-    wantPos = -1L; /* now sequential access */
-    
-    entry = (ObitAIPSDirCatEntry*)buffer;  /* entry pointer into buffer */
-    /* look through this block */
-    for (i=0; i<nlpr; i++) {
-      cno++;   /* count how many have gone by */
+    nwpl = 10;          /* number of AIPSint words per entry */
+    nlpr = 256 / nwpl;  /* number of entries per "record" (256 words) */
 
-      /* check if this one matches */
-      found  =  (entry->user < 0);
-      if (found) break; 
-      entry++; /* advance pointer to next entry */
+    /* A free entry has userid < 0 */
+    /* Loop through file til found or EOF */
+    while (!found) {
+
+        /* read next block */
+        status = ObitFileRead(in->myFile, wantPos, size, (gchar *)buffer, err);
+
+        if (status == OBIT_IO_EOF) break; /* EOF? - quit loop  */
+
+        if ((status != OBIT_IO_OK) || (err->error)) /* add traceback on error */
+            Obit_traceback_val(err, routine, "Catalog search", -1);
+
+        wantPos = -1L; /* now sequential access */
+
+        entry = (ObitAIPSDirCatEntry *)buffer; /* entry pointer into buffer */
+
+        /* look through this block */
+        for (i = 0; i < nlpr; i++) {
+            cno++;   /* count how many have gone by */
+
+            /* check if this one matches */
+            found  = (entry->user < 0);
+
+            if (found) break;
+
+            entry++; /* advance pointer to next entry */
+        }
+    } /*  end loop through file */
+
+    /* Was it found? */
+    if (!found) {
+        /* add another block and use first one */
+        ObitAIPSDirExtend(in, err);
+
+        if (err->error) return -1; /* it work? */
+
+        cno++;
     }
-  } /*  end loop through file */
 
-  /* Was it found? */
-  if (!found) {
-    /* add another block and use first one */
-    ObitAIPSDirExtend(in, err);
-    if (err->error) return -1; /* it work? */
-    cno++;
-  }
-
-  return cno;
+    return cno;
 } /* end ObitAIPSDirFindFree */
 
 /**
@@ -1168,48 +1289,51 @@ static olong ObitAIPSDirFindFree (ObitAIPSDir* in, gchar Aname[13],
  * \param err   Obit error stack.
  */
 static void
-ObitAIPSDirRead(ObitAIPSDir* in, olong cno, 
-		ObitAIPSDirCatEntry *entry, ObitErr *err)
+ObitAIPSDirRead(ObitAIPSDir *in, olong cno,
+                ObitAIPSDirCatEntry *entry, ObitErr *err)
 {
-  AIPSint    buffer[20];
-  olong       nwpl, nlpr, ib, ir;
-  ObitIOCode status;
-  olong      size, wantPos;
-  ObitAIPSDirCatEntry *fentry=NULL;
-  gchar *routine = "ObitAIPSDirRead";
+    AIPSint    buffer[20];
+    olong       nwpl, nlpr, ib, ir;
+    ObitIOCode status;
+    olong      size, wantPos;
+    ObitAIPSDirCatEntry *fentry = NULL;
+    gchar *routine = "ObitAIPSDirRead";
 
-  /* error checks */
-  g_assert(ObitErrIsA(err));
-  if (err->error) return;  /* previous error? */
-  g_assert (ObitAIPSDirIsA(in));
-  g_assert(entry != NULL);
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
-  /* Check CNO range */
-  if ((cno<1) || (cno>in->maxcno)) {
-    Obit_log_error(err, OBIT_Error, 
-		   "Catalog slot %d out of range (1- %d) disk %d",
-		   cno,in->maxcno,in->disk);
-    return;
-  }
+    if (err->error) return;  /* previous error? */
+
+    g_assert(ObitAIPSDirIsA(in));
+    g_assert(entry != NULL);
+
+    /* Check CNO range */
+    if ((cno < 1) || (cno > in->maxcno)) {
+        Obit_log_error(err, OBIT_Error,
+                       "Catalog slot %d out of range (1- %d) disk %d",
+                       cno, in->maxcno, in->disk);
+        return;
+    }
 
 
-  nwpl = 10;          /* number of AIPSint words per entry */
-  nlpr = 256 / nwpl;  /* number of entries per "record" (256 words) */
+    nwpl = 10;          /* number of AIPSint words per entry */
+    nlpr = 256 / nwpl;  /* number of entries per "record" (256 words) */
 
-  /* where is this entry */
-  ib = 1 + ((cno - 1) / nlpr); /* block number */
-  ir = 1 + ((cno-1) % nlpr);   /* record number */
-  wantPos = sizeof(AIPSint) * ((ib * 256) + ((ir-1) * nwpl));
-  size = nwpl * sizeof(AIPSint);
+    /* where is this entry */
+    ib = 1 + ((cno - 1) / nlpr); /* block number */
+    ir = 1 + ((cno - 1) % nlpr); /* record number */
+    wantPos = sizeof(AIPSint) * ((ib * 256) + ((ir - 1) * nwpl));
+    size = nwpl * sizeof(AIPSint);
 
-  /* read record */
-  status = ObitFileRead (in->myFile, wantPos, size, (gchar*)buffer, err);
-  if ((status!=OBIT_IO_OK) || (err->error)) /* add traceback on error */
-    Obit_traceback_msg (err, routine, "Catalog search");
+    /* read record */
+    status = ObitFileRead(in->myFile, wantPos, size, (gchar *)buffer, err);
 
-  /* Copy entry from buffer */
-  fentry = (ObitAIPSDirCatEntry*)buffer;  /* entry pointer into buffer */
-  ObitAIPSDirCopy (fentry, entry);
+    if ((status != OBIT_IO_OK) || (err->error)) /* add traceback on error */
+        Obit_traceback_msg(err, routine, "Catalog search");
+
+    /* Copy entry from buffer */
+    fentry = (ObitAIPSDirCatEntry *)buffer; /* entry pointer into buffer */
+    ObitAIPSDirCopy(fentry, entry);
 
 } /* end ObitAIPSDirRead */
 
@@ -1221,50 +1345,53 @@ ObitAIPSDirRead(ObitAIPSDir* in, olong cno,
  * \param err   Obit error stack.
  */
 static void
-ObitAIPSDirWrite(ObitAIPSDir* in, olong cno,
-		 ObitAIPSDirCatEntry *entry, ObitErr *err)
+ObitAIPSDirWrite(ObitAIPSDir *in, olong cno,
+                 ObitAIPSDirCatEntry *entry, ObitErr *err)
 {
-  AIPSint    buffer[20];
-  olong       nwpl, nlpr, ib, ir;
-  ObitIOCode status;
-  ObitFilePos size, wantPos;
-  ObitAIPSDirCatEntry *fentry=NULL;
-  gchar *routine = "ObitAIPSDirWrite";
+    AIPSint    buffer[20];
+    olong       nwpl, nlpr, ib, ir;
+    ObitIOCode status;
+    ObitFilePos size, wantPos;
+    ObitAIPSDirCatEntry *fentry = NULL;
+    gchar *routine = "ObitAIPSDirWrite";
 
-  /* error checks */
-  g_assert(ObitErrIsA(err));
-  if (err->error) return;  /* previous error? */
-  g_assert (ObitAIPSDirIsA(in));
-  g_assert(entry != NULL);
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
-  /* Check CNO range */
-  if ((cno<1) || (cno>in->maxcno)) {
-    Obit_log_error(err, OBIT_Error, 
-		   "Catalog slot %d out of range (1- %d) disk %d", 
-		   cno, in->maxcno, in->disk);
-    return;
-  }
+    if (err->error) return;  /* previous error? */
+
+    g_assert(ObitAIPSDirIsA(in));
+    g_assert(entry != NULL);
+
+    /* Check CNO range */
+    if ((cno < 1) || (cno > in->maxcno)) {
+        Obit_log_error(err, OBIT_Error,
+                       "Catalog slot %d out of range (1- %d) disk %d",
+                       cno, in->maxcno, in->disk);
+        return;
+    }
 
 
-  nwpl = 10;          /* number of AIPSint words per entry */
-  nlpr = 256 / nwpl;  /* number of entries per "record" (256 words) */
+    nwpl = 10;          /* number of AIPSint words per entry */
+    nlpr = 256 / nwpl;  /* number of entries per "record" (256 words) */
 
-  /* where is this entry */
-  ib = 1 + ((cno - 1) / nlpr); /* block number */
-  ir = 1 + ((cno-1) % nlpr);   /* record number */
-  wantPos = sizeof(AIPSint) * ((ib * 256) + ((ir-1) * nwpl));
-  size = nwpl * sizeof(AIPSint);
+    /* where is this entry */
+    ib = 1 + ((cno - 1) / nlpr); /* block number */
+    ir = 1 + ((cno - 1) % nlpr); /* record number */
+    wantPos = sizeof(AIPSint) * ((ib * 256) + ((ir - 1) * nwpl));
+    size = nwpl * sizeof(AIPSint);
 
-  /* Copy entry to buffer */
-  fentry = (ObitAIPSDirCatEntry*)buffer;  /* entry pointer into buffer */
-  ObitAIPSDirCopy (entry, fentry);
+    /* Copy entry to buffer */
+    fentry = (ObitAIPSDirCatEntry *)buffer; /* entry pointer into buffer */
+    ObitAIPSDirCopy(entry, fentry);
 
-  /* write record */
-  status = ObitFileWrite (in->myFile, wantPos, size, (gchar*)buffer, err);
-  if ((status!=OBIT_IO_OK) || (err->error)) /* add traceback on error */
-    Obit_traceback_msg (err, routine, "Catalog search");
+    /* write record */
+    status = ObitFileWrite(in->myFile, wantPos, size, (gchar *)buffer, err);
 
-  in->flush = TRUE; /* something in buffer to flush */
+    if ((status != OBIT_IO_OK) || (err->error)) /* add traceback on error */
+        Obit_traceback_msg(err, routine, "Catalog search");
+
+    in->flush = TRUE; /* something in buffer to flush */
 } /* end ObitAIPSDirWrite */
 
 /**
@@ -1275,34 +1402,39 @@ ObitAIPSDirWrite(ObitAIPSDir* in, olong cno,
 static void
 ObitAIPSDirCopy(ObitAIPSDirCatEntry *in, ObitAIPSDirCatEntry *out)
 {
-  olong i;
+    olong i;
 
-  /* Error checks */
-  g_assert(in  != NULL);
-  g_assert(out != NULL);
+    /* Error checks */
+    g_assert(in  != NULL);
+    g_assert(out != NULL);
 
-  out->user      = in->user;
-  out->status    = in->status;
-  out->access[0] = in->access[0];
-  out->access[1] = in->access[1];
-  out->seq       = in->seq;
+    out->user      = in->user;
+    out->status    = in->status;
+    out->access[0] = in->access[0];
+    out->access[1] = in->access[1];
+    out->seq       = in->seq;
 
-  /* replace any NULLs in the string with blanks */
-  for (i=0; i<12; i++){
-    out->name[i] = in->name[i];
-    if (out->name[i]==0)
-        out->name[i]=' ';
-  }
-  for (i=0; i<6; i++){
-    out->class[i] = in->class[i];
-    if (out->class[i]==0)
-        out->class[i]=' ';
-  }
-  for (i=0; i<2; i++){
-    out->type[i] = in->type[i];
-    if (out->type[i]==0)
-        out->type[i]=' ';
-  }
+    /* replace any NULLs in the string with blanks */
+    for (i = 0; i < 12; i++) {
+        out->name[i] = in->name[i];
+
+        if (out->name[i] == 0)
+            out->name[i] = ' ';
+    }
+
+    for (i = 0; i < 6; i++) {
+        out->class[i] = in->class[i];
+
+        if (out->class[i] == 0)
+            out->class[i] = ' ';
+    }
+
+    for (i = 0; i < 2; i++) {
+        out->type[i] = in->type[i];
+
+        if (out->type[i] == 0)
+            out->type[i] = ' ';
+    }
 
 } /* end ObitAIPSDirCopy */
 
@@ -1313,77 +1445,85 @@ ObitAIPSDirCopy(ObitAIPSDirCatEntry *in, ObitAIPSDirCatEntry *out)
  * \param err Obit error stack.
  */
 static void
-ObitAIPSDirExtend(ObitAIPSDir* in, ObitErr *err)
+ObitAIPSDirExtend(ObitAIPSDir *in, ObitErr *err)
 {
-  AIPSint    buffer[256];
-  olong       i, nwpl, nlpr;
-  ObitIOCode status;
-  olong      size, wantPos;
-  gchar      blank[21] = "                    ";
-  ObitAIPSDirCatEntry *entry=NULL;
-  ObitAIPSDirCatHead  *head=NULL;
-  gchar *routine = "ObitAIPSDirExtend";
+    AIPSint    buffer[256];
+    olong       i, nwpl, nlpr;
+    ObitIOCode status;
+    olong      size, wantPos;
+    gchar      blank[21] = "                    ";
+    ObitAIPSDirCatEntry *entry = NULL;
+    ObitAIPSDirCatHead  *head = NULL;
+    gchar *routine = "ObitAIPSDirExtend";
 
-  /* error checks */
-  g_assert(ObitErrIsA(err));
-  if (err->error) return;  /* previous error? */
-  g_assert (ObitAIPSDirIsA(in));
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
-  /* position file to end */
-  /* This appears not to work and is extremely risky c IO really sucks 
-     status = ObitFileEnd (in->myFile, err);*/
+    if (err->error) return;  /* previous error? */
 
-  /* initialize buffer */
-  nwpl = 10;          /* number of AIPSint words per entry */
-  nlpr = 256 / nwpl;  /* number of entries per "record" (256 words) */
-  entry = (ObitAIPSDirCatEntry*)buffer;  /* entry pointer into buffer */
-  for (i=0; i<nlpr; i++) {
-    /* initialize record */
-    entry->user      = -1;
-    entry->status    = OBIT_IO_OK;
-    entry->access[0] = 0;
-    entry->access[1] = 0;
-    entry->seq       = 0;
-    memmove (entry->name, blank, 20);
-    entry++; /* next */
-  }
+    g_assert(ObitAIPSDirIsA(in));
 
-  size = 256 * sizeof(AIPSint);
-  wantPos = -1L;
-  status = ObitFileWrite (in->myFile, wantPos, size, (gchar*)buffer, err);
-  if ((status!=OBIT_IO_OK) || (err->error)) /* add traceback on error */
-    Obit_traceback_msg (err, routine, "Extend AIPS catalog");
+    /* position file to end */
+    /* This appears not to work and is extremely risky c IO really sucks
+       status = ObitFileEnd (in->myFile, err);*/
 
-  /* Flush it to disk */
-  status = ObitFileFlush (in->myFile, err);
-  if ((status!=OBIT_IO_OK) || (err->error)) /* add traceback on error */
-    Obit_traceback_msg (err, routine, "Extend AIPS catalog");
+    /* initialize buffer */
+    nwpl = 10;          /* number of AIPSint words per entry */
+    nlpr = 256 / nwpl;  /* number of entries per "record" (256 words) */
+    entry = (ObitAIPSDirCatEntry *)buffer; /* entry pointer into buffer */
 
-  /* update header */
-  /* position file to beginning */
-  wantPos = 0;
+    for (i = 0; i < nlpr; i++) {
+        /* initialize record */
+        entry->user      = -1;
+        entry->status    = OBIT_IO_OK;
+        entry->access[0] = 0;
+        entry->access[1] = 0;
+        entry->seq       = 0;
+        memmove(entry->name, blank, 20);
+        entry++; /* next */
+    }
 
-  /* read */
-  status = ObitFileRead (in->myFile, wantPos, size, (gchar*)buffer, err);
-  if ((status!=OBIT_IO_OK) || (err->error)) /* add traceback on error */
-    Obit_traceback_msg (err, routine, "Extend AIPS catalog");
+    size = 256 * sizeof(AIPSint);
+    wantPos = -1L;
+    status = ObitFileWrite(in->myFile, wantPos, size, (gchar *)buffer, err);
 
-  /* update */
-  in->maxcno +=nlpr;
-  head = (ObitAIPSDirCatHead*)buffer;
-  head->ncat = in->maxcno;
+    if ((status != OBIT_IO_OK) || (err->error)) /* add traceback on error */
+        Obit_traceback_msg(err, routine, "Extend AIPS catalog");
 
-  /* rewrite */
-  status = ObitFileWrite (in->myFile, wantPos, size, (gchar*)buffer, err);
-  if ((status!=OBIT_IO_OK) || (err->error)) /* add traceback on error */
-    Obit_traceback_msg (err, routine, "Extend AIPS catalog");
+    /* Flush it to disk */
+    status = ObitFileFlush(in->myFile, err);
 
-  /* Flush it to disk */
-  status = ObitFileFlush (in->myFile, err);
-  if ((status!=OBIT_IO_OK) || (err->error)) /* add traceback on error */
-    Obit_traceback_msg (err, routine, "Extend AIPS catalog");
+    if ((status != OBIT_IO_OK) || (err->error)) /* add traceback on error */
+        Obit_traceback_msg(err, routine, "Extend AIPS catalog");
 
-  in->flush = TRUE; /* something in buffer to flush */
+    /* update header */
+    /* position file to beginning */
+    wantPos = 0;
+
+    /* read */
+    status = ObitFileRead(in->myFile, wantPos, size, (gchar *)buffer, err);
+
+    if ((status != OBIT_IO_OK) || (err->error)) /* add traceback on error */
+        Obit_traceback_msg(err, routine, "Extend AIPS catalog");
+
+    /* update */
+    in->maxcno += nlpr;
+    head = (ObitAIPSDirCatHead *)buffer;
+    head->ncat = in->maxcno;
+
+    /* rewrite */
+    status = ObitFileWrite(in->myFile, wantPos, size, (gchar *)buffer, err);
+
+    if ((status != OBIT_IO_OK) || (err->error)) /* add traceback on error */
+        Obit_traceback_msg(err, routine, "Extend AIPS catalog");
+
+    /* Flush it to disk */
+    status = ObitFileFlush(in->myFile, err);
+
+    if ((status != OBIT_IO_OK) || (err->error)) /* add traceback on error */
+        Obit_traceback_msg(err, routine, "Extend AIPS catalog");
+
+    in->flush = TRUE; /* something in buffer to flush */
 } /* end ObitAIPSDirExtend */
 
 /**
@@ -1394,32 +1534,34 @@ ObitAIPSDirExtend(ObitAIPSDir* in, ObitErr *err)
 static void
 ObitAIPSDirInitHead(ObitAIPSDirCatHead *head, olong disk)
 {
-  struct tm *lp;
-  time_t clock;
+    struct tm *lp;
+    time_t clock;
 
-  /* Header info */
-  head->disk  = disk;  /* disk number */
-  head->dummy = 0;
-  head->ncat  = 0;     /* Number of entries */
+    /* Header info */
+    head->disk  = disk;  /* disk number */
+    head->dummy = 0;
+    head->ncat  = 0;     /* Number of entries */
 
-  /* Init creation time */
-  /* Get time since 00:00:00 GMT, Jan. 1, 1970 in seconds. */
-  time (&clock);
+    /* Init creation time */
+    /* Get time since 00:00:00 GMT, Jan. 1, 1970 in seconds. */
+    time(&clock);
 
-  /* Convert to  broken-down time. */
-  lp = localtime (&clock);
+    /* Convert to  broken-down time. */
+    lp = localtime(&clock);
 
-  /* to output */
-  head->date_access[0] = lp->tm_year;
-  if (head->date_created[0]<1000)  head->date_access[0] += 1900; /* full year */
-  head->date_created[1] = lp->tm_mon+1; /* For some bizzare reason, month is 0-rel */
-  head->date_created[2] = lp->tm_mday;
-  head->time_created[0] = lp->tm_hour;
-  head->time_created[1] = lp->tm_min;
-  head->time_created[2] = lp->tm_sec;
+    /* to output */
+    head->date_access[0] = lp->tm_year;
 
-  /* Init access time */
-  ObitAIPSDirUpdateHead (head);
+    if (head->date_created[0] < 1000)  head->date_access[0] += 1900; /* full year */
+
+    head->date_created[1] = lp->tm_mon + 1; /* For some bizzare reason, month is 0-rel */
+    head->date_created[2] = lp->tm_mday;
+    head->time_created[0] = lp->tm_hour;
+    head->time_created[1] = lp->tm_min;
+    head->time_created[2] = lp->tm_sec;
+
+    /* Init access time */
+    ObitAIPSDirUpdateHead(head);
 } /* end ObitAIPSDirInitHead */
 
 /**
@@ -1429,23 +1571,25 @@ ObitAIPSDirInitHead(ObitAIPSDirCatHead *head, olong disk)
 static void
 ObitAIPSDirUpdateHead(ObitAIPSDirCatHead *head)
 {
-  struct tm *lp;
-  time_t clock;
+    struct tm *lp;
+    time_t clock;
 
-  /* Get time since 00:00:00 GMT, Jan. 1, 1970 in seconds. */
-  time (&clock);
+    /* Get time since 00:00:00 GMT, Jan. 1, 1970 in seconds. */
+    time(&clock);
 
-  /* Convert to  broken-down time. */
-  lp = localtime (&clock);
+    /* Convert to  broken-down time. */
+    lp = localtime(&clock);
 
-  /* to output */
-  head->date_access[0] = lp->tm_year;
-  if (head->date_access[0]<1000)  head->date_access[0] += 1900; /* full year */
-  head->date_access[1] = lp->tm_mon+1; /* For some bizzare reason, month is 0-rel */
-  head->date_access[2] = lp->tm_mday;
-  head->time_access[0] = lp->tm_hour;
-  head->time_access[1] = lp->tm_min;
-  head->time_access[2] = lp->tm_sec;
+    /* to output */
+    head->date_access[0] = lp->tm_year;
+
+    if (head->date_access[0] < 1000)  head->date_access[0] += 1900; /* full year */
+
+    head->date_access[1] = lp->tm_mon + 1; /* For some bizzare reason, month is 0-rel */
+    head->date_access[2] = lp->tm_mday;
+    head->time_access[0] = lp->tm_hour;
+    head->time_access[1] = lp->tm_min;
+    head->time_access[2] = lp->tm_sec;
 } /* end ObitAIPSDirUpdateHead */
 
 /**
@@ -1455,28 +1599,30 @@ ObitAIPSDirUpdateHead(ObitAIPSDirCatHead *head)
 static void
 ObitAIPSDirUpdateEntry(ObitAIPSDirCatEntry *entry)
 {
-  struct tm *lp;
-  time_t clock;
-  olong timea[3], datea[3];
+    struct tm *lp;
+    time_t clock;
+    olong timea[3], datea[3];
 
-  /* Get time since 00:00:00 GMT, Jan. 1, 1970 in seconds. */
-  time (&clock);
+    /* Get time since 00:00:00 GMT, Jan. 1, 1970 in seconds. */
+    time(&clock);
 
-  /* Convert to  broken-down time. */
-  lp = localtime (&clock);
+    /* Convert to  broken-down time. */
+    lp = localtime(&clock);
 
-  /* to local arrays */
-  datea[0] = lp->tm_year;
-  if (datea[0]<1000) datea[0] += 1900; /* full year */
-  datea[1] = lp->tm_mon+1; /* For some bizzare reason, month is 0-rel */
-  datea[2] = lp->tm_mday;
-  timea[0] = lp->tm_hour;
-  timea[1] = lp->tm_min;
-  timea[2] = lp->tm_sec;
+    /* to local arrays */
+    datea[0] = lp->tm_year;
 
-  /* update output structure */
-  ObitAIPSDirPackDate (&entry->access[0], datea);
-  ObitAIPSDirPackTime (&entry->access[1], timea);
+    if (datea[0] < 1000) datea[0] += 1900; /* full year */
+
+    datea[1] = lp->tm_mon + 1; /* For some bizzare reason, month is 0-rel */
+    datea[2] = lp->tm_mday;
+    timea[0] = lp->tm_hour;
+    timea[1] = lp->tm_min;
+    timea[2] = lp->tm_sec;
+
+    /* update output structure */
+    ObitAIPSDirPackDate(&entry->access[0], datea);
+    ObitAIPSDirPackTime(&entry->access[1], timea);
 } /* end ObitAIPSDirUpdateEntry */
 
 /**
@@ -1484,18 +1630,19 @@ ObitAIPSDirUpdateEntry(ObitAIPSDirCatEntry *entry)
  * \param  in Pointer to catalog directory structure info.
  * \return TRUE if the correct class else FALSE.
  */
-gboolean ObitAIPSDirIsA (ObitAIPSDir* in)
+gboolean ObitAIPSDirIsA(ObitAIPSDir *in)
 {
-  gboolean out;
+    gboolean out;
 
-  /* error checks */
-  if (in == NULL) return FALSE;
-  if (in->className == NULL) return FALSE;
+    /* error checks */
+    if (in == NULL) return FALSE;
 
-  /* compare class name member */
-  out = !strcmp(in->className, myClassName);
+    if (in->className == NULL) return FALSE;
 
-  return out;
+    /* compare class name member */
+    out = !strcmp(in->className, myClassName);
+
+    return out;
 } /* end ObitAIPSDirIsA */
 
 /**
@@ -1503,12 +1650,12 @@ gboolean ObitAIPSDirIsA (ObitAIPSDir* in)
  * \param pack packed version of triplet
  * \param unpack unpacked version of triplet.
  */
-void ObitAIPSDirUnpackTime (AIPSint pack, olong unpack[3])
+void ObitAIPSDirUnpackTime(AIPSint pack, olong unpack[3])
 {
-  unpack[2] = pack % 256;
-  pack /= 256;
-  unpack[1] = pack % 256;
-  unpack[0] = pack / 256;
+    unpack[2] = pack % 256;
+    pack /= 256;
+    unpack[1] = pack % 256;
+    unpack[0] = pack / 256;
 } /* end ObitAIPSDirUnpackTime */
 
 /**
@@ -1516,13 +1663,15 @@ void ObitAIPSDirUnpackTime (AIPSint pack, olong unpack[3])
  * \param pack packed version of triplet
  * \param unpack unpacked version of triplet.
  */
-void ObitAIPSDirPackTime (AIPSint *pack, olong unpack[3])
+void ObitAIPSDirPackTime(AIPSint *pack, olong unpack[3])
 {
-  olong i1, i2, i3;
+    olong i1, i2, i3;
 
-  i1 = unpack[0]; i2 = unpack[1]; i3 = unpack[2];
-  /* stuff 'em together */
-  *pack = 256 * (256 * i1 + i2) + i3;
+    i1 = unpack[0];
+    i2 = unpack[1];
+    i3 = unpack[2];
+    /* stuff 'em together */
+    *pack = 256 * (256 * i1 + i2) + i3;
 } /* end ObitAIPSDirPackTime */
 
 /**
@@ -1530,12 +1679,12 @@ void ObitAIPSDirPackTime (AIPSint *pack, olong unpack[3])
  * \param pack packed version of triplet
  * \param unpack unpacked version of triplet.
  */
-void ObitAIPSDirUnpackDate (AIPSint pack, olong unpack[3])
+void ObitAIPSDirUnpackDate(AIPSint pack, olong unpack[3])
 {
-  unpack[2] = pack % 256;
-  pack /= 256;
-  unpack[1] = pack % 256;
-  unpack[0] = 1900 + pack / 256;
+    unpack[2] = pack % 256;
+    pack /= 256;
+    unpack[1] = pack % 256;
+    unpack[0] = 1900 + pack / 256;
 } /* end ObitAIPSDirUnpackDate */
 
 /**
@@ -1543,16 +1692,21 @@ void ObitAIPSDirUnpackDate (AIPSint pack, olong unpack[3])
  * \param pack packed version of triplet
  * \param unpack unpacked version of triplet.
  */
-void ObitAIPSDirPackDate (AIPSint *pack, olong unpack[3])
+void ObitAIPSDirPackDate(AIPSint *pack, olong unpack[3])
 {
-  olong i1, i2, i3;
+    olong i1, i2, i3;
 
-  i1 = unpack[0]; i2 = unpack[1]; i3 = unpack[2];
-  /* packed version years since 1900 */
-  if (i1 > 1000) i1 -= 1900;
-  if (i2<1) i2 = 1;
-  /* stuff 'em together */
-  *pack = 256 * (256 * i1 + i2) + i3;
+    i1 = unpack[0];
+    i2 = unpack[1];
+    i3 = unpack[2];
+
+    /* packed version years since 1900 */
+    if (i1 > 1000) i1 -= 1900;
+
+    if (i2 < 1) i2 = 1;
+
+    /* stuff 'em together */
+    *pack = 256 * (256 * i1 + i2) + i3;
 } /* end ObitAIPSDirPackDate */
 
 /**
@@ -1562,38 +1716,43 @@ void ObitAIPSDirPackDate (AIPSint *pack, olong unpack[3])
  * \param head   Header structure, possibly modified on output
  * \param err    Obit error stack
  */
-static void SyncDir(ObitAIPSDir *in, ObitAIPSDirCatHead  *head, 
-		    ObitErr *err)
-{ 
-  olong      wantPos, nwpl, nlpr, count, maxcno;
-  AIPSint    buffer[256];
-  ObitIOCode status=OBIT_IO_OK;
-  ObitFilePos size;
-  ObitAIPSDirCatEntry *entry=NULL;
-  gchar *routine = "ObitAIPSDir:SyncDir";
+static void SyncDir(ObitAIPSDir *in, ObitAIPSDirCatHead  *head,
+                    ObitErr *err)
+{
+    olong      wantPos, nwpl, nlpr, count, maxcno;
+    AIPSint    buffer[256];
+    ObitIOCode status = OBIT_IO_OK;
+    ObitFilePos size;
+    ObitAIPSDirCatEntry *entry = NULL;
+    gchar *routine = "ObitAIPSDir:SyncDir";
 
-  if (err->error) return;  /* previous error? */
+    if (err->error) return;  /* previous error? */
 
-  /* position file to second block - first is header */
-  wantPos = 256 * sizeof(AIPSint);
-  size    = 256 * sizeof(AIPSint);
+    /* position file to second block - first is header */
+    wantPos = 256 * sizeof(AIPSint);
+    size    = 256 * sizeof(AIPSint);
 
-  nwpl = 10;          /* number of AIPSint words per entry */
-  nlpr = 256 / nwpl;  /* number of entries per "record" (256 words) */
+    nwpl = 10;          /* number of AIPSint words per entry */
+    nlpr = 256 / nwpl;  /* number of entries per "record" (256 words) */
 
-  /* Count blocks before EOF */
-  count = 0;
-  while (status!=OBIT_IO_EOF) {
-    status = ObitFileRead (in->myFile, wantPos, size, (gchar*)buffer, err);
-    if (status==OBIT_IO_EOF) break;
-    if (err->error) Obit_traceback_msg (err, routine, "Catalog search");
-    entry = (ObitAIPSDirCatEntry*)buffer;  /* entry pointer into buffer */
-    wantPos = -1L; /* now sequential access */
-    count++;
-  }
+    /* Count blocks before EOF */
+    count = 0;
 
-  /* How many possible? */
-  maxcno = count * nlpr;
-  if (maxcno>head->ncat) head->ncat = maxcno;
+    while (status != OBIT_IO_EOF) {
+        status = ObitFileRead(in->myFile, wantPos, size, (gchar *)buffer, err);
+
+        if (status == OBIT_IO_EOF) break;
+
+        if (err->error) Obit_traceback_msg(err, routine, "Catalog search");
+
+        entry = (ObitAIPSDirCatEntry *)buffer; /* entry pointer into buffer */
+        wantPos = -1L; /* now sequential access */
+        count++;
+    }
+
+    /* How many possible? */
+    maxcno = count * nlpr;
+
+    if (maxcno > head->ncat) head->ncat = maxcno;
 
 }   /* end SyncDir */
