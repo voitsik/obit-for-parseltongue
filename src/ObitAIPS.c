@@ -682,7 +682,7 @@ void ObitAIPSRename(ObitIO *in, ObitInfoList *info, ObitErr *err)
     ObitIOType ft;
     ObitInfoType type;
     olong disk, user, CNO, newSeq = -1, oldSeq, test;
-    gchar newName[13], newClass[7], oldName[13], oldClass[7];
+    gchar newName[13], newClass[7], oldName[13], oldClass[7], fileType[3];
     ObitAIPSDirCatEntry *entry = NULL;
     ObitHistory *inHist = NULL;
     ObitErr *xerr = NULL;
@@ -692,7 +692,8 @@ void ObitAIPSRename(ObitIO *in, ObitInfoList *info, ObitErr *err)
     /* error check */
     g_assert(ObitErrIsA(err));
 
-    if (err->error);
+    if (err->error)
+        return;
 
     g_assert(ObitIOIsA(in));
 
@@ -741,6 +742,8 @@ void ObitAIPSRename(ObitIO *in, ObitInfoList *info, ObitErr *err)
     oldName[12] = 0;
     memmove(oldClass, entry->class, 6);
     oldClass[6] = 0;
+    memmove(fileType, entry->type, 2);
+    fileType[2] = 0;
 
     /* Default name to old */
     if (!strncmp(newName,  "    ", 4)) {
@@ -756,7 +759,7 @@ void ObitAIPSRename(ObitIO *in, ObitInfoList *info, ObitErr *err)
     /* Default sequence number */
     if (newSeq <= 0) {
         newSeq = ObitAIPSDirHiSeq(disk, user, newName, newClass,
-                                  entry->type, FALSE, err);
+                                  fileType, FALSE, err);
 
         if (err->error) Obit_traceback_msg(err, routine, in->name);
     } else { /* make sure it doesn't already exist */
@@ -766,7 +769,7 @@ void ObitAIPSRename(ObitIO *in, ObitInfoList *info, ObitErr *err)
         /* Any failure assumed to be caused by nonexistance */
         xerr = newObitErr();
         test = ObitAIPSDirFindCNO(disk, user, newName, newClass,
-                                  entry->type, newSeq, xerr);
+                                  fileType, newSeq, xerr);
 
         if (xerr->error) test = -1;
 
