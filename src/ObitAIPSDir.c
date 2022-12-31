@@ -117,7 +117,7 @@ ObitAIPSDirWrite(ObitAIPSDir *in, olong cno,
 
 /** Private: Copy a Catalog directory entry. */
 static void
-ObitAIPSDirCopy(ObitAIPSDirCatEntry *in, ObitAIPSDirCatEntry *out);
+ObitAIPSDirCopy(const ObitAIPSDirCatEntry *in, ObitAIPSDirCatEntry *out);
 
 /** Private: Add a record block to the catalog directory. */
 static void
@@ -154,8 +154,8 @@ static void ObitAIPSDirPackDate(AIPSint *pack, olong unpack[3]);
 void ObitAIPSDirClassInit(olong number, gchar *dir[]);
 
 /** Private: Sync head with actual contents of directory */
-static void SyncDir(ObitAIPSDir *out, ObitAIPSDirCatHead  *head,
-                    ObitErr *err);
+static void SyncDir(const ObitAIPSDir *out, ObitAIPSDirCatHead *head, ObitErr *err);
+
 /*---------------Public functions---------------------------*/
 /**
  * Look through AIPS catalog on a given disk to find a given
@@ -185,15 +185,18 @@ olong ObitAIPSDirFindCNO(olong disk, olong user,
     if (err->error) return -1;  /* previous error? */
 
     /* protect against bad strings */
-    for (i = 0; i < 12; i++) lAname[i]  = Aname[i];
+    for (i = 0; i < 12; i++)
+        lAname[i] = Aname[i];
 
     lAname[i] = 0;
 
-    for (i = 0; i < 6; i++)  lAclass[i] = Aclass[i];
+    for (i = 0; i < 6; i++)
+        lAclass[i] = Aclass[i];
 
     lAclass[i] = 0;
 
-    for (i = 0; i < 2; i++)  lAtype[i]  = Atype[i];
+    for (i = 0; i < 2; i++)
+        lAtype[i]  = Atype[i];
 
     lAtype[i] = 0;
 
@@ -288,15 +291,18 @@ olong ObitAIPSDirAlloc(olong disk, olong user,
     if (err->error) return -1;  /* previous error? */
 
     /* protect against bad strings */
-    for (i = 0; i < 12; i++) lAname[i]  = Aname[i];
+    for (i = 0; i < 12; i++)
+        lAname[i] = Aname[i];
 
     lAname[i] = 0;
 
-    for (i = 0; i < 6; i++)  lAclass[i] = Aclass[i];
+    for (i = 0; i < 6; i++)
+        lAclass[i] = Aclass[i];
 
     lAclass[i] = 0;
 
-    for (i = 0; i < 2; i++)  lAtype[i]  = Atype[i];
+    for (i = 0; i < 2; i++)
+        lAtype[i] = Atype[i];
 
     lAtype[i] = 0;
 
@@ -399,7 +405,6 @@ void ObitAIPSDirRemoveEntry(olong disk, olong user, olong cno, ObitErr *err)
     ObitAIPSDir         *myDir = NULL;
     ObitAIPSDirCatEntry entry;
     olong ndisk;
-    ObitAIPSDirStatusError retCode = OBIT_AIPS_Dir_StatusSpecErr;
     gchar *routine = "ObitAIPSDirRemoveEntry";
 
     /* error checks */
@@ -418,7 +423,6 @@ void ObitAIPSDirRemoveEntry(olong disk, olong user, olong cno, ObitErr *err)
     }
 
     /* Open */
-    retCode = OBIT_AIPS_Dir_StatusIOErr;
     myDir =  ObitAIPSDirOpen(disk, user, err);
 
     if (err->error) return;
@@ -449,7 +453,6 @@ void ObitAIPSDirRemoveEntry(olong disk, olong user, olong cno, ObitErr *err)
     ObitAIPSDirWrite(myDir, cno, &entry, err);
 
     if (err->error) { /* attempt close on error */
-        retCode = OBIT_AIPS_Dir_StatusIOErr;
         ObitAIPSDirClose(myDir, err);
         return;
     }
@@ -470,7 +473,6 @@ olong ObitAIPSDirNumber(olong disk, olong user, ObitErr *err)
 {
     olong                ndisk, out = 0;
     ObitAIPSDir         *myDir = NULL;
-    ObitAIPSDirStatusError retCode = OBIT_AIPS_Dir_StatusSpecErr;
     gchar *routine = "ObitAIPSDirNumber";
 
     /* error checks */
@@ -489,7 +491,6 @@ olong ObitAIPSDirNumber(olong disk, olong user, ObitErr *err)
     }
 
     /* Open */
-    retCode = OBIT_AIPS_Dir_StatusIOErr;
     myDir =  ObitAIPSDirOpen(disk, user, err);
 
     if (err->error) return out;
@@ -587,7 +588,7 @@ olong ObitAIPSDirHiSeq(olong disk, olong user, gchar Aname[13], gchar Aclass[7],
     if (outSeq <= 0) {  /* Nope - use 1 */
         outSeq = 1;
     } else if (exist) { /* Want existing one, use highest found */
-        outSeq = outSeq;
+        /* outSeq = outSeq; */
     } else {            /* Want new one, use highest found + 1 */
         outSeq++;
     }
@@ -1204,21 +1205,21 @@ ObitAIPSDirFindEntry(ObitAIPSDir *in, gchar Aname[13],
 /**
  * Search through an open catalog and find first free slot.
  * Catalog directory will be extended if needed.
- * \param  in  Pointer to catalog directory structure info.
+ * \param in  Pointer to catalog directory structure info.
  * \param Aname  AIPS name.
  * \param Aclass AIPS class.
  * \param Atype  AIPS file type (MA, UV, SC).
  * \param seq    AIPS sequence number.
- * \param  err ObitErr error stack.
+ * \param err ObitErr error stack.
  * \return the catalog slot number.
  */
 static olong ObitAIPSDirFindFree(ObitAIPSDir *in, gchar Aname[13],
                                  gchar Aclass[7], gchar Atype[3],
                                  olong seq, ObitErr *err)
 {
-    olong       cno = 0;
-    AIPSint    buffer[256];
-    olong       i, nwpl, nlpr;
+    olong cno = 0;
+    AIPSint buffer[256];
+    olong i, nwpl, nlpr;
     ObitIOCode status;
     ObitFilePos   wantPos, size;
     gboolean   found = FALSE;
@@ -1400,7 +1401,7 @@ ObitAIPSDirWrite(ObitAIPSDir *in, olong cno,
  * \param out  Output Catalog entry structure to accept data.
  */
 static void
-ObitAIPSDirCopy(ObitAIPSDirCatEntry *in, ObitAIPSDirCatEntry *out)
+ObitAIPSDirCopy(const ObitAIPSDirCatEntry *in, ObitAIPSDirCatEntry *out)
 {
     olong i;
 
@@ -1451,7 +1452,6 @@ ObitAIPSDirExtend(ObitAIPSDir *in, ObitErr *err)
     olong       i, nwpl, nlpr;
     ObitIOCode status;
     olong      size, wantPos;
-    gchar      blank[21] = "                    ";
     ObitAIPSDirCatEntry *entry = NULL;
     ObitAIPSDirCatHead  *head = NULL;
     gchar *routine = "ObitAIPSDirExtend";
@@ -1479,7 +1479,9 @@ ObitAIPSDirExtend(ObitAIPSDir *in, ObitErr *err)
         entry->access[0] = 0;
         entry->access[1] = 0;
         entry->seq       = 0;
-        memmove(entry->name, blank, 20);
+        memset(entry->name, ' ', 12);
+        memset(entry->class, ' ', 6);
+        memset(entry->type, ' ', 2);
         entry++; /* next */
     }
 
@@ -1716,14 +1718,12 @@ void ObitAIPSDirPackDate(AIPSint *pack, olong unpack[3])
  * \param head   Header structure, possibly modified on output
  * \param err    Obit error stack
  */
-static void SyncDir(ObitAIPSDir *in, ObitAIPSDirCatHead  *head,
-                    ObitErr *err)
+static void SyncDir(const ObitAIPSDir *in, ObitAIPSDirCatHead *head, ObitErr *err)
 {
     olong      wantPos, nwpl, nlpr, count, maxcno;
     AIPSint    buffer[256];
     ObitIOCode status = OBIT_IO_OK;
     ObitFilePos size;
-    ObitAIPSDirCatEntry *entry = NULL;
     gchar *routine = "ObitAIPSDir:SyncDir";
 
     if (err->error) return;  /* previous error? */
@@ -1745,7 +1745,6 @@ static void SyncDir(ObitAIPSDir *in, ObitAIPSDirCatHead  *head,
 
         if (err->error) Obit_traceback_msg(err, routine, "Catalog search");
 
-        entry = (ObitAIPSDirCatEntry *)buffer; /* entry pointer into buffer */
         wantPos = -1L; /* now sequential access */
         count++;
     }
