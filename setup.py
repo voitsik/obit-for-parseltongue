@@ -18,7 +18,7 @@ LIBS_BUILD_INFO = {
     "libraries": [],
 }
 
-CFLAGS = ["-fno-strict-aliasing", "-O2", "-march=native"]
+CFLAGS = ["-fno-strict-aliasing", "-O2", "-march=native", "-Wall"]
 
 # Build C-part of Obit as static lib
 OBIT_LIB = (
