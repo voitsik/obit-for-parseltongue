@@ -606,8 +606,8 @@ olong ObitAIPSDirHiSeq(olong disk, olong user, gchar Aname[13], gchar Aclass[7],
  * \param newSeq   New AIPS sequence
  * \param err      Obit error stack.
  */
-void ObitAIPSDirRename(olong disk, olong user,  olong cno, gchar *newName,
-                       gchar newClass[7], olong newSeq, ObitErr *err)
+void ObitAIPSDirRename(olong disk, olong user,  olong cno, const gchar *newName,
+                       const gchar *newClass, olong newSeq, ObitErr *err)
 {
     ObitAIPSDir   *myDir = NULL;
     ObitAIPSDirCatEntry entry;
@@ -620,15 +620,20 @@ void ObitAIPSDirRename(olong disk, olong user,  olong cno, gchar *newName,
 
     if (err->error) return;  /* previous error? */
 
-    /* Clean input strings - make sure no nulls in characters to be
-       compared */
+    /* Clean input strings - make sure no nulls in characters to be compared */
     strncpy(Aname, newName,  12);
 
-    for (i = 0; i < 12; i++) if (Aname[i] == 0)  Aname[i] = ' ';
+    for (i = 0; i < 12; i++)
+        if (Aname[i] == 0)
+            Aname[i] = ' ';
+    Aname[i] = 0;
 
     strncpy(Aclass, newClass, 6);
 
-    for (i = 0; i < 6 ; i++) if (Aclass[i] == 0) Aclass[i] = ' ';
+    for (i = 0; i < 6 ; i++)
+        if (Aclass[i] == 0)
+            Aclass[i] = ' ';
+    Aclass[i] = 0;
 
     /* Open directory */
     myDir =  ObitAIPSDirOpen(disk, user, err);

@@ -666,13 +666,13 @@ void ObitAIPSAssign(gchar *pgmName, olong pgmNumber, gchar *type,
  * Renames a AIPS file
  * \param in   ObitIO on AIPS file
  * \param info Associated ObitInfoList
- * \li "Disk" OBIT_long (1,1,1)           Disk number
- * \li "CNO" OBIT_long (1,1,1)            Catalog slot number
+ * \li "Disk" OBIT_long (1,1,1)       Disk number
+ * \li "CNO" OBIT_long (1,1,1)        Catalog slot number
  * \li "newName" OBIT_string (12,1,1) New AIPS Name
  *      absent or Blank = don't change
  * \li "newClass" OBIT_string (6,1,1) New AIPS Class
  *      absent or Blank = don't changeO
- * \li "newSeq" OBIT_long (1,1,1) New AIPS Sequence
+ * \li "newSeq" OBIT_long (1,1,1)     New AIPS Sequence
  *      0 => unique value
  * \param err  Error stack for any error messages.
  */
