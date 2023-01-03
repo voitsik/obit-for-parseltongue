@@ -130,7 +130,7 @@ ObitSystemStartup (gchar *pgmName, olong pgmNumber,
 		   olong numberFITSdisk, gchar* FITSdir[], 
 		   oint F_TRUE, oint F_FALSE, ObitErr *err)
 {
-  gchar *version=NULL;
+  const gchar *version=NULL;
   ObitSystem* out;
 
   /* Init system error flag */
@@ -186,7 +186,7 @@ ObitSystemStartup (gchar *pgmName, olong pgmNumber,
  
   ObitErrLog(out->err);
 
-  if (version) g_free(version);  /* Cleanup */
+  // if (version) g_free(version);  /* Cleanup */
 
   return out;
 } /*  end ObitSystemStartup */
@@ -217,7 +217,7 @@ ObitSystem* ObitSystemShutdown (ObitSystem* in)
    ObitClassInfo *myClass;
    Obit *tst;
    GSList *tmp;
-   gchar *version=NULL;
+   const gchar *version=NULL;
    /*struct tms buf;*/
    struct rusage ru;
    time_t endTime;
@@ -270,8 +270,7 @@ ObitSystem* ObitSystemShutdown (ObitSystem* in)
     Obit_log_error(in->err, OBIT_InfoErr, "%s Ends, svn ver. %s", 
 		   in->pgmName, version);
   ObitErrTimeStamp(in->err);  /* Add Timestamp */
-  if (version) g_free(version);  /* Cleanup */
-
+  // if (version) g_free(version);  /* Cleanup */
 
   /* CPU Usage */
   /*times (&buf);

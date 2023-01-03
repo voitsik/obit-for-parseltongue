@@ -26,6 +26,9 @@
 /*;                         Charlottesville, VA 22903-2475 USA        */
 /*--------------------------------------------------------------------*/
 
-#include <string.h>
+#ifndef OBITVERSION_H_INCLUDED
+#define OBITVERSION_H_INCLUDED
 
-char *ObitVersion (void);
+const char *ObitVersion(void);
+
+#endif // OBITVERSION_H_INCLUDED

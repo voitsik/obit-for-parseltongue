@@ -1,12 +1,11 @@
 /* SWIG interface file for ObitVersion.c */
 
 %{
-#include <string.h>
-extern char *ObitVersion();
+extern const char *ObitVersion();
 %}
 
 %inline %{
-extern char *Version() {
+extern const char *Version() {
     return ObitVersion();
 }
 %}
