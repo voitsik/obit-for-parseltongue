@@ -131,9 +131,9 @@ extern char* AIPSDirInfo(long disk, long user, long cno, ObitErr *err)
       return (char*)out;
   }
 
-  if (entry->status==0) strncpy (stat, "    ", 5);
-  else if (entry->status<0) strncpy (stat, "WRIT", 5);
-  else if (entry->status>0) strncpy (stat, "READ", 5);
+  if (entry->status==0) strncpy (stat, "    ", 4);
+  else if (entry->status<0) strncpy (stat, "WRIT", 4);
+  else if (entry->status>0) strncpy (stat, "READ", 4);
 
   out = g_malloc(nout);
   g_snprintf (out, nout, "%-12.12s.%-6.6s. %4d %-2.2s          ",

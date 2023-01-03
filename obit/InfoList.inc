@@ -48,8 +48,8 @@ typedef struct {
 %typemap(freearg) InfoListBlob * {
    InfoListBlob *me = (InfoListBlob *)$source;
    if (me!=NULL) {
-      if (me->name) free(me->name); me->name = NULL;
-      if (me->data) free(me->data); me->data = NULL;
+      if (me->name) {free(me->name); me->name = NULL;}
+      if (me->data) {free(me->data); me->data = NULL;}
       free(me);
    }
 }

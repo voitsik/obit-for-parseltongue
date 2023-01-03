@@ -1,6 +1,6 @@
 /* $Id$        */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2005-2020                                          */
+/*;  Copyright (C) 2005-2022                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;                                                                   */
 /*;  This program is free software; you can redistribute it and/or    */
@@ -27,6 +27,7 @@
 /*--------------------------------------------------------------------*/
 
 #include "ObitUVImager.h"
+#include "ObitUVGrid.h"
 #include "ObitUVWeight.h"
 #include "ObitImageUtil.h"
 #include "ObitUVImagerIon.h"
@@ -132,7 +133,7 @@ ObitUVImager* ObitUVImagerFromInfo (gchar *prefix, ObitInfoList *inList,
      "RAShift", "DecShift", "Sources", 
      "Catalog", "CatDisk", "OutlierDist", "OutlierFlux", "OutlierSI", "OutlierSize",
      "nuGrid", "nvGrid", "WtBox", "WtFunc", "UVTaper", "Robust", "WtPower",
-     "RobustIF", "TaperIF", "MFTaper", "doGPU",
+     "RobustIF", "TaperIF", "MFTaper", "doGPU", "doGPUGrid",
      NULL};
   gchar ctemp[50];
   gchar *routine = "ObitUVImagerFromInfo";
@@ -404,7 +405,7 @@ void ObitUVImagerWeight (ObitUVImager *in, ObitErr *err)
      "RAShift", "DecShift", "Sources",  "Beam",
      "Catalog", "CatDisk", "OutlierDist", "OutlierFlux", "OutlierSI", "OutlierSize",
      "nuGrid", "nvGrid", "WtBox", "WtFunc", "UVTaper", "Robust", "WtPower",
-     "RobustIF", "TaperIF", "MFTaper", "doGPU",
+     "RobustIF", "TaperIF", "MFTaper", "doGPU", "doGPUGrid",
      NULL};
   gchar *routine = "ObitUVImagerWeight";
 
@@ -459,10 +460,10 @@ void ObitUVImagerImage (ObitUVImager *in, olong *field, gboolean doWeight,
   olong NumPar, myAuto;
   ofloat sumwts[2];
   ObitImage *theBeam=NULL;
-  gboolean *forceBeam=NULL, needBeam, doall, found;
+  gboolean *forceBeam=NULL, needBeam, doall, found, doGridGPU=FALSE;
   ObitUVImagerClassInfo *imgClass = (ObitUVImagerClassInfo*)in->ClassInfo;
   gchar        *dataParms[] = {  /* Imaging info */
-    "xShift", "yShift",
+    "xShift", "yShift", "chDone",
     NULL
   };
   gchar *routine = "ObitUVImagerImage";
@@ -497,8 +498,11 @@ void ObitUVImagerImage (ObitUVImager *in, olong *field, gboolean doWeight,
 
   /* get prtLv */
   prtLv = 1;
-  if (ObitInfoListGetTest(in->mosaic->info, "prtLv", &type, dim, &prtLv)) 
+  if (ObitInfoListGetTest(in->uvwork->info, "prtLv", &type, dim, &prtLv)) 
     err->prtLv = prtLv;  /* Add to err */
+
+  /* GPU Gridding? */
+  if (ObitInfoListGetTest(in->uvwork->info, "doGPUGrid", &type, dim, &doGridGPU)) 
 
   /* Single or multiple images (including beams) */
   if ((!doBeam) && ((nImage==1) || (in->mosaic->numberImages==1))) {
@@ -553,8 +557,10 @@ void ObitUVImagerImage (ObitUVImager *in, olong *field, gboolean doWeight,
   } /* end single */
 
   /* Multiple (including beams) - do in parallel */
-
-  NumPar = imgClass->ObitUVImagerGetNumPar(in, doBeam, err); /* How many to do? */
+  if (doGridGPU) 
+    NumPar = ObitUVGridGetNumPar(in->uvwork, (Obit*)in->mosaic, doBeam, err);  /* GPU */
+  else 
+    NumPar = imgClass->ObitUVImagerGetNumPar(in, doBeam, err);          /* CPU */
 
   /* Get list of images */
   imageList = g_malloc0(in->mosaic->numberImages*sizeof(ObitImage*));
@@ -775,7 +781,7 @@ void ObitUVImagerGetInfo (ObitUVImager *in, gchar *prefix, ObitInfoList *outList
      "RAShift", "DecShift", "Sources", 
      "Catalog", "CatDisk", "OutlierDist", "OutlierFlux", "OutlierSI", "OutlierSize",
      "nuGrid", "nvGrid", "WtBox", "WtFunc", "UVTaper", "Robust", "WtPower",
-     "RobustIF", "TaperIF", "MFTaper",
+     "RobustIF", "TaperIF", "MFTaper", 
      NULL};
   gchar *routine = "ObitUVImagerGetInfo";
 
@@ -994,6 +1000,7 @@ void ObitUVImagerInit  (gpointer inn)
     ParentClass->ObitInit (inn);
 
   /* set members in this class */
+  in->info   = newObitInfoList();
   in->uvdata = NULL;
   in->uvwork = NULL;
   in->mosaic = NULL;
@@ -1015,6 +1022,7 @@ void ObitUVImagerClear (gpointer inn)
   g_assert (ObitIsA(in, &myClassInfo));
 
   /* delete this class members */
+  in->info   = ObitInfoListUnref(in->info);
   in->uvdata = ObitUVUnref(in->uvdata);
   in->uvwork = ObitUVUnref(in->uvwork);
   in->mosaic = ObitImageMosaicUnref(in->mosaic);

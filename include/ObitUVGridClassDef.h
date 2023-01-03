@@ -1,6 +1,6 @@
 /* $Id$  */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2002-2010                                          */
+/*;  Copyright (C) 2002-2022                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;  This program is free software; you can redistribute it and/or    */
 /*;  modify it under the terms of the GNU General Public License as   */
@@ -45,3 +45,5 @@ PrepBufferFP PrepBuffer;
 GridBufferFP GridBuffer;
 /** Function pointer to Gridding correction. */
 GridCorrFnFP  GridCorrFn;
+/** Function pointer to get max number of parallel grids */
+ObitUVGridGetNumParFP ObitUVGridGetNumPar;

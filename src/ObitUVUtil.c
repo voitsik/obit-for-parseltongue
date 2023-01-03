@@ -1,6 +1,6 @@
 /* $Id$   */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2004-2020                                          */
+/*;  Copyright (C) 2004-2022                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;                                                                   */
 /*;  This program is free software; you can redistribute it and/or    */
@@ -331,6 +331,25 @@ ObitUV* ObitUVUtilCopyZero (ObitUV *inUV, gboolean scratch, ObitUV *outUV,
   return outUV;
 } /* end ObitUVUtilCopyZero */
 
+#if HAVE_AVX512==1
+#include <immintrin.h>
+# define ALIGN32_BEG
+# define ALIGN32_END __attribute__((packed,aligned(32)))
+/* Union allowing c interface */
+typedef __m512  V16SF; // vector of 16 float (avx)
+typedef __m512i V16SI; // vector of 16 int   (avx)
+typedef __mmask16 MASK16; // vector of 16 mask  (avx)
+typedef ALIGN32_BEG union {
+  float f[16];
+  int   i[16];
+  V16SF   v;
+} ALIGN32_END CV16SF;
+typedef ALIGN32_BEG union {
+  float f[16];
+  int   i[16];
+  V16SI   v;
+} ALIGN32_END IV16SF;
+#endif
 /**
  * Divide the visibilities in one ObitUV by those in another
  * outUV = inUV1 / inUV2
@@ -354,12 +373,24 @@ void ObitUVUtilVisDivide (ObitUV *inUV1, ObitUV *inUV2, ObitUV *outUV,
   olong i, j, indx, firstVis;
   ObitInfoType type;
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
-  olong NPIO;
+  olong NPIO, jlast=0;
   ofloat work[3];
   gboolean incompatible, same, btemp;
   ObitUVDesc *in1Desc, *in2Desc, *outDesc;
   gchar *today=NULL;
   gchar *routine = "ObitUVUtilVisDivide";
+
+#if HAVE_AVX512==1
+  CV16SF vr1, vi1, vw1, vr2, vi2, vw2, vz, v1, vwk1, vwk2, vwk3, vt;
+  IV16SF vindxr, vindxi, vindxw;
+  MASK16 msk, msk1, msk2;
+  olong  jndx;
+  vz.v     = _mm512_set1_ps(0.0);  /* vector of zeroes */
+  v1.v     = _mm512_set1_ps(1.0);  /* vector of ones */
+  vindxr.v = _mm512_set_epi32 (45,42,39,36,33,30,27,24,21,18,15,12, 9,6,3,0); /* Reals*/
+  vindxi.v = _mm512_set_epi32 (46,43,40,37,34,32,28,25,22,19,16,13,10,7,4,1); /* Imags */
+  vindxw.v = _mm512_set_epi32 (47,44,41,38,35,32,29,26,23,20,17,14,11,8,5,2); /* Weight */
+#endif
 
   /* error checks */
   g_assert (ObitErrIsA(err));
@@ -496,7 +527,7 @@ void ObitUVUtilVisDivide (ObitUV *inUV1, ObitUV *inUV2, ObitUV *outUV,
     /* Modify data */
     for (i=0; i<in1Desc->numVisBuff; i++) { /* loop over visibilities */
       /* compatability check - check time and baseline or antenna code */
-      indx = i*in1Desc->lrec ;
+      indx = i*in1Desc->lrec;
       incompatible = 
 	inUV1->buffer[indx+in1Desc->iloct] !=inUV2->buffer[indx+in2Desc->iloct];
       if (in1Desc->ilocb>=0) {
@@ -510,8 +541,46 @@ void ObitUVUtilVisDivide (ObitUV *inUV1, ObitUV *inUV2, ObitUV *outUV,
       }
       if (incompatible) break;
 
-      indx += in1Desc->nrparm;
-      for (j=0; j<in1Desc->ncorr; j++) { /* loop over correlations */
+#if HAVE_AVX512==1  /* Vector */
+      for (j=0; j<in1Desc->ncorr-16; j+=16) { /* loop over correlations */
+        jndx   = i*in1Desc->lrec + in1Desc->nrparm + in1Desc->inaxes[0]*j;
+	vr1.v  = _mm512_i32gather_ps (vindxr.v, &inUV1->buffer[jndx], 4);/* Load Reals 1 */
+	vi1.v  = _mm512_i32gather_ps (vindxi.v, &inUV1->buffer[jndx], 4);/* Load Imaginaries 1 */
+	vw1.v  = _mm512_i32gather_ps (vindxw.v, &inUV1->buffer[jndx], 4);/* Load Weights 1 */
+	vr2.v  = _mm512_i32gather_ps (vindxr.v, &inUV2->buffer[jndx], 4);/* Load Reals 2 */
+	vi2.v  = _mm512_i32gather_ps (vindxi.v, &inUV2->buffer[jndx], 4);/* Load Imaginaries 2 */
+	vw2.v  = _mm512_i32gather_ps (vindxw.v, &inUV2->buffer[jndx], 4);/* Load Weights 2 */
+	msk1   = _mm512_cmp_ps_mask(vw1.v, vz.v, _CMP_LE_OQ);            /* find invalid data 1 */
+	msk2   = _mm512_cmp_ps_mask(vw2.v, vz.v, _CMP_LE_OQ);            /* find invalid data 2 */
+	msk    = _mm512_kxnor (msk1, msk2);                              /* Combined valid */
+	/* Complex Divide */
+	vwk2.v = _mm512_mul_ps(vr2.v, vr2.v);
+	vwk3.v = _mm512_mul_ps(vi2.v, vi2.v);
+	vwk1.v = _mm512_add_ps(vwk2.v, vwk3.v);               /* r2^2 + i2^2 */
+	vt.v   = _mm512_sqrt_ps(vwk1.v);
+	vw1.v  = _mm512_mul_ps(vw1.v, vt.v);                  /* Weight */
+	msk1   = _mm512_cmp_ps_mask(vwk1.v, vz.v, _CMP_NEQ_UQ);/* trap zero */
+	vwk1.v = _mm512_mask_rcp14_ps(v1.v, msk1, vwk1.v);    /* approximate reciprocal */ 
+	vwk2.v = _mm512_mul_ps(vr1.v, vwk1.v);
+	vwk3.v = _mm512_mul_ps(vi1.v, vwk1.v);
+	vt.v   = _mm512_mul_ps(vwk2.v, vr2.v);
+	vr1.v  = _mm512_mul_ps(vwk3.v, vi2.v);
+	vr1.v  = _mm512_add_ps(vt.v, vr1.v);
+	vt.v   = _mm512_mul_ps(vwk3.v, vr2.v);
+	vi1.v  = _mm512_mul_ps(vwk2.v, vi2.v);
+	vi1.v  = _mm512_sub_ps(vt.v, vi1.v);
+	/* Weight */
+	/* Save output */
+	_mm512_mask_i32scatter_ps (&inUV1->buffer[jndx], msk, vindxr.v, vr1.v, 4); /* save valid real */
+	_mm512_mask_i32scatter_ps (&inUV1->buffer[jndx], msk, vindxi.v, vi1.v, 4); /* save valid imaginary */
+	_mm512_mask_i32scatter_ps (&inUV1->buffer[jndx], msk, vindxw.v, vw1.v, 4); /* save valid weight */
+      } /* end loop over correlations */
+      jlast = j;  /* How far did it get */
+#else /* Scalar */
+      jlast = 0;  /* Do all */
+#endif
+      indx = i*in1Desc->lrec + in1Desc->nrparm + jlast*in1Desc->inaxes[0];
+      for (j=jlast; j<in1Desc->ncorr; j++) { /* loop over correlations */
 	/* Divide */
 	ObitUVWtCpxDivide ((&inUV1->buffer[indx]), 
 			   (&inUV2->buffer[indx]), 
@@ -783,6 +852,8 @@ void ObitUVUtilXPolDivide (ObitUV *inUV, ObitUV *outUV, ObitErr *err)
  * \param inUV2    Second input uv data, calibration/selection allowed
  *                 inUV2 should have the same structure, no. vis etc
  *                 as inUV1.
+ *                 On info member (in addition to calibration info):
+ * \li "Factor"    OBIT_float (1,1,1) Vis scaling factor (def 1.0)
  * \param outUV    Previously defined output, may be the same as inUV1
  * \param err      Error stack, returns on error
  */
@@ -800,6 +871,7 @@ void ObitUVUtilVisSub (ObitUV *inUV1, ObitUV *inUV2, ObitUV *outUV,
   ObitInfoType type;
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
   olong NPIO;
+  ofloat factor=1.0;
   gboolean incompatible, same, doCalSelect, btemp;
   ObitUVDesc *in1Desc, *in2Desc, *outDesc;
   ObitIOAccess access;
@@ -813,7 +885,8 @@ void ObitUVUtilVisSub (ObitUV *inUV1, ObitUV *inUV2, ObitUV *outUV,
   g_assert (ObitUVIsA(inUV2));
   g_assert (ObitUVIsA(outUV));
 
-  /* Are input1 and output the same file? */
+   ObitInfoListGetTest (inUV2->info, "Factor",  &type, dim, &factor);
+ /* Are input1 and output the same file? */
   same = ObitUVSame(inUV1, outUV, err);
   if (err->error) Obit_traceback_msg (err, routine, inUV1->name);
 
@@ -870,8 +943,17 @@ void ObitUVUtilVisSub (ObitUV *inUV1, ObitUV *inUV2, ObitUV *outUV,
   incompatible = incompatible || (in1Desc->jlocif!=in2Desc->jlocif);
   incompatible = incompatible || (in1Desc->ilocb!=in2Desc->ilocb);
   if (incompatible) {
-     Obit_log_error(err, OBIT_Error,"%s inUV1 and inUV2 have incompatible structures",
-		   routine);
+    if (in1Desc->nvis!=in2Desc->nvis)
+      	    Obit_log_error(err, OBIT_InfoWarn, 
+			   "nvis %d != %d", in1Desc->nvis, in2Desc->nvis);
+    if (in1Desc->ncorr!=in2Desc->ncorr)
+      	    Obit_log_error(err, OBIT_InfoWarn, 
+			   "ncorr %d != %d", in1Desc->ncorr, in2Desc->ncorr);
+    if (in1Desc->jlocs!=in2Desc->jlocs) Obit_log_error(err, OBIT_InfoWarn, "Stokes axes differ");
+    if (in1Desc->jlocf!=in2Desc->jlocf) Obit_log_error(err, OBIT_InfoWarn, "Frequency axes differ");
+    if (in1Desc->jlocif!=in2Desc->jlocif) Obit_log_error(err, OBIT_InfoWarn, "IF axes differ");
+     Obit_log_error(err, OBIT_Error,"%s: %s and %s have incompatible structures",
+		    routine, inUV1->name, inUV2->name);
       return ;
   }
 
@@ -966,8 +1048,8 @@ void ObitUVUtilVisSub (ObitUV *inUV1, ObitUV *inUV2, ObitUV *outUV,
       for (j=0; j<in1Desc->ncorr; j++) { /* loop over correlations */
 	/* subtract */
 	if ((inUV1->buffer[indx+2]>0.0) && (inUV2->buffer[indx+2]>0.0)) {
-	  inUV1->buffer[indx]   -= inUV2->buffer[indx];
-	  inUV1->buffer[indx+1] -= inUV2->buffer[indx+1];
+	  inUV1->buffer[indx]   -= factor * inUV2->buffer[indx];
+	  inUV1->buffer[indx+1] -= factor * inUV2->buffer[indx+1];
 	  /* this blanks poln data } else {
 	    inUV1->buffer[indx]   = 0.0;
 	    inUV1->buffer[indx+1] = 0.0;
@@ -1621,7 +1703,9 @@ void ObitUVUtilIndex (ObitUV *inUV, ObitErr *err)
  * Return a SourceList containing selected sources
  * Uses following criteria:
  * \li initially select all source in SU table
- *     If no SU table, a single entry is returned.
+ *     If no SU table and info entry "Sources" is given, and is 
+ *        the same to 8 characters to header "OBJECT", it is used.
+ *     Else  header "OBJECT"
  * \li Any explicit selection in Sources parameter in UV data selector
  * \li selection by CalCode
  * \li selection to exclude any entries marked done in the PS table
@@ -1648,8 +1732,8 @@ ObitSourceList* ObitUVUtilWhichSources (ObitUV *inUV, ObitErr *err)
   ObitInfoType type;
   olong theRow;
   gint32 dim[MAXINFOELEMDIM];
-  gboolean want, allCal, allNCal, doTime, doPS, *good=NULL;
-  gchar souCode[5];
+  gboolean want, allCal, allNCal, doTime, doPS, *good=NULL, OK;
+  gchar souCode[5], *strTemp;
   gchar *routine = "ObitUVUtilWhichSources";
 
   /* Full Source list */
@@ -1662,7 +1746,12 @@ ObitSourceList* ObitUVUtilWhichSources (ObitUV *inUV, ObitErr *err)
     if (err->error) Obit_traceback_val (err, routine, inUV->name, out);
   } else {  /* Use position /name from header */
     out = ObitSourceListCreate ("SList", 1);
-    strncpy (out->SUlist[0]->SourceName, inUV->myDesc->object, MIN(20,UVLEN_VALUE));
+    /* Use first name in "Sources" if given, otherwise "object" from Header */
+    OK = ObitInfoListGetP (inUV->info, "Sources", &type, dim, (gpointer)&strTemp);
+    OK = OK && (strTemp!=NULL) && strncmp (strTemp, "    ", 4);
+    OK = OK && !strncmp (strTemp, inUV->myDesc->object, 8);  /* And same as Object */
+    if (OK) strncpy (out->SUlist[0]->SourceName, strTemp, MIN(16,UVLEN_VALUE));
+    else    strncpy (out->SUlist[0]->SourceName, inUV->myDesc->object, MIN(20,UVLEN_VALUE));
     out->SUlist[0]->equinox = inUV->myDesc->equinox;
     out->SUlist[0]->RAMean  = inUV->myDesc->crval[inUV->myDesc->jlocr];
     out->SUlist[0]->DecMean = inUV->myDesc->crval[inUV->myDesc->jlocd];
@@ -1944,7 +2033,7 @@ ObitUV* ObitUVUtilHann (ObitUV *inUV, gboolean scratch, ObitUV *outUV,
 
   /* Cleanup */
  cleanup:
-  if (work)    g_free(work);    work    = NULL;
+  if (work)  {g_free(work);}    work    = NULL;
   
   /* close files */
   iretCode = ObitUVClose (inUV, err);
@@ -2344,11 +2433,11 @@ ObitUV* ObitUVUtilAvgF (ObitUV *inUV, gboolean scratch, ObitUV *outUV,
 
   /* Cleanup */
  cleanup:
-  if (work) g_free(work);       work    = NULL;
-  if (corChan) g_free(corChan); corChan = NULL;
-  if (corIF) g_free(corIF);     corIF   = NULL;
-  if (corStok) g_free(corStok); corStok = NULL;
-  if (corMask) g_free(corMask); corMask = NULL;
+  if (work) {g_free(work);}       work    = NULL;
+  if (corChan) {g_free(corChan);} corChan = NULL;
+  if (corIF) {g_free(corIF);}     corIF   = NULL;
+  if (corStok) {g_free(corStok);} corStok = NULL;
+  if (corMask) {g_free(corMask);} corMask = NULL;
   
   /* close files */
   iretCode = ObitUVClose (inUV, err);
@@ -2720,10 +2809,10 @@ ObitUV* ObitUVUtilAvgT (ObitUV *inUV, gboolean scratch, ObitUV *outUV,
 
   /* Cleanup */
  cleanup:
-  if (accVis)   g_free(accVis);   accVis   = NULL;
-  if (ttVis)    g_free(ttVis);    ttVis    = NULL;
-  if (accRP)    g_free(accRP);    accRP    = NULL;
-  if (blLookup) g_free(blLookup); blLookup = NULL;
+  if (accVis)   {g_free(accVis);}   accVis   = NULL;
+  if (ttVis)    {g_free(ttVis);}    ttVis    = NULL;
+  if (accRP)    {g_free(accRP);}    accRP    = NULL;
+  if (blLookup) {g_free(blLookup);} blLookup = NULL;
   outBuffer = ObitUVSortBufferUnref(outBuffer);
 
   /* close files */
@@ -3057,9 +3146,9 @@ ObitUV* ObitUVUtilAvg2One (ObitUV *inUV, gboolean scratch, ObitUV *outUV,
 
   /* Cleanup */
  cleanup:
-  if (accVis)   g_free(accVis);   accVis   = NULL;
-  if (ttVis)    g_free(ttVis);    ttVis    = NULL;
-  if (accRP)    g_free(accRP);    accRP    = NULL;
+  if (accVis)   {g_free(accVis);}   accVis   = NULL;
+  if (ttVis)    {g_free(ttVis);}    ttVis    = NULL;
+  if (accRP)    {g_free(accRP);}    accRP    = NULL;
 
   /* close files */
   iretCode = ObitUVClose (inUV, err);
@@ -3238,11 +3327,11 @@ ObitUV* ObitUVUtilSmoF (ObitUV *inUV, gboolean scratch, ObitUV *outUV,
 
   /* Cleanup */
  cleanup:
-  if (work) g_free(work);       work    = NULL;
-  if (corChan) g_free(corChan); corChan = NULL;
-  if (corIF) g_free(corIF);     corIF   = NULL;
-  if (corStok) g_free(corStok); corStok = NULL;
-  if (corMask) g_free(corMask); corMask = NULL;
+  if (work) {g_free(work);}       work    = NULL;
+  if (corChan) {g_free(corChan);} corChan = NULL;
+  if (corIF) {g_free(corIF);}     corIF   = NULL;
+  if (corStok) {g_free(corStok);} corStok = NULL;
+  if (corMask) {g_free(corMask);} corMask = NULL;
   
   /* close files */
   iretCode = ObitUVClose (inUV, err);
@@ -3811,20 +3900,20 @@ ObitUV* ObitUVUtilBlAvgTF (ObitUV *inUV, gboolean scratch, ObitUV *outUV,
   
   /* Cleanup */
  cleanup:
-  if (accVis)   g_free(accVis);   accVis   = NULL;
-  if (accRP)    g_free(accRP);    accRP    = NULL;
-  if (tVis)     g_free(tVis);     tVis     = NULL;
-  if (ttVis)    g_free(ttVis);    ttVis    = NULL;
-  if (blLookup) g_free(blLookup); blLookup = NULL;
-  if (lsBlTime) g_free(lsBlTime); lsBlTime = NULL;
-  if (stBlTime) g_free(stBlTime); stBlTime = NULL;
-  if (stBlU)    g_free(stBlU);    stBlU    = NULL;
-  if (stBlV)    g_free(stBlV);    stBlV    = NULL;
-  if (work)     g_free(work);     work     = NULL;
-  if (corChan)  g_free(corChan);  corChan  = NULL;
-  if (corIF)    g_free(corIF);    corIF    = NULL;
-  if (corStok)  g_free(corStok);  corStok  = NULL;
-  if (corMask)  g_free(corMask);  corMask  = NULL;
+  if (accVis)   {g_free(accVis);}   accVis   = NULL;
+  if (accRP)    {g_free(accRP);}    accRP    = NULL;
+  if (tVis)     {g_free(tVis);}     tVis     = NULL;
+  if (ttVis)    {g_free(ttVis);}    ttVis    = NULL;
+  if (blLookup) {g_free(blLookup);} blLookup = NULL;
+  if (lsBlTime) {g_free(lsBlTime);} lsBlTime = NULL;
+  if (stBlTime) {g_free(stBlTime);} stBlTime = NULL;
+  if (stBlU)    {g_free(stBlU);}    stBlU    = NULL;
+  if (stBlV)    {g_free(stBlV);}    stBlV    = NULL;
+  if (work)     {g_free(work);}     work     = NULL;
+  if (corChan)  {g_free(corChan);}  corChan  = NULL;
+  if (corIF)    {g_free(corIF);}    corIF    = NULL;
+  if (corStok)  {g_free(corStok);}  corStok  = NULL;
+  if (corMask)  {g_free(corMask);}  corMask  = NULL;
   
   /* Flush Sort Buffer */
   ObitUVSortBufferFlush (outBuffer, err);

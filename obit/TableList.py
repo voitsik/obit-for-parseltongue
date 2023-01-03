@@ -27,7 +27,6 @@
 # -----------------------------------------------------------------------
 
 # Python shadow class to ObitTableList class
-from __future__ import absolute_import
 
 from . import Obit, _Obit
 
@@ -42,7 +41,7 @@ class TableList(Obit.TableList):
     """
 
     def __init__(self, name):
-        super(TableList, self).__init__()
+        super().__init__()
         Obit.CreateTableList(self.this, name)
 
     def __del__(self, DeleteTableList=_Obit.DeleteTableList):

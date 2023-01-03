@@ -143,7 +143,6 @@ Data selection, calibration and editing parameters on List member:
 # -----------------------------------------------------------------------
 
 # Python shadow class to ObitUV class
-from __future__ import absolute_import, print_function
 
 # import string
 
@@ -186,7 +185,7 @@ class UV(Obit.UV, OData.OData):
     """
 
     def __init__(self, name):
-        super(UV, self).__init__()
+        super().__init__()
         Obit.CreateUV(self.this, name)
         self.myClass = myClass
 

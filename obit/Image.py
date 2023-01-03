@@ -50,7 +50,6 @@ Additional  Functions are available in ImageUtil.
 # -----------------------------------------------------------------------
 
 # Obit Image manupulation
-from __future__ import absolute_import, print_function
 
 import math
 
@@ -91,7 +90,7 @@ class Image(Obit.Image, OData.OData):
     """
 
     def __init__(self, name):
-        super(Image, self).__init__()
+        super().__init__()
         Obit.CreateImage(self.this, name)
         self.myClass = myClass
 
@@ -352,59 +351,6 @@ class Image(Obit.Image, OData.OData):
         return out
 
     # end GetPixel
-
-    def Rename(
-        self,
-        err,
-        newFITSName=None,
-        newAIPSName="            ",
-        newAIPSClass="      ",
-        newAIPSSeq=0,
-    ):
-        """
-        Rename underlying files
-
-        * self   = Python Image object
-        * err    = Python Obit Error/message stack
-
-        For FITS files:
-
-        * newFITSName = new name for FITS file
-
-        For AIPS:
-
-        * newAIPSName  = New AIPS Name (max 12 char) Blank => don't change.
-        * newAIPSClass = New AIPS Class (max 6 char) Blank => don't change.
-        * newAIPSSeq   = New AIPS Sequence number, 0 => unique value
-        """
-        ################################################################
-        # Checks
-        if not self.ODataIsA():
-            raise TypeError("self MUST be a Python Obit OData")
-        if not err.IsA():
-            raise TypeError("err MUST be an OErr")
-        if len(newAIPSName) > 12:
-            raise RuntimeError("New AIPS Name too long")
-        if len(newAIPSClass) > 6:
-            raise RuntimeError("New AIPS Class too long")
-        #
-        # Set controls
-        inInfo = self.List  #
-        dim = [1, 1, 1, 1, 1]
-        InfoList.PAlwaysPutInt(inInfo, "newSeq", dim, [int(newAIPSSeq)])
-        dim[0] = 12
-        InfoList.PAlwaysPutString(inInfo, "newName", dim, [newAIPSName])
-        dim[0] = 6
-        InfoList.PAlwaysPutString(inInfo, "newClass", dim, [newAIPSClass])
-        if newFITSName:
-            dim[0] = len(newFITSName)
-            InfoList.PAlwaysPutString(inInfo, "newFileName", dim, [newFITSName])
-        # Rename
-        Obit.ImageRename(self.me, err.me)
-        if err.isErr:
-            OErr.printErrMsg(err, "Error Renaming OData data")
-
-    # end PRename
 
     def Copy(self, outImage, err):
         """

@@ -436,7 +436,7 @@ ObitXMLXML2InfoList (ObitXML *xml, ObitErr *err)
       XMLRPC_FAIL_IF_FAULT(&xml->envP);
       data = g_strdup (xmlChar);
       dim[0] = strlen (xmlChar);
-      free ((void *)xmlChar); xmlChar = NULL;
+      free (xmlChar); xmlChar = NULL;
       break;
 
    case XMLRPC_TYPE_ARRAY:
@@ -482,7 +482,7 @@ ObitXMLXML2InfoList (ObitXML *xml, ObitErr *err)
 	 XMLRPC_FAIL_IF_FAULT(&xml->envP);
 	 maxchar = MAX (maxchar, strlen (xmlChar));
 	 xmlCArray[j] = g_strdup(xmlChar);
-	 free ((void *)xmlChar); xmlChar = NULL;
+	 free (xmlChar); xmlChar = NULL;
 	 break;
        default:
 	 g_assert_not_reached(); /* unknown, barf */
@@ -1781,7 +1781,7 @@ static void decodeInfoList (ObitXMLEnv *envP, ObitXMLValue *parmP,
 	  strncpy ((char*)data, xmlChar, num);
 	  XMLRPC_FAIL_IF_FAULT(envP);
 	  xmlrpc_DECREF(e);
-	  free ((void *)xmlChar); xmlChar = NULL;
+	  free (xmlChar); xmlChar = NULL;
 	  break;
 	case OBIT_bool:
 	  data = g_malloc (num*sizeof(gboolean));

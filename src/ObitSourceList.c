@@ -163,7 +163,7 @@ ObitSourceList* ObitSourceListCopy  (ObitSourceList *in, ObitSourceList *out,
     /* derive object name */
     outName = g_strconcat ("Copy: ",in->name,NULL);
     out = newObitSourceList(outName);
-    if (outName) g_free(outName); outName = NULL;
+    if (outName) {g_free(outName); outName = NULL;}
   }
 
   /* deep copy any base class members */
@@ -281,7 +281,7 @@ void ObitSourceListClear (gpointer inn)
     in->SUlist[i] = ObitSourceUnref (in->SUlist[i]);
 
   /* delete members */
-  if (in->SUlist) g_free(in->SUlist); in->SUlist = NULL;
+  if (in->SUlist) {g_free(in->SUlist); in->SUlist = NULL;}
   
  /* unlink parent class members */
   ParentClass = (ObitClassInfo*)(myClassInfo.ParentClass);

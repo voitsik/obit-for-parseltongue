@@ -1,6 +1,6 @@
 /* $Id:  $ */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2012-2016                                          */
+/*;  Copyright (C) 2012-2022                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;                                                                   */
 /*;  This program is free software; you can redistribute it and/or    */
@@ -33,6 +33,7 @@
 #include "ObitSkyGeom.h"
 #include "ObitFInterpolate.h"
 #include "ObitImageFitData.h"
+#include "ObitUV.h"
 
 /*----------------Obit: Merx mollis mortibus nuper ------------------*/
 /**
@@ -70,7 +71,8 @@ void ObitTableFSPrint (ObitTableFS *in, ObitImage *image, FILE  *prtFile,
   gchar rast[19], decst[19], field[9];
   ofloat epeak, errra, errdec, errmaj, errmin, errpa, minSNR;
   odouble glat, glong;
-  ofloat beam[3], beamas[2], xcell, flux, eflux;
+  ofloat beam[3], xcell, flux, eflux;
+  /*ofloat beamas[2]; */
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
   ObitInfoType type;
   union ObitInfoListEquiv InfoReal; 
@@ -107,8 +109,8 @@ void ObitTableFSPrint (ObitTableFS *in, ObitImage *image, FILE  *prtFile,
   beam[0] = image->myDesc->beamMaj / xcell;  /* cells */
   beam[1] = image->myDesc->beamMin / xcell;
   beam[2] = image->myDesc->beamPA * DG2RAD;
-  beamas[0] = image->myDesc->beamMaj * 3600.0;  /* asec */
-  beamas[1] = image->myDesc->beamMin * 3600.0;
+  /*beamas[0] = image->myDesc->beamMaj * 3600.0;   asec */
+  /*beamas[1] = image->myDesc->beamMin * 3600.0;*/
 
   fprintf (prtFile,"\n Listing of fitted FS table values\n");
   fprintf (prtFile,"Fitted sizes in asec, Peak in mJy, Velocity in km/s\n");
@@ -133,7 +135,7 @@ void ObitTableFSPrint (ObitTableFS *in, ObitImage *image, FILE  *prtFile,
     maj = row->MajorAxis * 3600.0;
     min = row->MinorAxis * 3600.0;
     pa  = fmod(row->PosAngle, 360.0);
-    for (i=0; i<8; i++) field[i] = row->Field[i]; field[i] = 0;
+    for (i=0; i<8; i++) {field[i] = row->Field[i];} field[i] = 0;
 
     /* Galactic coord */
     glat  = row->Dec2000;
@@ -751,7 +753,8 @@ void ObitTableFSRedun (ObitTableFS *in, ObitTableFS *out, ObitErr *err)
   olong mxbad, ibad, jbad, maxbad, tnobad, *badrow=NULL;
   odouble dist2, ramax, dismax, tramax, bestRA, bestDec;
   gboolean isbad, toss1, want1;
-  olong fooey, bestRow, irow, jrow, orow, nrow, iold, ocount;
+  olong bestRow, irow, jrow, orow, nrow, iold, ocount;
+  /* olong fooey, */
   gchar Field[9];
   gchar *routine = "ObitTableFSRedun";
   
@@ -869,7 +872,7 @@ void ObitTableFSRedun (ObitTableFS *in, ObitTableFS *out, ObitErr *err)
     bestZ   = row->CenterZ;
 
     inWant = irow;  /* keep track or desired output row */
-    fooey  = irow;  /* Wah? */
+    /*    fooey  = irow;   Wah? */
 
     /* Search following table entries within RA window */
     for (jrow=irow+1; jrow<=erow; jrow++) {
@@ -924,7 +927,7 @@ void ObitTableFSRedun (ObitTableFS *in, ObitTableFS *out, ObitErr *err)
 	/* Use this new one? */
 	if (want1) {
 	  inWant = jrow;  /* keep track or desired output row */
-	  fooey = jrow;
+	  /*fooey = jrow;*/
 	  bestRA  = row2->Ra2000;   /* Now proven otherwise */
 	  bestDec = row2->Dec2000;
 	  bestRow = jrow;
@@ -1022,7 +1025,7 @@ ObitTableFS* ObitTableFSUtilVL2FS (ObitTableVL *in, ObitData *data, olong FSver,
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
   ObitInfoType type;
   olong orow, i,irow, numCh, count = 0;
-  odouble RefFreq=1.4e9;
+  /*odouble RefFreq=1.4e9;*/
   ofloat  Flux, fblank=ObitMagicF();
   gchar *tname;
   gboolean toEq=FALSE;
@@ -1037,13 +1040,13 @@ ObitTableFS* ObitTableFSUtilVL2FS (ObitTableVL *in, ObitData *data, olong FSver,
   /* Get frequency */
   if (ObitImageIsA(data)) {
     imDesc = ((ObitImage*)data)->myDesc;
-    RefFreq = imDesc->crval[imDesc->jlocf];
+    /*RefFreq = imDesc->crval[imDesc->jlocf];*/
     /* Need to convert positions to Equatorial? */
     toEq = (!strncmp("GLON", imDesc->ctype[0], 4)) && 
       (!strncmp("GLAT", imDesc->ctype[1], 4));
   } else if (ObitUVIsA(data)) {
     uvDesc = ((ObitUV*)data)->myDesc;
-    RefFreq = uvDesc->crval[uvDesc->jlocf];
+    /*RefFreq = uvDesc->crval[uvDesc->jlocf];*/
     /* Need to convert positions to Equatorial? */
     toEq = (!strncmp("GLON", uvDesc->ctype[0], 4)) && 
       (!strncmp("GLAT", uvDesc->ctype[1], 4));
@@ -1336,7 +1339,7 @@ void ObitTableFSFiltVel(ObitTableFS *inFS, ObitImage *im, ObitTableFS *outFS,
 			ObitErr *err)
 {
   ObitTableFSRow *FSrow=NULL;
-  olong nx, ny, nrow, nch, irow, orow, i, chmax, l1, l2;
+  olong nrow, nch, irow, orow, i, chmax, l1, l2;
   ofloat minSNR, minFlux, median, rms, maxV, tCrpix, *spec=NULL;
   ofloat delnu, refnu, frline, vsign, limit, fblank=ObitMagicF();
   odouble tCrval, dvzero, velite, vel, sum, sum1, sum2;
@@ -1413,8 +1416,6 @@ void ObitTableFSFiltVel(ObitTableFS *inFS, ObitImage *im, ObitTableFS *outFS,
   }
 
   /* Numbers of things */
-  nx  = imDesc->inaxes[imDesc->jlocr];
-  ny  = imDesc->inaxes[imDesc->jlocd];
   nch = MAX(outFS->numCh, imDesc->inaxes[imDesc->jlocf]);
 
   /* Work array */

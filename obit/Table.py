@@ -41,14 +41,13 @@ to disk when the table is closed.
 # -----------------------------------------------------------------------
 
 # Python shadow class to ObitTable class
-from __future__ import absolute_import
 
 from . import InfoList, Obit, OErr, TableDesc, _Obit
 
 
 class Table(Obit.Table):
     def __init__(self, name):
-        super(Table, self).__init__()
+        super().__init__()
         Obit.CreateTable(self.this, name)
 
     def __del__(self, DeleteTable=_Obit.DeleteTable):

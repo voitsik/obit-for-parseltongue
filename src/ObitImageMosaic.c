@@ -1,6 +1,6 @@
 /* $Id$  */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2004-2021                                          */
+/*;  Copyright (C) 2004-2022                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;                                                                   */
 /*;  This program is free software; you can redistribute it and/or    */
@@ -1273,7 +1273,7 @@ void ObitImageMosaicDefine (ObitImageMosaic *in, ObitUV *uvData, gboolean doBeam
   /* Set doGrid=isAuto<=0 - only meaningful if do3D=FALSE */
   barr = ObitMemAllocName(in->numberImages*sizeof(gboolean), routine);
   for (i=0; i<in->numberImages; i++) barr[i] = in->isAuto[i]<=0;
-  ObitInfoListAlwaysPut (uvData->info, "doGrid", OBIT_float, dim, barr);
+  ObitInfoListAlwaysPut (uvData->info, "doGrid", OBIT_bool, dim, barr);
   ObitMemFree(barr);
  
   /* Make sure UV data descriptor has proper info */
@@ -1564,14 +1564,16 @@ void ObitImageMosaicFlatten (ObitImageMosaic *in, ObitErr *err)
     rad = radius + 3;
     if (rad > ((naxis[0]/2)-2)) rad = (naxis[0]/2) - 3;
     if (rad > ((naxis[1]/2)-2)) rad = (naxis[1]/2) - 3;
-    blc[0] = (naxis[0] / 2) - rad;
-    blc[0] = MAX (2, blc[0]);
-    blc[1] = (naxis[1] / 2) + 1 - rad;
-    blc[1] = MAX (2, blc[1]);
-    trc[0] = (naxis[0] / 2) + rad;
-    trc[0] = MIN (naxis[0]-1, trc[0]);
-    trc[1] = (naxis[1] / 2) + 1 + rad;
-    trc[1] = MIN (naxis[1]-1, trc[1]);
+    /* This causes trouble
+      blc[0] = (naxis[0] / 2) - rad;
+      blc[0] = MAX (2, blc[0]);
+      blc[1] = (naxis[1] / 2) + 1 - rad;
+      blc[1] = MAX (2, blc[1]);
+      trc[0] = (naxis[0] / 2) + rad;
+      trc[0] = MIN (naxis[0]-1, trc[0]);
+      trc[1] = (naxis[1] / 2) + 1 + rad;
+      trc[1] = MIN (naxis[1]-1, trc[1]);*/
+    blc[0] = blc[1] = 1; trc[0] = naxis[0]; trc[1] = naxis[1];
     /* set plane */
     blc[2] = trc[2] = planeNo;
     
@@ -1605,6 +1607,12 @@ void ObitImageMosaicFlatten (ObitImageMosaic *in, ObitErr *err)
       ObitImageOpen (in->images[i], OBIT_IO_ReadOnly, err);
       ObitImageRead (in->images[i], NULL, err); /* Read plane */
       if (err->error) Obit_traceback_msg (err, routine, in->name);
+      /* DEBUG */
+#ifdef DEBUG
+      sprintf (fname, "DbugNoInput%d.fits",i);
+      ObitImageUtilFArray2FITS (in->images[i]->image, fname, 0, in->images[i]->myDesc, err);
+#endif
+      /* end DEBUG */
       if (ObitImageUtilNoInterWeight (in->images[i], tout1, tout2, TRUE, rad, 
 				      plane, plane, err))
 	ObitImageUtilInterpolateWeight (in->images[i], tout1, tout2, TRUE, rad, 
@@ -1613,8 +1621,8 @@ void ObitImageMosaicFlatten (ObitImageMosaic *in, ObitErr *err)
 
       /* DEBUG */
 #ifdef DEBUG
-      sprintf (fname, "DbugNoInput%d.fits",i);
-      ObitImageUtilFArray2FITS (in->images[i]->image, fname, 0, in->images[i]->myDesc, err);
+      /*sprintf (fname, "DbugNoInput%d.fits",i);*/
+      /*ObitImageUtilFArray2FITS (in->images[i]->image, fname, 0, in->images[i]->myDesc, err);*/
       sprintf (fname, "DbugNoInterp%d.fits",i);
       ObitImageUtilFArray2FITS (tout1->image, fname, 0, tout1->myDesc, err);
       sprintf (fname, "DbugNoWeight%d.fits",i);

@@ -129,7 +129,7 @@ ObitSource* ObitSourceCopy  (ObitSource *in, ObitSource *out,
     /* derive object name */
     outName = g_strconcat ("Copy: ",in->name,NULL);
     out = newObitSource(outName);
-    if (outName) g_free(outName); outName = NULL;
+    if (outName) {g_free(outName); outName = NULL;}
   }
 
   /* deep copy any base class members */

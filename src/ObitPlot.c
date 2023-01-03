@@ -3579,7 +3579,7 @@ void ObitPlotClear (gpointer inn)
 
   /* free this class members */
   in->thread    = ObitThreadUnref(in->thread);
-  if (in->info) ObitInfoListUnref (in->info); in->info = NULL;
+  if (in->info) {ObitInfoListUnref (in->info); in->info = NULL;}
   
   in->myImage = ObitImageUnref(in->myImage);
   in->myErr   = ObitErrUnref(in->myErr);

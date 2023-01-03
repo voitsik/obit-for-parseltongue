@@ -1,6 +1,6 @@
 /* $Id$      */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2008-2020                                          */
+/*;  Copyright (C) 2008-2022                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;                                                                   */
 /*;  This program is free software; you can redistribute it and/or    */
@@ -32,7 +32,10 @@
 #ifdef HAVE_GSL
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_version.h>
-#endif /* HAVE_GSL */ 
+#if GSL_MAJOR_VERSION==2
+#define HAVE_GSL2 1
+#endif /* GSL_MAJOR_VERSION */
+#endif /* HAVE_GSL */
 /*----------------Obit: Merx mollis mortibus nuper ------------------*/
 /**
  * \file ObitSpectrumFit.c
@@ -115,6 +118,8 @@ typedef struct {
   olong        nfreq;
   /** Minimum fraction of weight  */
   ofloat        minWt;
+  /* Minimum flux density for spectral fitting */
+  ofloat minFlux;
   /** Array of Nu per frequency point - broken power law */
   ofloat *nu;
   /** Array of log (Nu/Nu_0) per frequency point */
@@ -1282,6 +1287,17 @@ gpointer ObitSpectrumFitMakeArg (olong nfreq, olong nterm, odouble refFreq,
 } /* end ObitSpectrumFitMakeArg */
 
 /**
+ * Add minFlux to fit arg 
+ * \param aarg    Pointer to argument for fitting
+ * \param minFlux Minimum flux density to fit spectrum
+ */
+void ObitSpectrumFitAddMinFlux(gpointer aarg, ofloat minFlux)
+{
+    NLFitArg *arg=(NLFitArg*)aarg;
+    arg->minFlux = minFlux;
+} /* end ObitSpectrumFitAddMinFlux */
+
+/**
  * Fit single spectrum to flux measurements using precomputed argument
  * \param aarg      pointer to argument for fitting
  * \param flux      Array of values to be fitted
@@ -1456,6 +1472,7 @@ void ObitSpectrumFitInit  (gpointer inn)
   in->doBrokePow = FALSE;
   in->maxChi2    = 1.5;
   in->minWt      = 0.5;
+  in->minFlux    = 0.0;
   in->RMS        = NULL;
   in->calFract   = NULL;
   in->outDesc    = NULL;
@@ -1575,6 +1592,7 @@ void ObitSpectrumFitter (ObitSpectrumFit* in, ObitErr *err)
     args->doPBCorr    = in->doPBCorr;
     args->corAlpha    = in->corAlpha;
     args->minWt       = in->minWt;
+    args->minFlux     = in->minFlux;
     args->maxIter     = 100;
     args->minDelta    = 1.0e-2;          /* Min step size */
     args->maxChiSq    = in->maxChi2;     /* max acceptable normalized chi squares */
@@ -1937,7 +1955,7 @@ static gpointer ThreadNLFit (gpointer arg)
       }
 
       /* Spectral index correction */
-      if (nOut>=1) larg->coef[1] += corAlpha;
+      if ((nOut>=1) && (larg->coef[1]!=fblank)) larg->coef[1] += corAlpha;
       
       /* Save to output */
       if (doError) {
@@ -1977,9 +1995,7 @@ static void NLFit (NLFitArg *arg)
   gsl_multifit_fdfsolver *solver=NULL;
   gsl_matrix *covar=NULL;
   gsl_vector *work=NULL;
-#if GSL_MAJOR_VERSION >=2
-  gsl_matrix *J = 0;
-#endif
+  gsl_matrix *J=NULL;
 #endif /* HAVE_GSL */ 
  
   /* Initialize output */
@@ -2036,9 +2052,10 @@ static void NLFit (NLFitArg *arg)
   }
 
   /* Is this good enough? */
-  isDone = (arg->ChiSq<0.0) || (arg->ChiSq<=arg->maxChiSq);
+  isDone = (arg->ChiSq<0.0) || (arg->ChiSq<=arg->maxChiSq) ||
+    (arg->minFlux>avg);
   //if (meanSNR>(SNRperTerm*3.0)) isDone = FALSE;   /* Always try for high SNR */
-  if (meanSNR>SNRperTerm) isDone = FALSE;  /*Always try for high SNR */
+  if ((meanSNR>SNRperTerm) && (arg->minFlux<avg)) isDone = FALSE;  /* Try for high SNR */
   if (isDone) goto done;
 
   /* Higher order terms do nonlinear least-squares fit */
@@ -2078,7 +2095,7 @@ static void NLFit (NLFitArg *arg)
     do {
       iter++;
       status = gsl_multifit_fdfsolver_iterate(solver);
-      /*if (status) break;???*/
+      /*if ((status!=GSL_SUCCESS) && (status!=GSL_CONTINUE))break; wnnt wrong */
 
       status = gsl_multifit_test_delta (solver->dx, solver->x, 
 					(double)arg->minDelta, 
@@ -2108,14 +2125,18 @@ static void NLFit (NLFitArg *arg)
       
       /* Errors wanted? */
       if (arg->doError) {
-#if GSL_MAJOR_VERSION >=2
-        J = gsl_matrix_alloc(solver->fdf->n, solver->fdf->p);
-        gsl_multifit_fdfsolver_jac(solver, J);
-        gsl_multifit_covar(J, 0.0, covar);
-        gsl_matrix_free(J);
+#if HAVE_GSL2==1  /* Newer GSL*/
+	if (J) gsl_matrix_free (J);
+	J = gsl_matrix_alloc (arg->nfreq, nterm);
+	gsl_multifit_fdfsolver_jac(solver, J);
 #else
-        gsl_multifit_covar (solver->J, 0.0, covar);
+	J = solver->J;
 #endif
+	gsl_multifit_covar (J, 0.0, covar);
+	/* Cleanup */
+#if HAVE_GSL2==1
+	if (J) gsl_matrix_free (J);
+#endif /* HAVE_GSL2 */ 
 	for (i=0; i<nterm; i++) {
 	  arg->coef[arg->nterm+i] = sqrt(gsl_matrix_get(covar, i, i));
 	  /* Clip to sanity range */
@@ -2139,17 +2160,19 @@ static void NLFit (NLFitArg *arg)
   } /* end loop over adding terms */
 #endif /* HAVE_GSL */ 
  done:
-  if (best==1) arg->coef[0] = avg;  /* Only fitted one term? */
+  if (best==1) {arg->coef[0] = avg; arg->coef[1] = fblank;} /* Only fitted one term? */
   /* sanity check, if flux < sigma, don't include higher order terms */
   if (fabs(arg->coef[0])<sigma)  {
     arg->coef[0] = avg;
-    for (i=1; i<arg->nterm; i++) arg->coef[i] = 0.0; 
+    for (i=1; i<arg->nterm; i++) arg->coef[i] = fblank; 
   }
   /*  Gonzo higher order fit */
   if ((fabs(arg->coef[1])>3.0) || ((nterm>2) && (fabs(arg->coef[2])>2.0))) {
-    arg->coef[0] = avg;
-    for (i=1; i<arg->nterm; i++) arg->coef[i] = 0.0; 
+    arg->coef[0] = avg;arg->coef[1] = fblank;
+    for (i=1; i<arg->nterm; i++) arg->coef[i] = fblank; 
   }
+  /* If minFlux given, use weighted average flux density */
+  if (arg->minFlux>0.0) arg->coef[0] = avg;
 
 } /* end NLFit */
 
@@ -2177,9 +2200,7 @@ static void NLFitBP (NLFitArg *arg)
   gsl_multifit_fdfsolver *solver;
   gsl_matrix *covar;
   gsl_vector *work;
-#if GSL_MAJOR_VERSION >=2
-  gsl_matrix *J = 0;
-#endif
+  gsl_matrix *J=NULL;
 #endif /* HAVE_GSL */ 
  
   /* determine weighted average, count valid data */
@@ -2255,14 +2276,17 @@ static void NLFitBP (NLFitArg *arg)
   
   /* Errors wanted? */
   if (arg->doError) {
-#if GSL_MAJOR_VERSION >=2
-    J = gsl_matrix_alloc(solver->fdf->n, solver->fdf->p);
-    gsl_multifit_fdfsolver_jac(solver, J);
-    gsl_multifit_covar(J, 0.0, covar);
-    gsl_matrix_free(J);
+#if HAVE_GSL2==1  /* Newer GSL*/
+	if (J) gsl_matrix_free (J);
+	J = gsl_matrix_alloc (arg->nfreq, arg->nterm);
+	gsl_multifit_fdfsolver_jac(solver, J);
 #else
-    gsl_multifit_covar (solver->J, 0.0, covar);
+	J = solver->J;
 #endif
+    gsl_multifit_covar (J, 0.0, covar);
+#if HAVE_GSL2==1
+	if (J) gsl_matrix_free (J);
+#endif /* HAVE_GSL2 */ 
     for (i=0; i<nterm; i++) {
       arg->coef[arg->nterm+i] = sqrt(gsl_matrix_get(covar, i, i));
       /* Clip to sanity range

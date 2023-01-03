@@ -31,7 +31,7 @@ gboolean initialized;
 /** Are disk resident "scratch" objects of this class possible? */
 gboolean hasScratch;
 /** Name of class ("Obit") */
-gchar *ClassName;
+gchar* ClassName;
 /** Pointer to parent class ClassInfo, Null if none. */
 gconstpointer ParentClass;
 /** Function pointer to Class initializer */

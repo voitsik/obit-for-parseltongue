@@ -379,7 +379,7 @@ ObitIOCode ObitHistoryCopyHeader (ObitHistory *in, ObitHistory *out,
     if (iretCode!=OBIT_IO_OK) break;
     /* Drop SNPLT records */
     if (!strncmp(hiCardIn, "SNPLT", 5)) continue;
-    for (i=0; i<80; i++) hiCardOut[i] = ' '; hiCardOut[i] = 0;
+    for (i=0; i<80; i++) {hiCardOut[i] = ' ';} hiCardOut[i] = 0;
     strncpy (hiCardOut, &hiCardIn[8], 70); hiCardOut[71] = 0;
     oretCode = outClass->ObitIOHistoryWriteRec (out->myIO, -1, hiCardOut, err);
   }
@@ -845,7 +845,7 @@ ObitHistoryCopyInfoList (ObitHistory *out, gchar *pgmName, gchar *list[],
 
   /* Get blank string size of the program name */
   lstr = strlen(pgmName);
-  for (i=0; i<lstr; i++) bpgmName[i] = ' ';  bpgmName[i] = 0;
+  for (i=0; i<lstr; i++) {bpgmName[i] = ' ';}  bpgmName[i] = 0;
 
   outClass = (ObitIOHistoryClassInfo*)out->myIO->ClassInfo;
   /* loop through list copying elements */

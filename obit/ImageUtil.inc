@@ -36,7 +36,6 @@
 %}
 
 
-
 %inline %{
 ObitImage* ImageUtilCreateImage (ObitUV *inUV, long fieldNo,
 			       long doBeam, ObitErr *err) {

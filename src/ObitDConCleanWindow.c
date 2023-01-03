@@ -1,6 +1,6 @@
-/* $Id$ */
+/* $Id$     */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2004-2020                                          */
+/*;  Copyright (C) 2004-2022                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;                                                                   */
 /*;  This program is free software; you can redistribute it and/or    */
@@ -25,7 +25,6 @@
 /*;                         520 Edgemont Road                         */
 /*;                         Charlottesville, VA 22903-2475 USA        */
 /*--------------------------------------------------------------------*/
-
 #include "ObitDConCleanWindow.h"
 #include "ObitMem.h"
 
@@ -47,19 +46,6 @@ static ObitGetClassFP ObitParentGetClass = ObitGetClass;
  * This structure is used by class objects to access class functions.
  */
 static ObitDConCleanWindowClassInfo myClassInfo = {FALSE};
-
-/*-------------- Private Class definitions-------------------------*/
-/**  WindowListElem structure */
-typedef struct {
-  /** Id */
-  olong Id;
-  /** Window type */
-  ObitDConCleanWindowType type;
-  /** window definition */
-  olong window[4];
-} WindowListElem;
-
-/*--------------- File Global Variables  ----------------*/
 
 
 /*---------------Private function prototypes----------------*/

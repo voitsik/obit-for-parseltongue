@@ -1,6 +1,6 @@
 /* $Id$        */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2009,2012                                          */
+/*;  Copyright (C) 2009,2022                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;                                                                   */
 /*;  This program is free software; you can redistribute it and/or    */
@@ -138,11 +138,11 @@ ObitPrinter* ObitPrinterCopy  (ObitPrinter *in, ObitPrinter *out, ObitErr *err)
   out->isInteractive = in->isInteractive;
   out->outFile       = in->outFile;
   out->LinesPerPage  = in->LinesPerPage;
-  if (out->outFileName) g_free(out->outFileName); out->outFileName=NULL;
+  if (out->outFileName) {g_free(out->outFileName);} out->outFileName=NULL;
   if (in->outFileName) out->outFileName = g_strdup(in->outFileName);
-  if (out->Title1) g_free(out->Title1); out->Title1 = NULL;
+  if (out->Title1) {g_free(out->Title1);} out->Title1 = NULL;
   if (in->Title1) out->Title1 = g_strdup(in->Title1);
-  if (out->Title2) g_free(out->Title2); out->Title2 = NULL;
+  if (out->Title2) {g_free(out->Title2);} out->Title2 = NULL;
   if (in->Title2) out->Title2 = g_strdup(in->Title2);
 
   return out;
@@ -173,11 +173,11 @@ void ObitPrinterClone  (ObitPrinter *in, ObitPrinter *out, ObitErr *err)
   out->isInteractive = in->isInteractive;
   out->outFile       = in->outFile;
   out->LinesPerPage  = in->LinesPerPage;
-  if (out->outFileName) g_free(out->outFileName); out->outFileName=NULL;
+  if (out->outFileName) {g_free(out->outFileName);} out->outFileName=NULL;
   if (in->outFileName) out->outFileName = g_strdup(in->outFileName);
-  if (out->Title1) g_free(out->Title1); out->Title1 = NULL;
+  if (out->Title1) {g_free(out->Title1);} out->Title1 = NULL;
   if (in->Title1) out->Title1 = g_strdup(in->Title1);
-  if (out->Title2) g_free(out->Title2); out->Title2 = NULL;
+  if (out->Title2) {g_free(out->Title2);} out->Title2 = NULL;
   if (in->Title2) out->Title2 = g_strdup(in->Title2);
 
 } /* end ObitPrinterClone */
@@ -360,9 +360,9 @@ void ObitPrinterSetTitle (ObitPrinter *in, gchar *Title1,
   if (err->error) return;
   g_assert (ObitIsA(in, &myClassInfo));
 
-  if (in->Title1) g_free(in->Title1); in->Title1 = NULL;
+  if (in->Title1) {g_free(in->Title1);} in->Title1 = NULL;
   if (Title1) in->Title1 = g_strdup(Title1);
-  if (in->Title2) g_free(in->Title2);in->Title2 = NULL;
+  if (in->Title2) {g_free(in->Title2);}in->Title2 = NULL;
   if (Title2) in->Title2  = g_strdup(Title2);
 } /* end ObitPrinterSetTitle */
 
@@ -378,7 +378,6 @@ void ObitPrinterNewPage (ObitPrinter *in, gboolean *quit, ObitErr *err)
 {
   gchar lline[2048];
   gchar *routine = "ObitPrinterNewPage";
-  gchar *ret;
 
   /* error checks */
   if (err->error) return;
@@ -415,8 +414,8 @@ void ObitPrinterNewPage (ObitPrinter *in, gboolean *quit, ObitErr *err)
     /* Does the user want to quit */
     fprintf (in->outStream, "Type Q to stop, just hit RETURN to continue\n");
     /* Read response from stdin */
-    ret = fgets (lline, 100, stdin);
-    if (!ret || (lline[0]=='q') || (lline[0]=='Q')) {
+    fgets (lline, 100, stdin);
+    if ((lline[0]=='q') || (lline[0]=='Q')) {
       /* Bail */
       *quit = TRUE;
       in->myStatus  = OBIT_Inactive;

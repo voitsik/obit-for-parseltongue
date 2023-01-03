@@ -380,7 +380,7 @@ ObitIOCode ObitIOHistoryAIPSReadRec (ObitIOHistoryAIPS *in, olong recno,
   offset = 4 * sizeof(AIPSint) + (number-1)*72;
 
   /* extract 70 characters */
-  for (i=0; i<70; i++) hiCard[i] = in->buffer[offset+i]; hiCard[i] = 0;
+  for (i=0; i<70; i++) {hiCard[i] = in->buffer[offset+i];} hiCard[i] = 0;
 
   return OBIT_IO_OK;
 } /* end ObitIOHistoryAIPSReadRec */
@@ -660,7 +660,7 @@ void ObitIOHistoryAIPSClear (gpointer inn)
 
   /* free this class members */
   in->myFile = ObitFileUnref(in->myFile);
-  if (in->FileName) g_free(in->FileName); in->FileName = NULL;
+  if (in->FileName) {g_free(in->FileName); in->FileName = NULL;}
   
  /* unlink parent class members */
   ParentClass = (ObitClassInfo*)(myClassInfo.ParentClass);

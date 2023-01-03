@@ -42,7 +42,6 @@ List    used to pass instructions to processing (file info)
 # -----------------------------------------------------------------------
 
 # Python shadow class to ObitHistory class
-from __future__ import absolute_import, print_function
 
 from . import InfoList, Obit, OErr, _Obit
 
@@ -65,7 +64,7 @@ class History(Obit.History):
     """
 
     def __init__(self, name, info, err):
-        super(History, self).__init__()
+        super().__init__()
         Obit.CreateHistory(self.this, name, info.me, err.me)
 
     def __del__(self, DeleteHistory=_Obit.DeleteHistory):

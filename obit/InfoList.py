@@ -39,15 +39,13 @@ Dict      - Python dictionary with contents of InfoList
 # -----------------------------------------------------------------------
 
 # Python shadow class to ObitInfoList class
-from __future__ import absolute_import, print_function
 
 import six
 
 from . import Obit, OErr, _Obit
 
 # Make sure we have a long type in python3
-if six.PY3:
-    long = int
+long = int
 
 
 class InfoList(Obit.InfoList):
@@ -63,7 +61,7 @@ class InfoList(Obit.InfoList):
     """
 
     def __init__(self):
-        super(InfoList, self).__init__()
+        super().__init__()
         Obit.CreateInfoList(self.this)
 
     def __del__(self, DeleteInfoList=_Obit.DeleteInfoList):
@@ -135,7 +133,7 @@ class InfoList(Obit.InfoList):
                     Obit.InfoListAlwaysPutFloat(self.me, name, dim, tvalue)
                 return
                 # int/long
-            elif itype in six.integer_types:
+            elif itype in (int,):
                 if ttype == "long":
                     Obit.InfoListAlwaysPutLong(self.me, name, dim, tvalue)
                 else:
@@ -180,7 +178,7 @@ class InfoList(Obit.InfoList):
                         Obit.InfoListAlwaysPutFloat(self.me, name, dim, temp)
                     return
                 # int/long
-                elif jtype in six.integer_types:
+                elif jtype in (int,):
                     if ttype == "long":
                         Obit.InfoListAlwaysPutLong(self.me, name, dim, temp)
                     else:
@@ -219,7 +217,7 @@ class InfoList(Obit.InfoList):
                 Obit.InfoListAlwaysPutFloat(self.me, name, dim, [tvalue])
             return
             # int / long
-        elif itype in six.integer_types:
+        elif itype in (int,):
             if ttype == "long":
                 Obit.InfoListAlwaysPutLong(self.me, name, dim, [long(tvalue)])
             else:
@@ -235,7 +233,7 @@ class InfoList(Obit.InfoList):
             Obit.InfoListAlwaysPutBoolean(self.me, name, dim, [long(tvalue)])
             return
         else:
-            six.reraise(RuntimeError, "Unsupported type", itype)
+            raise "Unsupported type".with_traceback(itype)
         return
 
     # end set
@@ -360,7 +358,7 @@ def PPutInt(inList, name, dim, data, err):
     """
     ################################################################
     # Checks
-    if type(data[0]) not in six.integer_types:
+    if type(data[0]) not in (int,):
         raise TypeError("data MUST be int or long")
     if len(dim) < 5:
         print("class is", data[0].__class__)
@@ -399,7 +397,7 @@ def PAlwaysPutInt(inList, name, dim, data):
     """
     ################################################################
     # Checks
-    if type(data[0]) not in six.integer_types:
+    if type(data[0]) not in (int,):
         print("class is", data[0].__class__)
         raise TypeError("data MUST be int or long")
     if len(dim) < 5:
@@ -437,7 +435,7 @@ def PPutLong(inList, name, dim, data, err):
     """
     ################################################################
     # Checks
-    if data[0].__class__ not in six.integer_types:
+    if data[0].__class__ not in (int,):
         raise TypeError("data MUST be long")
     if len(dim) < 5:
         print("class is", data[0].__class__)
@@ -476,7 +474,7 @@ def PAlwaysPutLong(inList, name, dim, data):
     """
     ################################################################
     # Checks
-    if data[0].__class__ not in six.integer_types:
+    if data[0].__class__ not in (int,):
         print("class is", data[0].__class__)
         raise TypeError("data MUST be long")
     if len(dim) < 5:

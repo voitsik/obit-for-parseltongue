@@ -904,8 +904,8 @@ void ObitFFTClear (gpointer inn)
   in->thread    = ObitThreadUnref(in->thread);
 #if HAVE_FFTW3==1  /* FFTW 3 version */
   i = 0;
-  if (in->CPlan) fftwf_destroy_plan(in->CPlan); in->CPlan = NULL;
-  if (in->RPlan) fftwf_destroy_plan(in->RPlan); in->RPlan = NULL;
+  if (in->CPlan) {fftwf_destroy_plan(in->CPlan); in->CPlan = NULL;}
+  if (in->RPlan) {fftwf_destroy_plan(in->RPlan); in->RPlan = NULL;}
 
 #elif HAVE_FFTW==1  /* FFTW 2 version */
   i = 0;

@@ -435,7 +435,7 @@ void ObitMemPrint (FILE *file)
     fprintf (file,"Obit memory allocation system uninitialized\n");
     return;
   }
-  fprintf (file,"Obit memory allocation has %d entries\n", 
+  fprintf (file,"Obit memory allocation has %lu entries\n",
 	   myClassInfo.number);
   fprintf (file,"Address  size(byte) name\n");
 
@@ -635,4 +635,3 @@ static void  memTableSum(gpointer key, gpointer inn, gpointer dcount)
   /* Accumulate */
   *count += in->size;
 } /* end memTableSum */
-

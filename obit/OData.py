@@ -44,7 +44,6 @@ List   used to pass instructions to processing
 # -----------------------------------------------------------------------
 
 # Python shadow class to ObitOData class
-from __future__ import absolute_import
 
 # import string
 
@@ -64,7 +63,7 @@ class OData(Obit.OData):
     """
 
     def __init__(self, name):
-        super(OData, self).__init__()
+        super().__init__()
         Obit.CreateOData(self.this, name)
         self.myClass = myClass
 
@@ -144,6 +143,7 @@ class OData(Obit.OData):
             if Obit.ImageMFIsA(self.me) != 0:
                 if toClass == "ObitImage":
                     from . import Image
+
                     recast = Image.Image("None")
                     recast.me = Obit.ImageMFCastImage(self.me)
                 else:

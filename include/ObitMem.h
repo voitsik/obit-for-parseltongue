@@ -30,7 +30,7 @@
 #include "ObitTypes.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "memwatch.h"  /* For debugging memory problems */
+// #include "memwatch.h"  /* For debugging memory problems */
 
 /*-------- Obit: Merx mollis mortibus nuper ------------------*/
 /**

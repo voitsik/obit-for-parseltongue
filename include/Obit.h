@@ -29,7 +29,7 @@
 #define OBIT_H 
 #include <glib.h>
 #include <string.h>
-#include "memwatch.h"  /* For debugging memory problems */
+// #include "memwatch.h"  /* For debugging memory problems */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
