@@ -316,8 +316,8 @@ ofloat ObitFullBeamValue (ObitFullBeam* in,
   ofloat beamValue=0.0;
   ofloat pixel[3], fblank = ObitMagicF();
   odouble coord[2];
-  ObitInfoType type;
-  gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
+  // ObitInfoType type;
+  // gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
   gchar *routine = "ObitFullBeamValue";
 
   if (err->error) return beamValue;  /* Previous error? */

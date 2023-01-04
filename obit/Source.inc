@@ -138,7 +138,7 @@ extern ObitSource* SourceCreateByNumber (char *name, ObitUV *inUV, long Number, 
     }
   } else {  /* Use position /name from header */
     out = newObitSource (name);
-    strncpy (out->SourceName, inUV->myDesc->object, MIN(20,UVLEN_VALUE));
+    strncpy (out->SourceName, inUV->myDesc->object, MIN(20, UVLEN_VALUE));
     out->equinox = inUV->myDesc->equinox;
     out->RAMean  = inUV->myDesc->crval[inUV->myDesc->jlocr];
     out->DecMean = inUV->myDesc->crval[inUV->myDesc->jlocd];

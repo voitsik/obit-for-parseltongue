@@ -39,40 +39,40 @@
  */
 
 /*--------------Class definitions-------------------------------------*/
-typedef struct { 
-  /**  Pointer */
-  gpointer mem;
-  /** size in bytes */
-  gulong size;
-  /** name (20 char) */
-  gchar name[21];
-}  memTableElem; 
+typedef struct {
+    /**  Pointer */
+    gpointer mem;
+    /** size in bytes */
+    gulong size;
+    /** name (20 char) */
+    gchar name[21];
+}  memTableElem;
 
 /**
  * ObitMem Class structure.
  *
  * This class controls Obit memory management
- */  
+ */
 typedef struct  {
-  /** Have I been initialized  */
-  gboolean init;
-  /** Threading info member object  */
-  ObitThread *thread;
-  /** glib singly linked list for registered allocated memory */
-  GHashTable* memTable;
-  /** How many entries */
-  gulong number;
-} ObitMemClassInfo; 
+    /** Have I been initialized  */
+    gboolean init;
+    /** Threading info member object  */
+    ObitThread *thread;
+    /** glib singly linked list for registered allocated memory */
+    GHashTable *memTable;
+    /** How many entries */
+    gulong number;
+} ObitMemClassInfo;
 
 /**
  * Structure to use in validity testing.
- */  
+ */
 typedef struct  {
-  /** Has a valid entry been found?  */
-  gboolean foundIt;
-  /** memory pointer to test  */
-  gpointer mem;
-} ObitMemValidStruc; 
+    /** Has a valid entry been found?  */
+    gboolean foundIt;
+    /** memory pointer to test  */
+    gpointer mem;
+} ObitMemValidStruc;
 
 /** Switch to use fast memory allocation and no accountability */
 /* #define FASTOBITMEM */
@@ -92,22 +92,22 @@ static ObitMemValidStruc myValidTest = {FALSE, NULL};
 
 /*---------------Private function prototypes----------------*/
 /** Private: Create a memTableElem. */
-static memTableElem* newmemTableElem (gpointer mem, gulong size, gchar* name);
+static memTableElem *newmemTableElem(gpointer mem, gulong size, gchar *name);
 
 /** Private: Delete a memTableElem. */
-static void freememTableElem (memTableElem *in);
+static void freememTableElem(memTableElem *in);
 
 /** Private: Add an memTableElem to the list. */
-static void memTableAdd (ObitMemClassInfo *in, memTableElem *elem);
+static void memTableAdd(ObitMemClassInfo *in, memTableElem *elem);
 
 /** Private: Remove an memTableElem from the list. */
-static void memTableRemove (ObitMemClassInfo *in, memTableElem *elem);
+static void memTableRemove(ObitMemClassInfo *in, memTableElem *elem);
 
 /** Private: Find item in a list */
-static memTableElem*  memTableFind(ObitMemClassInfo *in, gpointer mem);
+static memTableElem  *memTableFind(ObitMemClassInfo *in, gpointer mem);
 
 /** Private: Is in valid memory? */
-static void memTableInValid (gpointer key, gpointer inn, gpointer ttest);
+static void memTableInValid(gpointer key, gpointer inn, gpointer ttest);
 
 /** Private: Print an memTableElem */
 static void  memTablePrint(gpointer key, gpointer inn, gpointer file);
@@ -124,37 +124,37 @@ static void  memTableSum(gpointer key, gpointer inn, gpointer dcount);
  * \param size Number of bytes requested
  * \return pointer to allocated memory, NULL on failure
  */
-gpointer ObitMemAlloc (gulong size)
+gpointer ObitMemAlloc(gulong size)
 {
 #ifdef FASTOBITMEM /* Fast allocation */
-  return g_malloc(size);
+    return g_malloc(size);
 #else              /* Accountability */
-  
-  gpointer out = NULL;
-  memTableElem* elem = NULL;
 
-  /* Class initialization if needed */
-  if (!myClassInfo.init) ObitMemClassInit();
+    gpointer out = NULL;
+    memTableElem *elem = NULL;
 
-  /* nothing asked for - nothing given */
-  if (size==0) return NULL;
-  
-  /* allocate */
-  out = g_malloc(size);
+    /* Class initialization if needed */
+    if (!myClassInfo.init) ObitMemClassInit();
 
-  /* Create list object */
-  elem = newmemTableElem (out, size, NULL);
+    /* nothing asked for - nothing given */
+    if (size == 0) return NULL;
 
-   /* Lock object aginst other threads */
-  ObitThreadLock(myClassInfo.thread);
+    /* allocate */
+    out = g_malloc(size);
 
-  /* add to list */
-  memTableAdd (&myClassInfo, elem);
+    /* Create list object */
+    elem = newmemTableElem(out, size, NULL);
 
-  /* Unlock object */
-  ObitThreadUnlock(myClassInfo.thread);
+    /* Lock object aginst other threads */
+    ObitThreadLock(myClassInfo.thread);
 
-   return out;
+    /* add to list */
+    memTableAdd(&myClassInfo, elem);
+
+    /* Unlock object */
+    ObitThreadUnlock(myClassInfo.thread);
+
+    return out;
 #endif /* FASTOBITMEM  */
 } /* end ObitMemAlloc */
 
@@ -165,36 +165,36 @@ gpointer ObitMemAlloc (gulong size)
  * \param size Number of bytes requested
  * \return pointer to allocated memory, NULL on failure
  */
-gpointer ObitMemAlloc0 (gulong size)
+gpointer ObitMemAlloc0(gulong size)
 {
 #ifdef FASTOBITMEM /* Fast allocation */
-  return g_malloc0(size);
+    return g_malloc0(size);
 #else              /* Accountability */
-  gpointer out = NULL;
-  memTableElem* elem = NULL;
+    gpointer out = NULL;
+    memTableElem *elem = NULL;
 
-  /* Class initialization if needed */
-  if (!myClassInfo.init) ObitMemClassInit();
-  
-  /* nothing asked for - nothing given */
-  if (size==0) return NULL;
-  
-  /* allocate */
-  out = g_malloc0(size);
+    /* Class initialization if needed */
+    if (!myClassInfo.init) ObitMemClassInit();
 
-  /* Create list object */
-  elem = newmemTableElem (out, size, NULL);
+    /* nothing asked for - nothing given */
+    if (size == 0) return NULL;
 
-   /* Lock object aginst other threads */
-  ObitThreadLock(myClassInfo.thread);
+    /* allocate */
+    out = g_malloc0(size);
 
-  /* add to list */
-  memTableAdd (&myClassInfo, elem);
+    /* Create list object */
+    elem = newmemTableElem(out, size, NULL);
 
-  /* Unlock object */
-  ObitThreadUnlock(myClassInfo.thread);
+    /* Lock object aginst other threads */
+    ObitThreadLock(myClassInfo.thread);
 
-  return out;
+    /* add to list */
+    memTableAdd(&myClassInfo, elem);
+
+    /* Unlock object */
+    ObitThreadUnlock(myClassInfo.thread);
+
+    return out;
 #endif /* FASTOBITMEM  */
 } /* end ObitMemAlloc0 */
 
@@ -206,36 +206,36 @@ gpointer ObitMemAlloc0 (gulong size)
  * \param name Name for entry, up to 20 char.  Useful for debugging.
  * \return pointer to allocated memory, NULL on failure
  */
-gpointer ObitMemAllocName (gulong size, gchar *name)
+gpointer ObitMemAllocName(gulong size, gchar *name)
 {
 #ifdef FASTOBITMEM /* Fast allocation */
-  return g_malloc(size);
+    return g_malloc(size);
 #else              /* Accountability */
-  gpointer out = NULL;
-  memTableElem* elem = NULL;
+    gpointer out = NULL;
+    memTableElem *elem = NULL;
 
-  /* Class initialization if needed */
-  if (!myClassInfo.init) ObitMemClassInit();
+    /* Class initialization if needed */
+    if (!myClassInfo.init) ObitMemClassInit();
 
-  /* nothing asked for - nothing given */
-  if (size==0) return NULL;
-  
-  /* allocate */
-  out = g_malloc(size);
+    /* nothing asked for - nothing given */
+    if (size == 0) return NULL;
 
-  /* Create list object */
-  elem = newmemTableElem (out, size, name);
+    /* allocate */
+    out = g_malloc(size);
 
-   /* Lock object aginst other threads */
-  ObitThreadLock(myClassInfo.thread);
+    /* Create list object */
+    elem = newmemTableElem(out, size, name);
 
-  /* add to list */
-  memTableAdd (&myClassInfo, elem);
+    /* Lock object aginst other threads */
+    ObitThreadLock(myClassInfo.thread);
 
-  /* Unlock object */
-  ObitThreadUnlock(myClassInfo.thread);
+    /* add to list */
+    memTableAdd(&myClassInfo, elem);
 
-   return out;
+    /* Unlock object */
+    ObitThreadUnlock(myClassInfo.thread);
+
+    return out;
 #endif /* FASTOBITMEM  */
 } /* end ObitMemAllocName */
 
@@ -247,43 +247,43 @@ gpointer ObitMemAllocName (gulong size, gchar *name)
  * \param name Name for entry, up to 20 char.  Useful for debugging.
  * \return pointer to allocated memory, NULL on failure
  */
-gpointer ObitMemAlloc0Name (gulong size, gchar *name)
+gpointer ObitMemAlloc0Name(gulong size, gchar *name)
 {
 #ifdef FASTOBITMEM /* Fast allocation */
-  return g_malloc0(size);
+    return g_malloc0(size);
 #else              /* Accountability */
-  gpointer out = NULL;
-  memTableElem* elem = NULL;
+    gpointer out = NULL;
+    memTableElem *elem = NULL;
 
-  /* Class initialization if needed */
-  if (!myClassInfo.init) ObitMemClassInit();
+    /* Class initialization if needed */
+    if (!myClassInfo.init) ObitMemClassInit();
 
-  /* nothing asked for - nothing given */
-  if (size==0) return NULL;
-  
-  /* allocate */
-  out = g_malloc0(size);
+    /* nothing asked for - nothing given */
+    if (size == 0) return NULL;
 
-  /* Create list object */
-  elem = newmemTableElem (out, size, name);
+    /* allocate */
+    out = g_malloc0(size);
 
-   /* Lock object aginst other threads */
-  ObitThreadLock(myClassInfo.thread);
+    /* Create list object */
+    elem = newmemTableElem(out, size, name);
 
-  /* add to list */
-  memTableAdd (&myClassInfo, elem);
+    /* Lock object aginst other threads */
+    ObitThreadLock(myClassInfo.thread);
 
-  /* Unlock object */
-  ObitThreadUnlock(myClassInfo.thread);
-  /* DEBUG
-  if (elem->mem==(gpointer)0x82d3c88) {
-    fprintf (stderr, "alloc %9p %8ld %s\n", elem->mem, elem->size, elem->name);
-    } */
+    /* add to list */
+    memTableAdd(&myClassInfo, elem);
 
-  return out;
+    /* Unlock object */
+    ObitThreadUnlock(myClassInfo.thread);
+    /* DEBUG
+    if (elem->mem==(gpointer)0x82d3c88) {
+      fprintf (stderr, "alloc %9p %8ld %s\n", elem->mem, elem->size, elem->name);
+      } */
+
+    return out;
 #endif /* FASTOBITMEM  */
 }
- /* end ObitMemAlloc0Name */
+/* end ObitMemAlloc0Name */
 
 /**
  * Reallocates a block of memory and returns pointer to it
@@ -293,50 +293,50 @@ gpointer ObitMemAlloc0Name (gulong size, gchar *name)
  * \param size Number of bytes requested
  * \return pointer to allocated memory, NULL on failure
  */
-gpointer ObitMemRealloc (gpointer mem, gulong size)
+gpointer ObitMemRealloc(gpointer mem, gulong size)
 {
- #ifdef FASTOBITMEM /* Fast allocation */
-  return g_realloc (mem, size);
+#ifdef FASTOBITMEM /* Fast allocation */
+    return g_realloc(mem, size);
 #else              /* Accountability */
-  memTableElem* elem = NULL;
-   gpointer out = NULL;
-   gboolean isNew = FALSE;
+    memTableElem *elem = NULL;
+    gpointer out = NULL;
+    gboolean isNew = FALSE;
 
-  /* error checks */
-  g_assert (myClassInfo.init);
-  
-  /* Lock object aginst other threads */
-  ObitThreadLock(myClassInfo.thread);
+    /* error checks */
+    g_assert(myClassInfo.init);
 
-  /* is it in the list? */
-  elem =  memTableFind (&myClassInfo, mem);
+    /* Lock object aginst other threads */
+    ObitThreadLock(myClassInfo.thread);
 
-  if (elem==NULL) isNew = TRUE;
-  else {  /* previously OK */
-    out = elem->mem;
-    
-    /* Is it the same size? If so just return */
-    if (elem->size==size) return out;
-  }
+    /* is it in the list? */
+    elem =  memTableFind(&myClassInfo, mem);
 
-  /* Realloc */
-  out = g_realloc (out, size);
+    if (elem == NULL) isNew = TRUE;
+    else {  /* previously OK */
+        out = elem->mem;
 
-  /* Is this a new entry */
-  if (isNew) {
-    /* Create list object */
-    elem = newmemTableElem (out, size, NULL);
-    /* add to list */
-    memTableAdd (&myClassInfo, elem);
-  } else { /* just reset pointer, size */
-    elem->mem = out;
-    elem->size = size;
-  }
+        /* Is it the same size? If so just return */
+        if (elem->size == size) return out;
+    }
 
-  /* Unlock object */
-  ObitThreadUnlock(myClassInfo.thread);
+    /* Realloc */
+    out = g_realloc(out, size);
 
-  return out;
+    /* Is this a new entry */
+    if (isNew) {
+        /* Create list object */
+        elem = newmemTableElem(out, size, NULL);
+        /* add to list */
+        memTableAdd(&myClassInfo, elem);
+    } else { /* just reset pointer, size */
+        elem->mem = out;
+        elem->size = size;
+    }
+
+    /* Unlock object */
+    ObitThreadUnlock(myClassInfo.thread);
+
+    return out;
 #endif /* FASTOBITMEM  */
 } /* end ObitMemRealloc */
 
@@ -345,75 +345,78 @@ gpointer ObitMemRealloc (gpointer mem, gulong size)
  * This is a NOP if mem is not to a valid block of memory.
  * Note: ONLY FREE MEMORY ALLOCATED BY ObitMem!!!
  * Implementation used g_free
- * \param mem Pointer to memory to be freed.  
+ * \param mem Pointer to memory to be freed.
  * \return pointer to allocated memory, NULL on failure
  */
-gpointer ObitMemFree (gpointer mem)
+gpointer ObitMemFree(gpointer mem)
 {
- #ifdef FASTOBITMEM /* Fast allocation */
-  g_free(mem);
-  return NULL;
+#ifdef FASTOBITMEM /* Fast allocation */
+    g_free(mem);
+    return NULL;
 #else              /* Accountability */
- memTableElem* elem = NULL;
+    memTableElem *elem = NULL;
 
-  /* error checks */
-  g_assert (myClassInfo.init);
-  if (mem==NULL) return NULL;  /* needs to point to something */
+    /* error checks */
+    g_assert(myClassInfo.init);
 
-  /* Lock object aginst other threads */
-  ObitThreadLock(myClassInfo.thread);
+    if (mem == NULL) return NULL; /* needs to point to something */
 
- /* is it in the list? */
-  elem =  memTableFind (&myClassInfo, mem);
-  if (elem==NULL) return NULL; /* bag it if it's not there */
+    /* Lock object aginst other threads */
+    ObitThreadLock(myClassInfo.thread);
 
-  /* DEBUG
-  if (elem->mem==(gpointer)0x82d3c88) {
-    fprintf (stderr, " free %9p %8ld %s\n", elem->mem, elem->size, elem->name);
-  } */
+    /* is it in the list? */
+    elem =  memTableFind(&myClassInfo, mem);
 
-  /* Can it */
-  memTableRemove (&myClassInfo, elem);
+    if (elem == NULL) return NULL; /* bag it if it's not there */
 
-  /* Unlock object */
-  ObitThreadUnlock(myClassInfo.thread);
+    /* DEBUG
+    if (elem->mem==(gpointer)0x82d3c88) {
+      fprintf (stderr, " free %9p %8ld %s\n", elem->mem, elem->size, elem->name);
+    } */
 
-  /* Deallocate memory */
-  g_free(elem->mem); elem->mem = NULL;
+    /* Can it */
+    memTableRemove(&myClassInfo, elem);
 
-  /* destroy list element */
-  freememTableElem (elem);
+    /* Unlock object */
+    ObitThreadUnlock(myClassInfo.thread);
 
-  return NULL;
+    /* Deallocate memory */
+    g_free(elem->mem);
+    elem->mem = NULL;
+
+    /* destroy list element */
+    freememTableElem(elem);
+
+    return NULL;
 #endif /* FASTOBITMEM  */
 }  /* end ObitMemFree */
 
 /**
  * Determines if a pointer value is inside a valid allocated memory block.
- * \param mem Pointer to memory to be tested.  
+ * \param mem Pointer to memory to be tested.
  * \return TRUE if in allocated block, else FALSE
  */
-gboolean ObitMemValid (gpointer mem)
+gboolean ObitMemValid(gpointer mem)
 {
 #ifdef FASTOBITMEM /* Fast allocation */
-  return TRUE;
+    return TRUE;
 #else              /* Accountability */
 
-  /* error check */
-  g_assert (myClassInfo.init);
+    /* error check */
+    g_assert(myClassInfo.init);
 
-  /* Lock object aginst other threads */
-  ObitThreadLock(myClassInfo.thread);
+    /* Lock object aginst other threads */
+    ObitThreadLock(myClassInfo.thread);
 
-  /* loop through list testing elements */
-  myValidTest.foundIt = FALSE;
-  myValidTest.mem     = mem;
-  g_hash_table_foreach (myClassInfo.memTable, memTableInValid, &myValidTest);
-  
-  /* Unlock object */
-  ObitThreadUnlock(myClassInfo.thread);
+    /* loop through list testing elements */
+    myValidTest.foundIt = FALSE;
+    myValidTest.mem     = mem;
+    g_hash_table_foreach(myClassInfo.memTable, memTableInValid, &myValidTest);
 
-  return myValidTest.foundIt;
+    /* Unlock object */
+    ObitThreadUnlock(myClassInfo.thread);
+
+    return myValidTest.foundIt;
 #endif /* FASTOBITMEM  */
 } /* end ObitMemValid */
 
@@ -423,24 +426,26 @@ gboolean ObitMemValid (gpointer mem)
  * Print contents of ObitMem to file (e.g. stdout)
  * \param file to print to.
  */
-void ObitMemPrint (FILE *file)
+void ObitMemPrint(FILE *file)
 {
 #ifdef MEMWATCH /* Using memwatch instead */
-  return;  /* No can do */
+    return;  /* No can do */
 #endif
 #ifdef FASTOBITMEM /* Fast allocation */
-  return;  /* No can do */
+    return;  /* No can do */
 #else              /* Accountability */
-  if (!myClassInfo.init) {
-    fprintf (file,"Obit memory allocation system uninitialized\n");
-    return;
-  }
-  fprintf (file,"Obit memory allocation has %lu entries\n",
-	   myClassInfo.number);
-  fprintf (file,"Address  size(byte) name\n");
 
-  /* loop through list printing elements */
-  g_hash_table_foreach (myClassInfo.memTable, memTablePrint, file);
+    if (!myClassInfo.init) {
+        fprintf(file, "Obit memory allocation system uninitialized\n");
+        return;
+    }
+
+    fprintf(file, "Obit memory allocation has %lu entries\n",
+            myClassInfo.number);
+    fprintf(file, "Address  size(byte) name\n");
+
+    /* loop through list printing elements */
+    g_hash_table_foreach(myClassInfo.memTable, memTablePrint, file);
 #endif /* FASTOBITMEM  */
 } /* end ObitMemPrint */
 
@@ -450,31 +455,32 @@ void ObitMemPrint (FILE *file)
  * \param number  Number of entries
  * \param total   Total memory allocated in MByte
  */
-void ObitMemSummary (olong *number, olong *total)
+void ObitMemSummary(olong *number, olong *total)
 {
 #ifdef MEMWATCH /* Using memwatch instead */
-  *number = 0;
-  *total  = 0;
-  return;  /* No can do */
-#endif
-#ifdef FASTOBITMEM /* Fast allocation */
-  return;  /* No can do */
-#else              /* Accountability */
-  odouble count = 0.0;
-
-  if (!myClassInfo.init) {
     *number = 0;
     *total  = 0;
-    return;
-  }
-  /* Number */
-  *number = myClassInfo.number;
+    return;  /* No can do */
+#endif
+#ifdef FASTOBITMEM /* Fast allocation */
+    return;  /* No can do */
+#else              /* Accountability */
+    odouble count = 0.0;
 
-  /* loop through list printing elements */
-  g_hash_table_foreach (myClassInfo.memTable, memTableSum, &count);
+    if (!myClassInfo.init) {
+        *number = 0;
+        *total  = 0;
+        return;
+    }
 
-  /* Total in MByte */
-  *total = (olong)(0.5 + (count / (1024.0*1024.0)));
+    /* Number */
+    *number = myClassInfo.number;
+
+    /* loop through list printing elements */
+    g_hash_table_foreach(myClassInfo.memTable, memTableSum, &count);
+
+    /* Total in MByte */
+    *total = (olong)(0.5 + (count / (1024.0 * 1024.0)));
 #endif /* FASTOBITMEM  */
 } /* end ObitMemSummary */
 
@@ -482,18 +488,19 @@ void ObitMemSummary (olong *number, olong *total)
 /**
  * Initialize global ClassInfo Structure.
  */
- void ObitMemClassInit (void)
+void ObitMemClassInit(void)
 {
 
-  if (myClassInfo.init) return;  /* only once */
-  myClassInfo.init = TRUE;
+    if (myClassInfo.init) return;  /* only once */
 
-  /* Threading object */
-  myClassInfo.thread = newObitThread();
+    myClassInfo.init = TRUE;
 
-  /* initialize list */
-  myClassInfo.memTable = g_hash_table_new (NULL, NULL);
-  myClassInfo.number  = 0;
+    /* Threading object */
+    myClassInfo.thread = newObitThread();
+
+    /* initialize list */
+    myClassInfo.memTable = g_hash_table_new(NULL, NULL);
+    myClassInfo.number  = 0;
 
 } /* end ObitMemClassInit */
 
@@ -505,28 +512,31 @@ void ObitMemSummary (olong *number, olong *total)
  * \param name Name for entry, up to 20 char.  NULL = none.
  * \return the new  object.
  */
-static memTableElem* newmemTableElem (gpointer mem, gulong size, gchar *name)
+static memTableElem *newmemTableElem(gpointer mem, gulong size, gchar *name)
 {
-  memTableElem *out=NULL;
+    memTableElem *out = NULL;
 
-  out = g_malloc0(sizeof(memTableElem));
-  out->mem  = mem;
-  out->size = size;
-  if (name) strncpy (out->name, name, 20); out->name[20] = 0;
+    out = g_malloc0(sizeof(memTableElem));
+    out->mem  = mem;
+    out->size = size;
 
-  return out;
+    if (name) strncpy(out->name, name, 20);
+
+    out->name[20] = 0;
+
+    return out;
 } /* end newmemTableElem */
 
 /**
- * memTableElem Destructor 
+ * memTableElem Destructor
  * \param in Object to delete
  */
-static void freememTableElem (memTableElem *in)
+static void freememTableElem(memTableElem *in)
 {
-  if (in) {
-    in->mem = NULL; /* so it doesn't come back to haunt us */
-    g_free(in);
-  }
+    if (in) {
+        in->mem = NULL; /* so it doesn't come back to haunt us */
+        g_free(in);
+    }
 } /* end freememTableElem */
 
 /**
@@ -534,20 +544,21 @@ static void freememTableElem (memTableElem *in)
  * \param in   Object with table to add elem to
  * \param elem the element to add. MUST NOT be in list
  */
-static void memTableAdd (ObitMemClassInfo *in, memTableElem *elem)
+static void memTableAdd(ObitMemClassInfo *in, memTableElem *elem)
 {
-  memTableElem *tmp = NULL;
+    memTableElem *tmp = NULL;
 
-  /* Make sure it's not already in list */
-  tmp =  memTableFind (&myClassInfo, elem->mem);
-  if (tmp!=NULL) { /* trouble - die in a noisy fashion */
-    g_error ("ObitMem: trying to allocate memory already allocated: %s new %s",
-	     tmp->name, elem->name);
-  }
+    /* Make sure it's not already in list */
+    tmp =  memTableFind(&myClassInfo, elem->mem);
 
-  /* add to table */
-  g_hash_table_insert (in->memTable, elem->mem, elem);
-  in->number++;
+    if (tmp != NULL) { /* trouble - die in a noisy fashion */
+        g_error("ObitMem: trying to allocate memory already allocated: %s new %s",
+                tmp->name, elem->name);
+    }
+
+    /* add to table */
+    g_hash_table_insert(in->memTable, elem->mem, elem);
+    in->number++;
 
 } /* end memTableAdd */
 
@@ -556,15 +567,16 @@ static void memTableAdd (ObitMemClassInfo *in, memTableElem *elem)
  * \param in   Object with table to remove elem from
  * \param elem the element to remove. MUST be in list
  */
-static void memTableRemove (ObitMemClassInfo *in, memTableElem *elem)
+static void memTableRemove(ObitMemClassInfo *in, memTableElem *elem)
 {
-  /* remove from table */
-  if (!g_hash_table_steal (in->memTable, elem->mem)) {
-    /* element not removed */
-    g_error ("ObitMem: failed to deallocate memory: %s",
-	     elem->name);
-  }
-  in->number--; /* keep count */
+    /* remove from table */
+    if (!g_hash_table_steal(in->memTable, elem->mem)) {
+        /* element not removed */
+        g_error("ObitMem: failed to deallocate memory: %s",
+                elem->name);
+    }
+
+    in->number--; /* keep count */
 
 } /* end memTableRemove  */
 
@@ -574,17 +586,17 @@ static void memTableRemove (ObitMemClassInfo *in, memTableElem *elem)
  * \param mem item to search for
  * \return pointer to element containing item, NULL if not found.
  */
-static memTableElem* memTableFind (ObitMemClassInfo *in, gpointer mem)
+static memTableElem *memTableFind(ObitMemClassInfo *in, gpointer mem)
 {
-  memTableElem *out = NULL;
-  /* Lookup in hash table */
-  out = g_hash_table_lookup (in->memTable, mem);
+    memTableElem *out = NULL;
+    /* Lookup in hash table */
+    out = g_hash_table_lookup(in->memTable, mem);
 
-  /* Guard aginst false detections */
-  if (out) 
-    if (out->mem!=mem) out = NULL;
+    /* Guard aginst false detections */
+    if (out)
+        if (out->mem != mem) out = NULL;
 
-  return out;
+    return out;
 } /* end memTableFind */
 
 /**
@@ -592,23 +604,23 @@ static memTableElem* memTableFind (ObitMemClassInfo *in, gpointer mem)
  * This function is called from g_hash_table_foreach.
  * \param key   pointer to hash key
  * \param mem   memTableElem* object to test
- * \param test  ObitMemValidStruc* target/result structure 
+ * \param test  ObitMemValidStruc* target/result structure
  */
-static void memTableInValid (gpointer key, gpointer inn, gpointer ttest)
+static void memTableInValid(gpointer key, gpointer inn, gpointer ttest)
 {
-  memTableElem* in = (memTableElem*)inn;
-  ObitMemValidStruc* test = (ObitMemValidStruc*)ttest;
+    memTableElem *in = (memTableElem *)inn;
+    ObitMemValidStruc *test = (ObitMemValidStruc *)ttest;
 
-  /* if it's already found just return */
-  if (test->foundIt) return;
+    /* if it's already found just return */
+    if (test->foundIt) return;
 
-  /* test if in is in this block */
-  test->foundIt = (test->mem>=in->mem) && (test->mem<(in->mem+in->size));
-     
+    /* test if in is in this block */
+    test->foundIt = (test->mem >= in->mem) && (test->mem < (in->mem + in->size));
+
 } /* end memTableInValid */
 
 /**
- * Print an memTableElem (GHFunc) 
+ * Print an memTableElem (GHFunc)
  * This function is called from g_hash_table_foreach.
  * \param key   pointer to hash key
  * \param in    memTableElem* to print
@@ -616,12 +628,12 @@ static void memTableInValid (gpointer key, gpointer inn, gpointer ttest)
  */
 static void  memTablePrint(gpointer key, gpointer inn, gpointer file)
 {
-  memTableElem* in = (memTableElem*)inn;
-  fprintf ((FILE*)file, "%9p %8ld %s\n", in->mem, in->size, in->name);
+    memTableElem *in = (memTableElem *)inn;
+    fprintf((FILE *)file, "%9p %8ld %s\n", in->mem, in->size, in->name);
 } /* end memTablePrint */
 
 /**
- * AccumulatePrint an memTableElem (GHFunc) 
+ * AccumulatePrint an memTableElem (GHFunc)
  * This function is called from g_hash_table_foreach.
  * \param key     pointer to hash key
  * \param in      memTableElem* to print
@@ -629,9 +641,9 @@ static void  memTablePrint(gpointer key, gpointer inn, gpointer file)
  */
 static void  memTableSum(gpointer key, gpointer inn, gpointer dcount)
 {
-  memTableElem* in = (memTableElem*)inn;
-  odouble *count = (odouble*)dcount;
+    memTableElem *in = (memTableElem *)inn;
+    odouble *count = (odouble *)dcount;
 
-  /* Accumulate */
-  *count += in->size;
+    /* Accumulate */
+    *count += in->size;
 } /* end memTableSum */

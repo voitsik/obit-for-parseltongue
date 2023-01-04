@@ -65,7 +65,7 @@ void ObitPolnUnwindCube (ObitImage *rmImage, ObitImage *inQImage, ObitImage *inU
   ObitFArray *RMFArray=NULL, *inQFArray=NULL, *inUFArray=NULL, 
     *outQFArray=NULL, *outUFArray=NULL, 
     *sumQFArray=NULL, *sumUFArray=NULL;
-  gchar *today=NULL, keyword[9];
+  gchar *today=NULL, keyword[16];
   gchar *routine = "ObitPolnUnwindCube";
 
   /* error checks */

@@ -134,7 +134,7 @@ static void ClearScanData (ScanData *in);
 static ScanData* KillScanData (ScanData *in);
 
 /** Private: Find peak in FFT delay function */
-static void  FindFFTPeak (ObitUVGSolveWB *in, ofloat *ppos, ofloat *pval);
+static void  FindFFTPeak (ObitUVGSolveWB *in, ofloat *ppos, ofloat pval[2]);
 
 /** Private: Zero elements of array in1 where array in2 is blanked */
 void ObitFArrayZeroBlank (ObitFArray* in1, ObitFArray* in2, ObitFArray* out);

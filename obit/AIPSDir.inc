@@ -40,69 +40,69 @@
 
 %inline %{
 extern long AIPSDirFindCNO(long disk, long user,  char *Aname, char *Aclass, 
-    		          char *Atype, long seq, ObitErr *err)
+                           char *Atype, long seq, ObitErr *err)
 {
   gchar LAname[13], LAclass[7], LAtype[3];
   olong i, l;
 
   /* Init AIPS fixed strings - blank fill until end */
-  for (i=0; i<12; i++) LAname[i]  = ' ';LAname[i]  = 0;
-  for (i=0; i<6; i++)  LAclass[i] = ' ';LAclass[i] = 0;
-  for (i=0; i<2; i++)  LAtype[i]  = ' ';LAtype[i]  = 0;
+  for (i=0; i < 12; i++) {LAname[i]  = ' ';} LAname[i]  = 0;
+  for (i=0; i < 6; i++)  {LAclass[i] = ' ';} LAclass[i] = 0;
+  for (i=0; i < 2; i++)  {LAtype[i]  = ' ';} LAtype[i]  = 0;
 
   /* Copy string input into AIPS fixed strings */
   l = MIN (12, strlen(Aname));
-  for (i=0; i<l; i++) LAname[i]  = Aname[i];
+  for (i=0; i < l; i++) LAname[i] = Aname[i];
   l = MIN (6, strlen(Aclass));
-  for (i=0; i<l; i++)  LAclass[i] = Aclass[i];
+  for (i=0; i < l; i++) LAclass[i] = Aclass[i];
   l = MIN (2, strlen(Atype));
-  for (i=0; i<l; i++)  LAtype[i] = Atype[i];
+  for (i=0; i < l; i++) LAtype[i] = Atype[i];
 
   return (long)ObitAIPSDirFindCNO(disk, user, LAname, LAclass, LAtype, seq, err);
 } /* end AIPSDirFindCNO */
 
 extern long AIPSDirHiSeq(long disk, long user,  char *Aname, char *Aclass, 
-    		        char *Atype, ObitErr *err)
+                         char *Atype, ObitErr *err)
 {
   gchar LAname[13], LAclass[7], LAtype[3];
   olong i, l;
 
   /* Init AIPS fixed strings - blank fill until end */
-  for (i=0; i<12; i++) LAname[i]  = ' ';LAname[i]  = 0;
-  for (i=0; i<6; i++)  LAclass[i] = ' ';LAclass[i] = 0;
-  for (i=0; i<2; i++)  LAtype[i]  = ' ';LAtype[i]  = 0;
+  for (i=0; i < 12; i++) {LAname[i]  = ' ';} LAname[i]  = 0;
+  for (i=0; i < 6; i++)  {LAclass[i] = ' ';} LAclass[i] = 0;
+  for (i=0; i < 2; i++)  {LAtype[i]  = ' ';} LAtype[i]  = 0;
 
   /* Copy string input into AIPS fixed strings */
   l = MIN (12, strlen(Aname));
-  for (i=0; i<l; i++) LAname[i]  = Aname[i];
+  for (i=0; i < l; i++) LAname[i]  = Aname[i];
   l = MIN (6, strlen(Aclass));
-  for (i=0; i<l; i++)  LAclass[i] = Aclass[i];
+  for (i=0; i < l; i++) LAclass[i] = Aclass[i];
   l = MIN (2, strlen(Atype));
-  for (i=0; i<l; i++)  LAtype[i] = Atype[i];
+  for (i=0; i < l; i++) LAtype[i] = Atype[i];
 
   return (long)ObitAIPSDirHiSeq(disk, user, LAname, LAclass, LAtype, TRUE, err);
 } /* end AIPSDirHiSeq */
 
 
 extern long AIPSDirAlloc(long disk, long user,  char *Aname, char *Aclass, 
-		         char *Atype, long seq, ObitErr *err)
+                         char *Atype, long seq, ObitErr *err)
 {
   gchar LAname[13], LAclass[7], LAtype[3];
   gboolean exist;
   olong i, l;
 
   /* Init AIPS fixed strings - blank fill until end */
-  for (i=0; i<12; i++) LAname[i]  = ' ';LAname[i]  = 0;
-  for (i=0; i<6; i++)  LAclass[i] = ' ';LAclass[i] = 0;
-  for (i=0; i<2; i++)  LAtype[i]  = ' ';LAtype[i]  = 0;
+  for (i=0; i < 12; i++) {LAname[i]  = ' ';} LAname[i]  = 0;
+  for (i=0; i < 6; i++)  {LAclass[i] = ' ';} LAclass[i] = 0;
+  for (i=0; i < 2; i++)  {LAtype[i]  = ' ';} LAtype[i]  = 0;
 
   /* Copy string input into AIPS fixed strings */
   l = MIN (12, strlen(Aname));
-  for (i=0; i<l; i++) LAname[i]  = Aname[i];
+  for (i=0; i < l; i++) LAname[i]  = Aname[i];
   l = MIN (6, strlen(Aclass));
-  for (i=0; i<l; i++)  LAclass[i] = Aclass[i];
+  for (i=0; i < l; i++) LAclass[i] = Aclass[i];
   l = MIN (2, strlen(Atype));
-  for (i=0; i<l; i++)  LAtype[i] = Atype[i];
+  for (i=0; i < l; i++) LAtype[i] = Atype[i];
 
   return (long)ObitAIPSDirAlloc((olong)disk, (olong)user, LAname, LAclass, LAtype, (olong)seq, &exist, err);
 } /* end AIPSDirAlloc */
@@ -131,9 +131,9 @@ extern char* AIPSDirInfo(long disk, long user, long cno, ObitErr *err)
       return (char*)out;
   }
 
-  if (entry->status==0) strncpy (stat, "    ", 4);
-  else if (entry->status<0) strncpy (stat, "WRIT", 4);
-  else if (entry->status>0) strncpy (stat, "READ", 4);
+  if (entry->status==0) strncpy (stat, "    ", 5);
+  else if (entry->status<0) strncpy (stat, "WRIT", 5);
+  else if (entry->status>0) strncpy (stat, "READ", 5);
 
   out = g_malloc(nout);
   g_snprintf (out, nout, "%-12.12s.%-6.6s. %4d %-2.2s          ",

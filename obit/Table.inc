@@ -461,9 +461,9 @@ extern  PyObject *TableReadRow (ObitTable *in, long rowno, ObitErr *err) {
        /* null terminate string */
       ctemp = g_malloc0(desc->dim[i][0]+1);
       for (j=0; j<desc->repeat[i]/MAX (1,MAX(desc->dim[i][0],desc->dim[i][1])); j++) {
-        for (k=0; k<desc->dim[i][0]; k++) ctemp[k] = cdata[k];  ctemp[k] = 0;
+        for (k=0; k<desc->dim[i][0]; k++) {ctemp[k] = cdata[k];} ctemp[k] = 0;
         PyList_SetItem(list, j, PyString_InternFromString(ctemp));
-	cdata += desc->dim[i][0];
+        cdata += desc->dim[i][0];
       }
       g_free (ctemp);
       break;

@@ -555,7 +555,7 @@ void ObitImageUtilMakeImage(ObitUV *inUV, ObitImage *outImage,
     ofloat sumwts, imMax, imMin, BeamTaper = 0., BeamNorm = 0.0, Beam[3];
     gchar *outName = NULL;
     ollong gpumem = 0;
-    olong cuda_device = 0; /* default GPU number*/
+    // olong cuda_device = 0; /* default GPU number*/
     olong plane[5], pln, NPIO, oldNPIO, nfacet = 1, ifacet = 0;
     olong nplane = 1, i, ichannel, icLo, icHi, norder = 0, iorder = 0;
     olong blc[IM_MAXDIM] = {1, 1, 1, 1, 1, 1, 1};

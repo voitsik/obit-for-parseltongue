@@ -26,6 +26,8 @@
 /*;                         Charlottesville, VA 22903-2475 USA        */
 /*--------------------------------------------------------------------*/
 
+#include <strings.h>
+
 #include "ObitIOTableFITS.h"
 #include "ObitFITS.h"
 #include "ObitMem.h"
@@ -1981,7 +1983,7 @@ void  ObitIOTableKeysOtherRead(ObitIOTableFITS *in, olong *lstatus,
 	  dim[0] = strlen(svalue);
 	  ObitInfoListPut(desc->info, keywrd, OBIT_string, dim, 
 			  (gconstpointer)svalue, err);
-	  
+
 	  break;
 	case 'L':  /* logical 'T', 'F' */
 	  anF   = index (value,'F'); /* Logical */

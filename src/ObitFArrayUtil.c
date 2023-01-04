@@ -604,7 +604,7 @@ static int cgaussFunc (const gsl_vector *coef, void *params, gsl_vector *f)
   float *y   = ((struct fitData *)params)->y;
   float *val = ((struct fitData *)params)->val;
   float sum = 0.0;
-  long i;
+  size_t i;
   double amp, cenx, ceny, ivar, model, resid;
 
   /* Current parameters */
@@ -641,7 +641,7 @@ static int cgaussJacob (const gsl_vector *coef, void *params, gsl_matrix *J)
   size_t n   = ((struct fitData *)params)->n;
   float *x   = ((struct fitData *)params)->x;
   float *y   = ((struct fitData *)params)->y;
-  long i;
+  size_t i;
   double amp, cenx, ceny, ivar, eterm;
   double part1, part2, part3, part4;
 
@@ -697,9 +697,9 @@ static int oneDgaussFunc (const gsl_vector *coef, void *params, gsl_vector *f)
   size_t n     = ((struct fitData *)params)->n;
   float *x     = ((struct fitData *)params)->x;
   float *val   = ((struct fitData *)params)->val;
-  long  ngauss = ((struct fitData *)params)->ngauss;
+  int ngauss = ((struct fitData *)params)->ngauss;
   float sum = 0.0;
-  long i, j, pnum;
+  size_t i, j, pnum;
   double amp, cenx, ivar, model, resid, a, b;
 
   /* Current parameters */
@@ -741,8 +741,8 @@ static int oneDgaussJacob (const gsl_vector *coef, void *params, gsl_matrix *J)
 {
   size_t n   = ((struct fitData *)params)->n;
   float *x   = ((struct fitData *)params)->x;
-  long  ngauss = ((struct fitData *)params)->ngauss;
-  long   i, j, pnum, qnum;
+  int  ngauss = ((struct fitData *)params)->ngauss;
+  size_t i, j, pnum, qnum;
   double amp, cenx, ivar, eterm;
   double part1, part2, part3, part4, part5;
   /*double a, b*/

@@ -275,7 +275,7 @@ ObitIOTableAIPS* ObitIOTableAIPSCopy  (ObitIOTableAIPS *in,
     /* derive object name */
     outName = g_strconcat ("Copy: ",in->name,NULL);
     out = newObitIOTableAIPS(outName, NULL, err);
-    if (outName) g_free(outName); outName = NULL;
+    if (outName) {g_free(outName); outName = NULL;}
   }
 
   /* deep copy any base class members */

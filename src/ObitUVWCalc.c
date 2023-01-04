@@ -547,10 +547,10 @@ void ObitUVWCalcClear (gpointer inn)
   in->SouList  = ObitSourceListUnref (in->SouList);
   in->mySource = ObitSourceUnref (in->mySource);
   if (in->antIndex) g_free(in->antIndex);
-  if (in->xm) g_free(in->xm); in->xm = NULL;
-  if (in->ym) g_free(in->ym); in->xm = NULL;
-  if (in->zm) g_free(in->zm); in->xm = NULL;
-  
+  if (in->xm) {g_free(in->xm); in->xm = NULL;}
+  if (in->ym) {g_free(in->ym); in->xm = NULL;}
+  if (in->zm) {g_free(in->zm); in->xm = NULL;}
+
   /* unlink parent class members */
   ParentClass = (ObitClassInfo*)(myClassInfo.ParentClass);
   /* delete parent class members */
@@ -606,7 +606,6 @@ static void ObitUVWCalcSetSubA (ObitUVWCalc *in, olong subA, ObitErr *err)
       in->antIndex[in->AntList->ANlist[i]->AntID] = i;
   }
 
-
   /* Average  antenna location */
   cnt  = 0;
   arrX = arrY = arrZ = 0.0;
@@ -646,8 +645,8 @@ static void ObitUVWCalcSetSubA (ObitUVWCalc *in, olong subA, ObitErr *err)
   ArrName = in->AntList->ArrName;
   if (!strncmp("    ",   in->AntList->ArrName, 4)) 
     ArrName = in->myData->myDesc->teles;
-  if (!strncmp("GMRT",   ArrName, 4)) in->doFlip = TRUE;
-  if (!strncmp("LOFAR",  ArrName, 5)) in->doFlip = TRUE;
-  if (!strncmp("KAT-7",  ArrName, 5)) in->doFlip = TRUE;
+  if (!strncmp("GMRT",  ArrName, 4)) in->doFlip = TRUE;
+  if (!strncmp("LOFAR", ArrName, 5)) in->doFlip = TRUE;
+  if (!strncmp("KAT-7", ArrName, 5)) in->doFlip = TRUE;
 
 } /* end ObitUVWCalcSetSubA */

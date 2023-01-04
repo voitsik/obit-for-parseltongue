@@ -1456,7 +1456,7 @@ static void  MakeResiduals (ObitDConCleanVis *inn, olong *fields,
     /* Set imaging order */
     if (fabs(in->cleanable[field-1]) < in->OrdFlux[1]) 
       ((ObitImageWB*)in->mosaic->images[field-1])->curOrder = 1;
-      if (fabs(in->cleanable[field-1]) < in->OrdFlux[0]) 
+    if (fabs(in->cleanable[field-1]) < in->OrdFlux[0])
       ((ObitImageWB*)in->mosaic->images[field-1])->curOrder = 0;
   /* DEBUG   */
   fprintf (stderr,"DEBUG Field %d RMS %f \n",

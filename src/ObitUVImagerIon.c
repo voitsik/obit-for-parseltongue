@@ -575,7 +575,7 @@ void ObitUVImagerIonImage (ObitUVImager *inn,  olong *field, gboolean doWeight,
     tabtype = g_strdup(snTab->tabType); /* Save ephemerial values */
     lver = snTab->tabVer;
     ObitUVZapTable (data, tabtype, lver, err);
-    if (tabtype) g_free (tabtype); tabtype = NULL;
+    if (tabtype) {g_free (tabtype); tabtype = NULL;}
     ObitUVUpdateTables (data, err);  /* Update disk header */
     snTab = ObitTableSNUnref(snTab);
   }

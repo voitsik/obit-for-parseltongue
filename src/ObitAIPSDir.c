@@ -1134,9 +1134,9 @@ ObitAIPSDirFindEntry(ObitAIPSDir *in, gchar Aname[13],
                      gchar Aclass[7], gchar Atype[3],
                      olong seq, ObitErr *err)
 {
-    olong       cno = 0;
+    olong      cno = 0;
     AIPSint    buffer[256];
-    olong       i, nwpl, nlpr;
+    olong      i, nwpl, nlpr;
     ObitIOCode status;
     ObitFilePos size;
     gboolean   anyType, found = FALSE;

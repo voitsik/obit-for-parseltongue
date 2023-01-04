@@ -38,7 +38,7 @@
  */
 /*---------------Private function prototypes----------------*/
 /** Private: Find item in a list */
-static ObitInfoElem* ObitInfoListFind(ObitInfoList *in, gchar *name);
+static ObitInfoElem *ObitInfoListFind(ObitInfoList *in, const gchar *name);
 
 /*---------------Public functions---------------------------*/
 
@@ -49,20 +49,20 @@ static gchar *myClassName = "ObitInfoList";
  *Constructor.
  * \return the new object.
  */
-ObitInfoList* newObitInfoList (void)
+ObitInfoList *newObitInfoList(void)
 {
-  ObitInfoList *me; 
+    ObitInfoList *me;
 
-  /* allocate */
-  me =  ObitMemAlloc0Name(sizeof(ObitInfoList),"ObitInfoList");
+    /* allocate */
+    me =  ObitMemAlloc0Name(sizeof(ObitInfoList), "ObitInfoList");
 
-  /* initialize */
-  strncpy (me->className, myClassName, 15);
-  me->list = NULL;
-  me->ReferenceCount = 1;
-  me->number = 0;
+    /* initialize */
+    strncpy(me->className, myClassName, 15);
+    me->list = NULL;
+    me->ReferenceCount = 1;
+    me->number = 0;
 
-  return me;
+    return me;
 } /* end newObitInfoList */
 
 /**
@@ -70,27 +70,29 @@ ObitInfoList* newObitInfoList (void)
  * \param in Object to delete
  * \return NULL pointer.
  */
-ObitInfoList* freeObitInfoList (ObitInfoList *in)
+ObitInfoList *freeObitInfoList(ObitInfoList *in)
 {
-  GSList *tmp;
+    GSList *tmp;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
 
-  /* loop through list deleting elements */
-  tmp = in->list;
-  while (tmp!=NULL) {
-    if (tmp->data) freeObitInfoElem(tmp->data);
-    tmp = g_slist_next(tmp);
-  }
+    /* loop through list deleting elements */
+    tmp = in->list;
 
-  /* delete members  */
-  g_slist_free(in->list);
+    while (tmp != NULL) {
+        if (tmp->data) freeObitInfoElem(tmp->data);
 
-  /* delete object */
-  ObitMemFree (in);
+        tmp = g_slist_next(tmp);
+    }
 
-  return NULL;
+    /* delete members  */
+    g_slist_free(in->list);
+
+    /* delete object */
+    ObitMemFree(in);
+
+    return NULL;
 } /* end freeObitInfoList */
 
 /**
@@ -98,73 +100,76 @@ ObitInfoList* freeObitInfoList (ObitInfoList *in)
  * \param in  The object to copy
  * \return pointer to the new object.
  */
-ObitInfoList* ObitInfoListCopy (ObitInfoList* in)
+ObitInfoList *ObitInfoListCopy(ObitInfoList *in)
 {
-  GSList  *tmp;
-  ObitInfoElem *elem, *telem;
-  ObitInfoList *out=NULL;
+    GSList  *tmp;
+    ObitInfoElem *elem, *telem;
+    ObitInfoList *out = NULL;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
 
-  /* create output */
-  out = newObitInfoList();
+    /* create output */
+    out = newObitInfoList();
 
-  /* number of elements */
-  out->number = in->number;
-  /* loop through list copying elements */
-  tmp = in->list;
-  while (tmp!=NULL) {
-    elem = (ObitInfoElem*)tmp->data;
-    /* make copy */
-    telem = ObitInfoElemCopy(elem);
-    out->list = g_slist_prepend(out->list, telem); /* add to new list */
-    tmp = g_slist_next(tmp);
-  }
+    /* number of elements */
+    out->number = in->number;
+    /* loop through list copying elements */
+    tmp = in->list;
 
-  /* reverse to get into same order */
-  out->list = g_slist_reverse(out->list);
+    while (tmp != NULL) {
+        elem = (ObitInfoElem *)tmp->data;
+        /* make copy */
+        telem = ObitInfoElemCopy(elem);
+        out->list = g_slist_prepend(out->list, telem); /* add to new list */
+        tmp = g_slist_next(tmp);
+    }
 
-  return out;
+    /* reverse to get into same order */
+    out->list = g_slist_reverse(out->list);
+
+    return out;
 } /* end ObitInfoListCopy */
 
 /**
- * To reference a pointer, incrementing ReferenceCount and returning 
+ * To reference a pointer, incrementing ReferenceCount and returning
  * the pointer.
- * This function should always be used to copy pointers as this 
+ * This function should always be used to copy pointers as this
  * will ensure a proper reference count.
  * \param in Pointer to object to link.
  * \return the pointer to me.
  */
-ObitInfoList* ObitInfoListRef (ObitInfoList* in)
+ObitInfoList *ObitInfoListRef(ObitInfoList *in)
 {
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
- 
- /* increment reference count */
-  in->ReferenceCount++;
-  return in;
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+
+    /* increment reference count */
+    in->ReferenceCount++;
+    return in;
 
 } /* end ObitInfoListRef */
 
 /**
  * Always use this function to dismiss an object as it will
- * ensure that the object is only deleted when there are no more 
+ * ensure that the object is only deleted when there are no more
  * pointers to it.
  * \param  in Pointer to object to unreference.
  * \return NULL pointer.
  */
-ObitInfoList* ObitInfoListUnref (ObitInfoList* in)
+ObitInfoList *ObitInfoListUnref(ObitInfoList *in)
 {
-  /* error checks */
-  if (in==NULL) return NULL;
-  g_assert (ObitInfoListIsA(in));
+    /* error checks */
+    if (in == NULL) return NULL;
 
-   /* decrement reference count, delete if non positive */
-  in->ReferenceCount--;
-  if (in->ReferenceCount<=0) freeObitInfoList(in);
+    g_assert(ObitInfoListIsA(in));
 
- return NULL;
+    /* decrement reference count, delete if non positive */
+    in->ReferenceCount--;
+
+    if (in->ReferenceCount <= 0) freeObitInfoList(in);
+
+    return NULL;
 } /* end ObitInfoListUnref */
 
 /**
@@ -173,46 +178,50 @@ ObitInfoList* ObitInfoListUnref (ObitInfoList* in)
  * \param out The output object; if NULL, new one created
  * \return pointer to the new object.
  */
-ObitInfoList* ObitInfoListCopyData (ObitInfoList* in, ObitInfoList* out)
+ObitInfoList *ObitInfoListCopyData(ObitInfoList *in, ObitInfoList *out)
 {
-  GSList  *tmp;
-  ObitInfoElem *elem, *telem, *xelem;
+    GSList  *tmp;
+    ObitInfoElem *elem, *telem, *xelem;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  if (out!=NULL) g_assert (ObitInfoListIsA(out));
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
 
-  /* create output if needed */
-  if (out==NULL) out = newObitInfoList();
+    if (out != NULL) g_assert(ObitInfoListIsA(out));
 
-  
-  /* loop through list copying elements */
-  tmp = in->list;
-  while (tmp!=NULL) {
-    elem = (ObitInfoElem*)tmp->data;
-    out->number++; /* number of elements */
-    /* Check if it's already there and is so just update */
-    xelem = ObitInfoListFind(out, elem->iname);
-    if (xelem==NULL) { /* not there */
-      /* make copy to attach to list */
-      telem = ObitInfoElemCopy(elem);
-      out->list = g_slist_prepend(out->list, telem); /* add to new list */
-    } else { /* already there - replace */
-      /* Delete Old */
-      ObitInfoListRemove (out, xelem->iname);
+    /* create output if needed */
+    if (out == NULL) out = newObitInfoList();
 
-      /* make copy to attach to list */
-      telem = ObitInfoElemCopy(elem);
-      out->list = g_slist_prepend(out->list, telem); /* add to new list */
+
+    /* loop through list copying elements */
+    tmp = in->list;
+
+    while (tmp != NULL) {
+        elem = (ObitInfoElem *)tmp->data;
+        out->number++; /* number of elements */
+        /* Check if it's already there and is so just update */
+        xelem = ObitInfoListFind(out, elem->iname);
+
+        if (xelem == NULL) { /* not there */
+            /* make copy to attach to list */
+            telem = ObitInfoElemCopy(elem);
+            out->list = g_slist_prepend(out->list, telem); /* add to new list */
+        } else { /* already there - replace */
+            /* Delete Old */
+            ObitInfoListRemove(out, xelem->iname);
+
+            /* make copy to attach to list */
+            telem = ObitInfoElemCopy(elem);
+            out->list = g_slist_prepend(out->list, telem); /* add to new list */
+        }
+
+    loop:
+        tmp = g_slist_next(tmp);
     }
-  loop:
-    tmp = g_slist_next(tmp);
-  }
 
-  /* reverse to get into same order */
-  out->list = g_slist_reverse(out->list);
+    /* reverse to get into same order */
+    out->list = g_slist_reverse(out->list);
 
-  return out;
+    return out;
 } /* end ObitInfoListCopyData */
 
 /**
@@ -221,50 +230,58 @@ ObitInfoList* ObitInfoListCopyData (ObitInfoList* in, ObitInfoList* out)
  * \param out  The output object
  * \param list NULL terminated list of element names
  */
-void  ObitInfoListCopyList (ObitInfoList* in, ObitInfoList* out, gchar **list)
+void  ObitInfoListCopyList(ObitInfoList *in, ObitInfoList *out, gchar **list)
 {
-  GSList  *tmp;
-  olong i;
-  gboolean wanted;
-  ObitInfoElem *elem, *telem, *xelem;
+    GSList  *tmp;
+    olong i;
+    gboolean wanted;
+    ObitInfoElem *elem, *telem, *xelem;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (ObitInfoListIsA(out));
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(ObitInfoListIsA(out));
 
-  /* loop through list copying elements */
-  tmp = in->list;
-  while (tmp!=NULL) {
-    elem = (ObitInfoElem*)tmp->data;
-    
-    /* Is this one on the list */
-    wanted = FALSE;
-    i = 0;
-    while (list[i]) {
-      if (!strcmp(elem->iname, list[i])) { wanted = TRUE; break;};
-      i++;
+    /* loop through list copying elements */
+    tmp = in->list;
+
+    while (tmp != NULL) {
+        elem = (ObitInfoElem *)tmp->data;
+
+        /* Is this one on the list */
+        wanted = FALSE;
+        i = 0;
+
+        while (list[i]) {
+            if (!strcmp(elem->iname, list[i])) {
+                wanted = TRUE;
+                break;
+            };
+
+            i++;
+        }
+
+        if (wanted) { /* copy */
+            out->number++; /* number of elements */
+            /* Check if it's already there and is so just update */
+            xelem = ObitInfoListFind(out, elem->iname);
+
+            if (xelem == NULL) { /* not there */
+                /* make copy to attach to list */
+                telem = ObitInfoElemCopy(elem);
+                out->list = g_slist_prepend(out->list, telem); /* add to output list */
+            } else { /* already there - replace*/
+                /* Delete Old */
+                ObitInfoListRemove(out, xelem->iname);
+
+                /* make copy to attach to list */
+                telem = ObitInfoElemCopy(elem);
+                out->list = g_slist_prepend(out->list, telem); /* add to output list */
+            }
+        }
+
+    loop:
+        tmp = g_slist_next(tmp);
     }
-    
-    if (wanted) { /* copy */
-      out->number++; /* number of elements */
-      /* Check if it's already there and is so just update */
-      xelem = ObitInfoListFind(out, elem->iname);
-      if (xelem==NULL) { /* not there */
-	/* make copy to attach to list */
-	telem = ObitInfoElemCopy(elem);
-	out->list = g_slist_prepend(out->list, telem); /* add to output list */
-      } else { /* already there - replace*/
-	/* Delete Old */
-	ObitInfoListRemove (out, xelem->iname);
-	
-	/* make copy to attach to list */
-	telem = ObitInfoElemCopy(elem);
-	out->list = g_slist_prepend(out->list, telem); /* add to output list */
-      }
-    }
-  loop:
-    tmp = g_slist_next(tmp);
-  }
 } /* end ObitInfoListCopyList */
 
 /**
@@ -274,57 +291,65 @@ void  ObitInfoListCopyList (ObitInfoList* in, ObitInfoList* out, gchar **list)
  * \param inList  NULL terminated list of element names
  * \param outList NULL terminated list of element names, entries must correspond to inList
  */
-void ObitInfoListCopyListRename(ObitInfoList* in, ObitInfoList* out, 
-				gchar **inList, gchar **outList)
+void ObitInfoListCopyListRename(ObitInfoList *in, ObitInfoList *out,
+                                gchar **inList, gchar **outList)
 {
-  GSList  *tmp;
-  olong i;
-  gboolean wanted;
-  ObitInfoElem *elem, *telem, *xelem;
+    GSList  *tmp;
+    olong i;
+    gboolean wanted;
+    ObitInfoElem *elem, *telem, *xelem;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (ObitInfoListIsA(out));
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(ObitInfoListIsA(out));
 
-  /* loop through list copying elements */
-  tmp = in->list;
-  while (tmp!=NULL) {
-    elem = (ObitInfoElem*)tmp->data;
-    
-    /* Is this one on the list */
-    wanted = FALSE;
-    i = 0;
-    while (inList[i] && outList[i]) {
-      if (!strcmp(elem->iname, inList[i])) { wanted = TRUE; break;};
-      i++;
+    /* loop through list copying elements */
+    tmp = in->list;
+
+    while (tmp != NULL) {
+        elem = (ObitInfoElem *)tmp->data;
+
+        /* Is this one on the list */
+        wanted = FALSE;
+        i = 0;
+
+        while (inList[i] && outList[i]) {
+            if (!strcmp(elem->iname, inList[i])) {
+                wanted = TRUE;
+                break;
+            };
+
+            i++;
+        }
+
+        if (wanted) { /* copy */
+            out->number++; /* number of elements */
+            /* Check if it's already there and is so just update */
+            xelem = ObitInfoListFind(out, outList[i]);
+
+            if (xelem == NULL) { /* not there */
+                /* make copy with rename to attach to list */
+                telem = ObitInfoElemCopy(elem);
+                /* Change name
+                g_free(telem->iname);*/
+                telem->iname = g_strdup(outList[i]);
+                out->list = g_slist_prepend(out->list, telem); /* add to output list */
+            } else { /* already there - replace*/
+                /* Delete Old */
+                ObitInfoListRemove(out, xelem->iname);
+
+                /* make copy with rename to attach to list */
+                telem = ObitInfoElemCopy(elem);
+                /* Change name
+                g_free(telem->iname); */
+                telem->iname = g_strdup(outList[i]);
+                out->list = g_slist_prepend(out->list, telem); /* add to output list */
+            }
+        }
+
+    loop:
+        tmp = g_slist_next(tmp);
     }
-    
-    if (wanted) { /* copy */
-      out->number++; /* number of elements */
-      /* Check if it's already there and is so just update */
-      xelem = ObitInfoListFind(out, outList[i]);
-      if (xelem==NULL) { /* not there */
-	/* make copy with rename to attach to list */
-	telem = ObitInfoElemCopy(elem);
-	/* Change name 
-	g_free(telem->iname);*/
-	telem->iname = g_strdup(outList[i]);
-	out->list = g_slist_prepend(out->list, telem); /* add to output list */
-      } else { /* already there - replace*/
-	/* Delete Old */
-	ObitInfoListRemove (out, xelem->iname);
-	
-	/* make copy with rename to attach to list */
-	telem = ObitInfoElemCopy(elem);
-	/* Change name
-	g_free(telem->iname); */
-	telem->iname = g_strdup(outList[i]);
-	out->list = g_slist_prepend(out->list, telem); /* add to output list */
-      }
-    }
-  loop:
-    tmp = g_slist_next(tmp);
-  }
 } /* end ObitInfoListCopyListRename */
 
 
@@ -334,43 +359,46 @@ void ObitInfoListCopyListRename(ObitInfoList* in, ObitInfoList* out,
  * \param out    The output object
  * \param prefix Prefix to add
  */
-void ObitInfoListCopyAddPrefix(ObitInfoList* in, ObitInfoList* out, 
-			       gchar *prefix)
+void ObitInfoListCopyAddPrefix(ObitInfoList *in, ObitInfoList *out,
+                               const gchar *prefix)
 {
-  GSList  *tmp;
-  ObitInfoElem *elem, *telem, *xelem;
-  gchar *newName = NULL;
+    GSList  *tmp;
+    ObitInfoElem *elem, *telem, *xelem;
+    gchar *newName = NULL;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (ObitInfoListIsA(out));
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(ObitInfoListIsA(out));
 
-  /* loop through list copying elements */
-  tmp = in->list;
-  while (tmp!=NULL) {
-    elem = (ObitInfoElem*)tmp->data;
-    /* New name */
-    newName = g_strconcat(prefix, elem->iname, NULL);
-    
-    out->number++; /* number of elements */
-    /* Check if it's already there and is so just update */
-    xelem = ObitInfoListFind(out, newName);
-    if (xelem==NULL) { /* not there */
-      /* make copy to attach to list */
-      telem = newObitInfoElem(newName, elem->itype, elem->idim, elem->data);
-      out->list = g_slist_prepend(out->list, telem); /* add to output list */
-    } else { /* already there - replace*/
-      /* Delete Old */
-      ObitInfoListRemove (out, xelem->iname);
-      
-      /* make copy to attach to list */
-      telem = newObitInfoElem(newName, elem->itype, elem->idim, elem->data);
-      out->list = g_slist_prepend(out->list, telem); /* add to output list */
+    /* loop through list copying elements */
+    tmp = in->list;
+
+    while (tmp != NULL) {
+        elem = (ObitInfoElem *)tmp->data;
+        /* New name */
+        newName = g_strconcat(prefix, elem->iname, NULL);
+
+        out->number++; /* number of elements */
+        /* Check if it's already there and is so just update */
+        xelem = ObitInfoListFind(out, newName);
+
+        if (xelem == NULL) { /* not there */
+            /* make copy to attach to list */
+            telem = newObitInfoElem(newName, elem->itype, elem->idim, elem->data);
+            out->list = g_slist_prepend(out->list, telem); /* add to output list */
+        } else { /* already there - replace*/
+            /* Delete Old */
+            ObitInfoListRemove(out, xelem->iname);
+
+            /* make copy to attach to list */
+            telem = newObitInfoElem(newName, elem->itype, elem->idim, elem->data);
+            out->list = g_slist_prepend(out->list, telem); /* add to output list */
+        }
+
+        g_free(newName);
+    loop:
+        tmp = g_slist_next(tmp);
     }
-    g_free(newName);
-  loop:
-    tmp = g_slist_next(tmp);
-  }
 } /* end ObitInfoListCopyAddPrefix */
 
 
@@ -381,55 +409,59 @@ void ObitInfoListCopyAddPrefix(ObitInfoList* in, ObitInfoList* out,
  * \param prefix Prefix to look for
  * \param strip  If TRUE then remove prefix in output list
  */
-void ObitInfoListCopyWithPrefix(ObitInfoList* in, ObitInfoList* out, 
-				gchar *prefix, gboolean strip)
+void ObitInfoListCopyWithPrefix(ObitInfoList *in, ObitInfoList *out,
+                                const gchar *prefix, gboolean strip)
 {
-  GSList  *tmp;
-  olong nchk;
-  ObitInfoElem *elem, *telem, *xelem;
-  gboolean wanted;
-  gchar *newName = NULL;
+    GSList  *tmp;
+    olong nchk;
+    ObitInfoElem *elem, *telem, *xelem;
+    gboolean wanted;
+    gchar *newName = NULL;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (ObitInfoListIsA(out));
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(ObitInfoListIsA(out));
 
-  /* How many characters to compare? */
-  nchk = strlen(prefix);
+    /* How many characters to compare? */
+    nchk = strlen(prefix);
 
-  /* loop through list copying elements */
-  tmp = in->list;
-  while (tmp!=NULL) {
-    elem = (ObitInfoElem*)tmp->data;
+    /* loop through list copying elements */
+    tmp = in->list;
 
-    /* Does this begin with the prefix? */
-    wanted = !strncmp(prefix, elem->iname, nchk);     
+    while (tmp != NULL) {
+        elem = (ObitInfoElem *)tmp->data;
 
-    if(wanted) {
-      /* New name */
-      if (strip) newName = g_strdup(&elem->iname[nchk]);
-      else newName = g_strdup(elem->iname);
+        /* Does this begin with the prefix? */
+        wanted = !strncmp(prefix, elem->iname, nchk);
 
-      out->number++; /* number of output elements */
-      /* Check if it's already there and is so just update */
-      xelem = ObitInfoListFind(out, newName);
-      if (xelem==NULL) { /* not there */
-	/* make copy to attach to list */
-	telem = newObitInfoElem(newName, elem->itype, elem->idim, elem->data);
-	out->list = g_slist_prepend(out->list, telem); /* add to output list */
-      } else { /* already there - replace*/
-	/* Delete Old */
-	ObitInfoListRemove (out, xelem->iname);
-	
-	/* make copy to attach to list */
-	telem = newObitInfoElem(newName, elem->itype, elem->idim, elem->data);
-	out->list = g_slist_prepend(out->list, telem); /* add to output list */
-      }
-      g_free(newName);
-    } /* end if wanted */
-  loop:
-    tmp = g_slist_next(tmp);
-  }
+        if (wanted) {
+            /* New name */
+            if (strip) newName = g_strdup(&elem->iname[nchk]);
+            else newName = g_strdup(elem->iname);
+
+            out->number++; /* number of output elements */
+            /* Check if it's already there and is so just update */
+            xelem = ObitInfoListFind(out, newName);
+
+            if (xelem == NULL) { /* not there */
+                /* make copy to attach to list */
+                telem = newObitInfoElem(newName, elem->itype, elem->idim, elem->data);
+                out->list = g_slist_prepend(out->list, telem); /* add to output list */
+            } else { /* already there - replace*/
+                /* Delete Old */
+                ObitInfoListRemove(out, xelem->iname);
+
+                /* make copy to attach to list */
+                telem = newObitInfoElem(newName, elem->itype, elem->idim, elem->data);
+                out->list = g_slist_prepend(out->list, telem); /* add to output list */
+            }
+
+            g_free(newName);
+        } /* end if wanted */
+
+    loop:
+        tmp = g_slist_next(tmp);
+    }
 } /* end ObitInfoListCopyWithPrefix */
 
 
@@ -437,7 +469,7 @@ void ObitInfoListCopyWithPrefix(ObitInfoList* in, ObitInfoList* out,
  * Store information in the infoList.
  * If the requested keyword (name) does not exist then one is created
  * with the type, and dimension specified.
- * If a previous entry exists, then the type and dimensionality provided must 
+ * If a previous entry exists, then the type and dimensionality provided must
  * match.
  * \param in   Pointer to InfoList.
  * \param name The label (keyword) of the information.
@@ -448,43 +480,44 @@ void ObitInfoListCopyWithPrefix(ObitInfoList* in, ObitInfoList* out,
  *             pass this as the pointer the the string array.
  * \param err  Obit Error stack for information.
  */
-void ObitInfoListPut(ObitInfoList *in, 
-		      gchar* name, ObitInfoType type, gint32 *dim, 
-		      gconstpointer data, ObitErr *err) 
+void ObitInfoListPut(ObitInfoList *in,
+                     const gchar *name, ObitInfoType type, gint32 *dim,
+                     gconstpointer data, ObitErr *err)
 {
-  ObitInfoElem *elem;
-  gchar *routine = "ObitInfoListPut";
+    ObitInfoElem *elem;
+    gchar *routine = "ObitInfoListPut";
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (ObitErrIsA(err));
-  g_assert (name != NULL);
-  g_assert (dim != NULL);
-  if (dim[0] <= 0) {
-      Obit_log_error(err, OBIT_Error, 
-		     "%s:No dimensionality given for %s",routine, name);
-      return;
-  }
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(ObitErrIsA(err));
+    g_assert(name != NULL);
+    g_assert(dim != NULL);
 
-  /* look up */
-  elem = ObitInfoListFind(in, name);
+    if (dim[0] <= 0) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s:No dimensionality given for %s", routine, name);
+        return;
+    }
 
-  if (elem!=NULL) { /* Found it */
-    /* Update */
-    if (!ObitInfoElemUpdate(elem, type, dim, data, TRUE)) {
-      /* incompatable */
-      Obit_log_error(err, OBIT_Error, 
-		     "%s: Wrong type or dimension for %s", routine, name);
-      return; /* bail out */
-    } /* end of mismatch */
-    
-    return;
-  }
+    /* look up */
+    elem = ObitInfoListFind(in, name);
 
-  /* add new one */
-  elem =  newObitInfoElem(name, type, dim, data);
-  in->list = g_slist_append (in->list, elem); /* add to list */
-  in->number++; /* keep count */
+    if (elem != NULL) { /* Found it */
+        /* Update */
+        if (!ObitInfoElemUpdate(elem, type, dim, data, TRUE)) {
+            /* incompatable */
+            Obit_log_error(err, OBIT_Error,
+                           "%s: Wrong type or dimension for %s", routine, name);
+            return; /* bail out */
+        } /* end of mismatch */
+
+        return;
+    }
+
+    /* add new one */
+    elem =  newObitInfoElem(name, type, dim, data);
+    in->list = g_slist_append(in->list, elem);  /* add to list */
+    in->number++; /* keep count */
 
 } /* end ObitInfoListPut */
 
@@ -500,37 +533,35 @@ void ObitInfoListPut(ObitInfoList *in,
  *             Note: for strings, the first element is the length in char.
  * \param data Pointer to the data.
  */
-void ObitInfoListAlwaysPut(ObitInfoList *in, 
-			   gchar* name, ObitInfoType type, gint32 *dim, 
-			   gconstpointer data) 
+void ObitInfoListAlwaysPut(ObitInfoList *in, const gchar *name, ObitInfoType type, gint32 *dim, gconstpointer data)
 {
-  ObitInfoElem *elem;
+    ObitInfoElem *elem;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (name != NULL);
-  g_assert (dim != NULL);
-  g_assert (dim[0] > 0);
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(name != NULL);
+    g_assert(dim != NULL);
+    g_assert(dim[0] > 0);
 
-  /* look up */
-  elem = ObitInfoListFind(in, name);
+    /* look up */
+    elem = ObitInfoListFind(in, name);
 
-  if (elem!=NULL) { /* Found it */
-    /* Update */
-    if (!ObitInfoElemUpdate(elem, type, dim, data, FALSE)) {
-      /* incompatable - delete old */
-      ObitInfoListRemove (in, name);
-      elem = NULL;
-    } /* end of mismatch */
-  }
+    if (elem != NULL) { /* Found it */
+        /* Update */
+        if (!ObitInfoElemUpdate(elem, type, dim, data, FALSE)) {
+            /* incompatable - delete old */
+            ObitInfoListRemove(in, name);
+            elem = NULL;
+        } /* end of mismatch */
+    }
 
-  /* Have it? */
-  if (elem!=NULL) return;
+    /* Have it? */
+    if (elem != NULL) return;
 
-  /* add new one */
-  elem =  newObitInfoElem(name, type, dim, data);
-  in->list = g_slist_append (in->list, elem); /* add to list */
-  in->number++; /* keep count */
+    /* add new one */
+    elem =  newObitInfoElem(name, type, dim, data);
+    in->list = g_slist_append(in->list, elem);  /* add to list */
+    in->number++; /* keep count */
 
 } /* end ObitInfoListAlwaysPut */
 
@@ -543,35 +574,36 @@ void ObitInfoListAlwaysPut(ObitInfoList *in,
  *             Note: for strings, the first element is the length in char.
  *             All Strings and string arrays will have a final NULL which
  *             is one more byte than described in dim.
- * \param data (output) pointer to the data; 
+ * \param data (output) pointer to the data;
  *             note: data will be copied to this location
  *             which should have been allocated sufficiently.
  * \return TRUE if found, else FALSE.
  */
-gboolean 
-ObitInfoListGetTest(ObitInfoList *in, 
-		    gchar* name, ObitInfoType *type, gint32 *dim, 
-		    gpointer data)
+gboolean
+ObitInfoListGetTest(ObitInfoList *in,
+                    const gchar *name, ObitInfoType *type, gint32 *dim,
+                    gpointer data)
 {
-  ObitInfoElem *elem;
-  olong size;
+    ObitInfoElem *elem;
+    olong size;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (name != NULL);
-  g_assert (dim != NULL);
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(name != NULL);
+    g_assert(dim != NULL);
 
-  /* look up */
-  elem = ObitInfoListFind(in, name);
-  if (elem==NULL) return FALSE; /* not found return */
+    /* look up */
+    elem = ObitInfoListFind(in, name);
 
-  /* copy information */
-  *type = elem->itype;
-  size = MAXINFOELEMDIM * sizeof (gint32);
-  memmove (dim, elem->idim, size);
-  memmove (data, elem->data, elem->size);
+    if (elem == NULL) return FALSE; /* not found return */
 
-  return TRUE;
+    /* copy information */
+    *type = elem->itype;
+    size = MAXINFOELEMDIM * sizeof(gint32);
+    memmove(dim, elem->idim, size);
+    memmove(data, elem->data, elem->size);
+
+    return TRUE;
 } /* end ObitInfoListGetTest */
 
 /**
@@ -585,41 +617,42 @@ ObitInfoListGetTest(ObitInfoList *in,
  *             Note: for strings, the first element is the length in char.
  *             All Strings and string arrays will have a final NULL which
  *             is one more byte than described in dim.
- * \param data (output) pointer to the data; 
+ * \param data (output) pointer to the data;
  *             note: data will be copied to this location
  *             which should have been allocated sufficiently.
  * \param err  (output) Obit Error stack for information.
  * \return TRUE if found, else FALSE.
  */
-gboolean ObitInfoListGet(ObitInfoList *in, 
-			 gchar* name, ObitInfoType *type, gint32 *dim, 
-			 gpointer data, ObitErr *err)
+gboolean ObitInfoListGet(ObitInfoList *in,
+                         const gchar *name, ObitInfoType *type, gint32 *dim,
+                         gpointer data, ObitErr *err)
 {
-  ObitInfoElem *elem;
-  olong size;
-  gchar *routine = "ObitInfoListGet";
+    ObitInfoElem *elem;
+    olong size;
+    gchar *routine = "ObitInfoListGet";
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (ObitErrIsA(err));
-  g_assert (name != NULL);
-  g_assert (dim != NULL);
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(ObitErrIsA(err));
+    g_assert(name != NULL);
+    g_assert(dim != NULL);
 
-  /* look up */
-  elem = ObitInfoListFind(in, name);
-  if (elem==NULL) { /* not found */
-      Obit_log_error(err, OBIT_Error, 
-		     "%s: Could not find element %s", routine, name);
-      return FALSE;
-  }
+    /* look up */
+    elem = ObitInfoListFind(in, name);
 
-  /* copy information */
-  *type = elem->itype;
-  size = MAXINFOELEMDIM * sizeof (gint32);
-  memmove (dim, elem->idim, size);
-  memmove (data, elem->data, elem->size);
+    if (elem == NULL) { /* not found */
+        Obit_log_error(err, OBIT_Error,
+                       "%s: Could not find element %s", routine, name);
+        return FALSE;
+    }
 
-  return TRUE;
+    /* copy information */
+    *type = elem->itype;
+    size = MAXINFOELEMDIM * sizeof(gint32);
+    memmove(dim, elem->idim, size);
+    memmove(data, elem->data, elem->size);
+
+    return TRUE;
 } /* end ObitInfoListGet */
 
 /**
@@ -634,31 +667,32 @@ gboolean ObitInfoListGet(ObitInfoList *in,
  * \param err  (output) Obit Error stack for information.
  * \return TRUE if found, else FALSE.
  */
-gboolean ObitInfoListInfo(ObitInfoList *in, 
-			 gchar* name, ObitInfoType *type, gint32 *dim, 
-			 ObitErr *err)
+gboolean ObitInfoListInfo(ObitInfoList *in,
+                          const gchar *name, ObitInfoType *type, gint32 *dim,
+                          ObitErr *err)
 {
-  ObitInfoElem *elem;
-  olong size;
+    ObitInfoElem *elem;
+    olong size;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (ObitErrIsA(err));
-  g_assert (name != NULL);
-  g_assert (dim != NULL);
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(ObitErrIsA(err));
+    g_assert(name != NULL);
+    g_assert(dim != NULL);
 
-  /* look up */
-  elem = ObitInfoListFind(in, name);
-  if (elem==NULL) { /* not found */
-      return FALSE;
-  }
+    /* look up */
+    elem = ObitInfoListFind(in, name);
 
-  /* copy information */
-  *type = elem->itype;
-  size = MAXINFOELEMDIM * sizeof (gint32);
-  memmove (dim, elem->idim, size);
+    if (elem == NULL) { /* not found */
+        return FALSE;
+    }
 
-  return TRUE;
+    /* copy information */
+    *type = elem->itype;
+    size = MAXINFOELEMDIM * sizeof(gint32);
+    memmove(dim, elem->idim, size);
+
+    return TRUE;
 } /* end ObitInfoListInfo */
 
 /**
@@ -674,30 +708,31 @@ gboolean ObitInfoListInfo(ObitInfoList *in,
  * \param err  (output) Obit Error stack for information.
  * \return TRUE if found, else FALSE.
  */
-gboolean ObitInfoListGetP(ObitInfoList *in, 
-			 gchar* name, ObitInfoType *type, gint32 *dim, 
-			 gpointer *data)
+gboolean ObitInfoListGetP(ObitInfoList *in,
+                          const gchar *name, ObitInfoType *type, gint32 *dim,
+                          gpointer *data)
 {
-  ObitInfoElem *elem;
-  olong size;
+    ObitInfoElem *elem;
+    olong size;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (name != NULL);
-  g_assert (dim != NULL);
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(name != NULL);
+    g_assert(dim != NULL);
 
-  *data = NULL; /* initialize output */
-  /* look up */
-  elem = ObitInfoListFind(in, name);
-  if (elem==NULL) return FALSE;
+    *data = NULL; /* initialize output */
+    /* look up */
+    elem = ObitInfoListFind(in, name);
 
-  /* copy information */
-  *type = elem->itype;
-  size = MAXINFOELEMDIM * sizeof (gint32);
-  memmove (dim, elem->idim, size);
-  *data = elem->data; /* just pointer */
+    if (elem == NULL) return FALSE;
 
-  return TRUE;
+    /* copy information */
+    *type = elem->itype;
+    size = MAXINFOELEMDIM * sizeof(gint32);
+    memmove(dim, elem->idim, size);
+    *data = elem->data; /* just pointer */
+
+    return TRUE;
 } /* end ObitInfoListGetP */
 
 /**
@@ -711,61 +746,66 @@ gboolean ObitInfoListGetP(ObitInfoList *in,
  *               Note: for strings, the first element is the length in char.
  *               All Strings and string arrays will have a final NULL which
  *               is one more byte than described in dim.
- * \param data   (output) pointer to the data; 
+ * \param data   (output) pointer to the data;
  *               note: data will be copied to this location
  *               which should have been allocated sufficiently.
  * \param err  (output) Obit Error stack for information.
  * \return TRUE if found, else FALSE.
  */
-gboolean 
-ObitInfoListGetNumber (ObitInfoList *in,  olong number,
-		      gchar** name, ObitInfoType *type, gint32 *dim, 
-		      gpointer data, ObitErr *err)
+gboolean
+ObitInfoListGetNumber(ObitInfoList *in,  olong number,
+                      gchar **name, ObitInfoType *type, gint32 *dim,
+                      gpointer data, ObitErr *err)
 {
-  ObitInfoElem *elem;
-  GSList *tmp;
-  olong i, size;
-  gchar *routine = "ObitInfoListGetNumber";
+    ObitInfoElem *elem;
+    GSList *tmp;
+    olong i, size;
+    gchar *routine = "ObitInfoListGetNumber";
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (ObitErrIsA(err));
-  g_assert (name != NULL);
-  g_assert (dim != NULL);
-  if ((number<0) || (number>in->number)) { /* number valid */
-    Obit_log_error(err, OBIT_Error, 
-		   "%s: Invalid item number %d, max %d", routine, number, in->number);
-      return FALSE;
-  }
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(ObitErrIsA(err));
+    g_assert(name != NULL);
+    g_assert(dim != NULL);
 
-  /* look up */
-  tmp = in->list;
-  for (i=0; i<number-1; i++) {
-    tmp = g_slist_next(tmp);
-    if (tmp==NULL) break;  /* problem? */
-  }
-  if (tmp==NULL) { /* not found */
-      Obit_log_error(err, OBIT_Error, 
-        "%s: I appear to have been corrupted", routine);
-      return FALSE;
-  }
+    if ((number < 0) || (number > in->number)) { /* number valid */
+        Obit_log_error(err, OBIT_Error,
+                       "%s: Invalid item number %d, max %d", routine, number, in->number);
+        return FALSE;
+    }
 
-  elem = (ObitInfoElem*)tmp->data;
-  if ((elem==NULL) || (elem->iname==NULL)) { /* not found or bad */
-      Obit_log_error(err, OBIT_Error, 
-        "%s: I appear to have been corrupted", routine);
-      return FALSE;
-  }
+    /* look up */
+    tmp = in->list;
 
-  /* copy information */
-  *type = elem->itype;
-  size = strlen (elem->iname);
-  *name = elem->iname;  /* set output pointer rather than copy */
-  size = MAXINFOELEMDIM * sizeof (gint32);
-  memmove (dim, elem->idim, size);
-  memmove (data, elem->data, elem->size);
+    for (i = 0; i < number - 1; i++) {
+        tmp = g_slist_next(tmp);
 
-  return TRUE;
+        if (tmp == NULL) break; /* problem? */
+    }
+
+    if (tmp == NULL) { /* not found */
+        Obit_log_error(err, OBIT_Error,
+                       "%s: I appear to have been corrupted", routine);
+        return FALSE;
+    }
+
+    elem = (ObitInfoElem *)tmp->data;
+
+    if ((elem == NULL) || (elem->iname == NULL)) { /* not found or bad */
+        Obit_log_error(err, OBIT_Error,
+                       "%s: I appear to have been corrupted", routine);
+        return FALSE;
+    }
+
+    /* copy information */
+    *type = elem->itype;
+    size = strlen(elem->iname);
+    *name = elem->iname;  /* set output pointer rather than copy */
+    size = MAXINFOELEMDIM * sizeof(gint32);
+    memmove(dim, elem->idim, size);
+    memmove(data, elem->data, elem->size);
+
+    return TRUE;
 } /* end ObitInfoListGetNumber */
 
 /**
@@ -783,44 +823,50 @@ ObitInfoListGetNumber (ObitInfoList *in,  olong number,
  * \param err  (output) Obit Error stack for information.
  * \return TRUE if found, else FALSE.
  */
-gboolean 
-ObitInfoListGetNumberP (ObitInfoList *in,  olong number,
-			gchar** name, ObitInfoType *type, gint32 *dim, 
-			gpointer *data)
+gboolean
+ObitInfoListGetNumberP(ObitInfoList *in,  olong number,
+                       gchar **name, ObitInfoType *type, gint32 *dim,
+                       gpointer *data)
 {
-  ObitInfoElem *elem;
-  GSList *tmp;
-  olong i, size;
+    ObitInfoElem *elem;
+    GSList *tmp;
+    olong i, size;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (name != NULL);
-  g_assert (dim != NULL);
-  *data = NULL; /* initialize output */
-  if ((number<0) || (number>in->number)) return FALSE;
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(name != NULL);
+    g_assert(dim != NULL);
+    *data = NULL; /* initialize output */
 
-  /* look up */
-  tmp = in->list;
-  for (i=0; i<number-1; i++) {
-    tmp = g_slist_next(tmp);
-    if (tmp==NULL) break;  /* problem? */
-  }
-  if (tmp==NULL) return FALSE;
+    if ((number < 0) || (number > in->number)) return FALSE;
 
-  elem = (ObitInfoElem*)tmp->data;
-  if (elem==NULL) return FALSE;
-  /* Check for bad entry */
-  if (elem->iname==NULL) return FALSE;
+    /* look up */
+    tmp = in->list;
 
-  /* copy information */
-  *type = elem->itype;
-  size = strlen (elem->iname);
-  *name = elem->iname;  /* set output pointer rather than copy */
-  size = MAXINFOELEMDIM * sizeof (gint32);
-  memmove (dim, elem->idim, size);
-  *data = elem->data; /* just pointer */
+    for (i = 0; i < number - 1; i++) {
+        tmp = g_slist_next(tmp);
 
-  return TRUE;
+        if (tmp == NULL) break; /* problem? */
+    }
+
+    if (tmp == NULL) return FALSE;
+
+    elem = (ObitInfoElem *)tmp->data;
+
+    if (elem == NULL) return FALSE;
+
+    /* Check for bad entry */
+    if (elem->iname == NULL) return FALSE;
+
+    /* copy information */
+    *type = elem->itype;
+    size = strlen(elem->iname);
+    *name = elem->iname;  /* set output pointer rather than copy */
+    size = MAXINFOELEMDIM * sizeof(gint32);
+    memmove(dim, elem->idim, size);
+    *data = elem->data; /* just pointer */
+
+    return TRUE;
 } /* end ObitInfoListGetNumberP */
 
 /**
@@ -829,24 +875,25 @@ ObitInfoListGetNumberP (ObitInfoList *in,  olong number,
  * \param in   Pointer to InfoList.
  * \param name The label (keyword) of the information.
  */
-void ObitInfoListRemove (ObitInfoList *in, gchar* name)
+void ObitInfoListRemove(ObitInfoList *in, const gchar *name)
 {
-  ObitInfoElem *elem;
+    ObitInfoElem *elem;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (name != NULL);
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(name != NULL);
 
-  /* look up */
-  elem = ObitInfoListFind(in, name);
-  if (elem==NULL) return; /* nothing to do */
+    /* look up */
+    elem = ObitInfoListFind(in, name);
 
-  /* remove from list */
-  in->list = g_slist_remove(in->list, elem);
-  in->number--; /* keep count */
+    if (elem == NULL) return; /* nothing to do */
 
-  /* delete element */
-  freeObitInfoElem(elem);
+    /* remove from list */
+    in->list = g_slist_remove(in->list, elem);
+    in->number--; /* keep count */
+
+    /* delete element */
+    freeObitInfoElem(elem);
 
 } /* end ObitInfoListRemove */
 
@@ -859,49 +906,53 @@ void ObitInfoListRemove (ObitInfoList *in, gchar* name)
  * \param type Mew data type of data element (enum).
  * \param dim  New dimensionality of datum.
  */
-void ObitInfoListResize(ObitInfoList *in, 
-			gchar* name, ObitInfoType type, gint32 *dim)
+void ObitInfoListResize(ObitInfoList *in,
+                        const gchar *name, ObitInfoType type, gint32 *dim)
 {
-  ObitInfoElem *elem;
+    ObitInfoElem *elem;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (name != NULL);
-  g_assert (dim != NULL);
-  g_assert (dim[0] > 0);
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(name != NULL);
+    g_assert(dim != NULL);
+    g_assert(dim[0] > 0);
 
-  /* look up */
-  elem = ObitInfoListFind(in, name);
-  if (elem==NULL) { /* not there create new */
-    elem = newObitInfoElem(name, type, dim, NULL);
-    in->list = g_slist_append (in->list, elem); /* add to list */
-  } else { /* found it, resize */
-    ObitInfoElemResize (elem, type, dim); 
-  }
+    /* look up */
+    elem = ObitInfoListFind(in, name);
+
+    if (elem == NULL) { /* not there create new */
+        elem = newObitInfoElem(name, type, dim, NULL);
+        in->list = g_slist_append(in->list, elem);  /* add to list */
+    } else { /* found it, resize */
+        ObitInfoElemResize(elem, type, dim);
+    }
 } /* end ObitInfoListResize */
 
 /**
  * Print the contents of an InfoList to file
  * \param file  Where to write output
  */
-void ObitInfoListPrint (ObitInfoList *in, FILE *file)
+void ObitInfoListPrint(ObitInfoList *in, FILE *file)
 {
-  GSList *tmp;
+    GSList *tmp;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (file != NULL);
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(file != NULL);
 
-  fprintf (file, "Listing Of ObitInfoList\n");
+    fprintf(file, "Listing Of ObitInfoList\n");
 
-  /* loop through list */
-  tmp = in->list;
-  while (tmp!=NULL) {
-    if (tmp->data)
-      ObitInfoElemPrint ((ObitInfoElem*)tmp->data, file);
-    tmp = g_slist_next(tmp);
-  }
-  fprintf (file, "\n");
+    /* loop through list */
+    tmp = in->list;
+
+    while (tmp != NULL) {
+        if (tmp->data)
+            ObitInfoElemPrint((ObitInfoElem *)tmp->data, file);
+
+        tmp = g_slist_next(tmp);
+    }
+
+    fprintf(file, "\n");
 } /* endObitInfoList  */
 
 
@@ -910,51 +961,57 @@ void ObitInfoListPrint (ObitInfoList *in, FILE *file)
  * \param in Pointer to object to test.
  * \return TRUE if member else FALSE.
  */
-gboolean ObitInfoListIsA (ObitInfoList* in)
+gboolean ObitInfoListIsA(ObitInfoList *in)
 {
-  gboolean out;
+    gboolean out;
 
-  /* error checks */
-  if (in == NULL) return FALSE;
-  if (in->className == NULL) return FALSE;
+    /* error checks */
+    if (!in) return FALSE;
 
-  /* compare class name member */
-  out = !strcmp(in->className, myClassName);
+    if (!in->className) return FALSE;
 
-  return out;
+    /* compare class name member */
+    out = !strcmp(in->className, myClassName);
+
+    return out;
 } /* end ObitInfoListIsA */
 
 /*---------------Private functions---------------------------*/
 
-/** 
+/**
  * Find the element with a given name in an ObitInfoList
  * \param in   Pointer to InfoList.
  * \param name The label (keyword) of the element to change.
  * \return pointer to ObitInfoElem or NULL if not found.
  */
-static ObitInfoElem* ObitInfoListFind(ObitInfoList *in, gchar *name)
+static ObitInfoElem *ObitInfoListFind(ObitInfoList *in, const gchar *name)
 {
-  GSList *tmp;
-  ObitInfoElem *elem;
-  gchar *tstring;
+    GSList *tmp;
+    ObitInfoElem *elem;
+    gchar *tstring;
 
-  /* error checks */
-  g_assert (ObitInfoListIsA(in));
-  g_assert (name != NULL);
+    /* error checks */
+    g_assert(ObitInfoListIsA(in));
+    g_assert(name != NULL);
 
-  /* Get copy of name will all leading and trailing whitespace removed */
-  tstring = g_strstrip(g_strdup(name));
+    /* Get copy of name will all leading and trailing whitespace removed */
+    tstring = g_strstrip(g_strdup(name));
 
-  /* loop through list testing elements */
-  tmp = in->list;
-  while (tmp!=NULL) {
-    elem = (ObitInfoElem*)tmp->data;
-    /* check if this is a match */
-    if (ObitInfoElemTest(elem,tstring)) 
-      {g_free(tstring); return elem;}
-    tmp = g_slist_next(tmp);
-  }
-  g_free(tstring);
-  return NULL; /* didn't find */
+    /* loop through list testing elements */
+    tmp = in->list;
+
+    while (tmp != NULL) {
+        elem = (ObitInfoElem *)tmp->data;
+
+        /* check if this is a match */
+        if (ObitInfoElemTest(elem, tstring)) {
+            g_free(tstring);
+            return elem;
+        }
+
+        tmp = g_slist_next(tmp);
+    }
+
+    g_free(tstring);
+    return NULL; /* didn't find */
 } /* end ObitInfoListFind */
-

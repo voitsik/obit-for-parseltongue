@@ -361,7 +361,7 @@ ObitXMLXML2InfoList (ObitXML *xml, ObitErr *err)
   xmlrpc_bool xmlBool;
   xmlrpc_type xmlType, xmlTypeA=0;
   const char* xmlChar, **xmlCArray=NULL;
-  olong size, maxchar = 0;
+  gsize size, maxchar = 0;
   gint32 dim[MAXINFOELEMDIM];
   gpointer data=NULL;
   xmlrpc_value *v=NULL, *k=NULL, *e=NULL;
@@ -436,7 +436,7 @@ ObitXMLXML2InfoList (ObitXML *xml, ObitErr *err)
       XMLRPC_FAIL_IF_FAULT(&xml->envP);
       data = g_strdup (xmlChar);
       dim[0] = strlen (xmlChar);
-      free (xmlChar); xmlChar = NULL;
+      free ((void *)xmlChar); xmlChar = NULL;
       break;
 
    case XMLRPC_TYPE_ARRAY:
@@ -482,7 +482,7 @@ ObitXMLXML2InfoList (ObitXML *xml, ObitErr *err)
 	 XMLRPC_FAIL_IF_FAULT(&xml->envP);
 	 maxchar = MAX (maxchar, strlen (xmlChar));
 	 xmlCArray[j] = g_strdup(xmlChar);
-	 free (xmlChar); xmlChar = NULL;
+	 free ((void *)xmlChar); xmlChar = NULL;
 	 break;
        default:
 	 g_assert_not_reached(); /* unknown, barf */
@@ -1389,7 +1389,7 @@ void ObitXMLClear (gpointer inn)
   in->thread  = ObitThreadUnref(in->thread);
   xmlrpc_env_clean(&in->envP);
   xmlrpc_DECREF(in->parmP);
-  if (in->func) g_free(in->func); in->func = NULL;
+  if (in->func) {g_free(in->func); in->func = NULL;}
  
   /* unlink parent class members */
   ParentClass = (ObitClassInfo*)(myClassInfo.ParentClass);
@@ -1781,7 +1781,7 @@ static void decodeInfoList (ObitXMLEnv *envP, ObitXMLValue *parmP,
 	  strncpy ((char*)data, xmlChar, num);
 	  XMLRPC_FAIL_IF_FAULT(envP);
 	  xmlrpc_DECREF(e);
-	  free (xmlChar); xmlChar = NULL;
+	  free ((void *)xmlChar); xmlChar = NULL;
 	  break;
 	case OBIT_bool:
 	  data = g_malloc (num*sizeof(gboolean));
@@ -1826,5 +1826,3 @@ static void decodeInfoList (ObitXMLEnv *envP, ObitXMLValue *parmP,
   }
   
 } /*  end decodeInfoList */
-
-

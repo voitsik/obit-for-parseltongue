@@ -1088,7 +1088,7 @@ void ObitImageMFGetSpec (ObitImageMF *in, ObitErr *err)
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
   union ObitInfoListEquiv InfoReal; 
   odouble darr[10];
-  gchar keyword[12];
+  gchar keyword[16];
   olong i, nSpec, nTerm;
   /*gchar *routine = "ObitImageMFSetSpec";*/
   
@@ -1143,7 +1143,7 @@ void ObitImageMFGetSpec (ObitImageMF *in, ObitErr *err)
     ObitInfoListGetTest (in->myDesc->info, keyword, &type, 
 			 dim, &in->specFreqHi[i]);
   }
- 
+
 } /* end  ObitImageMFGetSpec */
 
 /**

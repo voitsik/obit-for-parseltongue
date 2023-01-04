@@ -46,8 +46,8 @@ typedef struct {
 
 // This cleans up the InfoListBlob we malloc'd before the function call
 %typemap(freearg) InfoListBlob * {
-   InfoListBlob *me = (InfoListBlob *)$source;
-   if (me!=NULL) {
+   InfoListBlob *me = (InfoListBlob *)$1;
+   if (me) {
       if (me->name) {free(me->name); me->name = NULL;}
       if (me->data) {free(me->data); me->data = NULL;}
       free(me);
@@ -64,77 +64,77 @@ typedef struct {
   long i, j, count;
   char tstring[1000];
 
- // Check for failure
- if ($1->type==-999) {
-     o = PyString_FromString("Item not Found");
-     PyList_Append($result,o);
-     Py_XDECREF(o);
-     return NULL;
- }
- o = PyString_FromString($1->name);
+  // Check for failure
+  if ($1->type==-999) {
+    o = PyString_FromString("Item not Found");
+    PyList_Append($result, o);
+    Py_XDECREF(o);
+    return NULL;
+  }
+  o = PyString_FromString($1->name);
   if ((!$result) || ($result == Py_None)) {
-      $result = PyList_New(0);
-      PyList_Append($result,o);
-      Py_XDECREF(o);
+    $result = PyList_New(0);
+    PyList_Append($result, o);
+    Py_XDECREF(o);
   } else {
     if (!PyList_Check($result)) {
       PyObject *o2 = $result;
       $result = PyList_New(0);
-      PyList_Append($result,o2);
+      PyList_Append($result, o2);
       Py_XDECREF(o2);
     }
-    PyList_Append($result,o);
+    PyList_Append($result, o);
     Py_XDECREF(o);
   }
 
   // Type
-    o = PyLong_FromLong((long)$1->type);
-    PyList_Append($result,o);
-    Py_XDECREF(o);
+  o = PyLong_FromLong((long)$1->type);
+  PyList_Append($result, o);
+  Py_XDECREF(o);
 
   // Dim (5)
-    t = PyList_New(0);
-    count = 1;
-    for (i=0; i<5; i++) {
-      if ($1->dim[i]>0) count *= $1->dim[i];
-      o = PyLong_FromLong((long)$1->dim[i]);
-      PyList_Append(t, o);
-      Py_XDECREF(o);
-    }
-    PyList_Append($result,t);
-    Py_XDECREF(t);
+  t = PyList_New(0);
+  count = 1;
+  for (i = 0; i < 5; i++) {
+    if ($1->dim[i] > 0) count *= $1->dim[i];
+    o = PyLong_FromLong((long)$1->dim[i]);
+    PyList_Append(t, o);
+    Py_XDECREF(o);
+  }
+  PyList_Append($result, t);
+  Py_XDECREF(t);
 
-    if ($1->type == OBIT_string)
-      count /= $1->dim[0];  /* now number of strings rather than total */
+  if ($1->type == OBIT_string)
+    count /= $1->dim[0];  /* now number of strings rather than total */
 
-   // Data
-    t = PyList_New(0);
-    for (i=0; i<count; i++) {
-      // a few for now 
-      switch ($1->type) {
-      case   OBIT_int: 
-	o = PyLong_FromLong((long)((int*)$1->data)[i]);
-	break;
-      case   OBIT_oint:
-	o = PyLong_FromLong((long)((oint*)$1->data)[i]);
+  // Data
+  t = PyList_New(0);
+  for (i = 0; i < count; i++) {
+    // a few for now
+    switch ($1->type) {
+      case OBIT_int:
+        o = PyLong_FromLong((long)((int*)$1->data)[i]);
+        break;
+      case OBIT_oint:
+        o = PyLong_FromLong((long)((oint*)$1->data)[i]);
         break;
       case   OBIT_long:  
-	o = PyLong_FromLong(((long*)$1->data)[i]);
+        o = PyLong_FromLong(((long*)$1->data)[i]);
         break;
-      case   OBIT_float: 
-	o = PyFloat_FromDouble((double)((float*)$1->data)[i]);
+      case OBIT_float:
+        o = PyFloat_FromDouble((double)((float*)$1->data)[i]);
         break;
-      case   OBIT_string:
-        for (j=0; j<$1->dim[0]; j++) 
-	tstring[j] = ((char*)$1->data)[i*$1->dim[0]+j];
-	tstring[j] = 0;
-	o = PyString_FromString(tstring);
+      case OBIT_string:
+        for (j = 0; j < $1->dim[0]; j++)
+          tstring[j] = ((char*)$1->data)[i*$1->dim[0]+j];
+        tstring[j] = 0;
+        o = PyString_FromString(tstring);
         break;
-      case   OBIT_bool:
-	o = PyLong_FromLong((long)((long*)$1->data)[i]);
+      case OBIT_bool:
+        o = PyLong_FromLong((long)((long*)$1->data)[i]);
         break;
-      case   OBIT_double:
-	o = PyFloat_FromDouble(((double*)$1->data)[i]);
+      case OBIT_double:
+        o = PyFloat_FromDouble(((double*)$1->data)[i]);
         break;
       default:
         PyErr_SetString(PyExc_TypeError,"Unknown InfoList data type");
@@ -143,38 +143,9 @@ typedef struct {
       PyList_Append(t, o);
       Py_XDECREF(o);
     }
-    PyList_Append($result,t);
+    PyList_Append($result, t);
     Py_XDECREF(t);
 }
-
-
-
-// Functions not implemented
-//void ObitInfoListPut(ObitInfoList *in, 
-//		      char* name, ObitInfoType type, gint32 *dim, 
-//		      gconstpointer data, ObitErr *err);
-//void ObitInfoListAlwaysPut(ObitInfoList *in, 
-//		      char* name, ObitInfoType type, gint32 *dim, 
-//		      gconstpointer data);
-//int ObitInfoListInfo(ObitInfoList *in, 
-//		     char *name, ObitInfoType *type, gint32 *dim, 
-//		      ObitErr *err);
-//int ObitInfoListGet(ObitInfoList *in, 
-//		      char *name, ObitInfoType *type, gint32 *dim, 
-//		      gpointer data, ObitErr *err);
-//int ObitInfoListGetP(ObitInfoList *in, 
-//		     char *name, ObitInfoType *type, gint32 *dim, 
-//		      pointer *data);
-//int ObitInfoListGetTest(ObitInfoList *in, 
-//		      char *name, ObitInfoType *type, gint32 *dim, 
-//		      pointer data);
-//int ObitInfoListGetNumber(ObitInfoList *in, olong number,
-//		      char *name, ObitInfoType *type, gint32 *dim, 
-//		      pointer data, ObitErr *err);
-//int ObitInfoListGetNumberP(ObitInfoList *in, olong number,
-//		       char *name, ObitInfoType *type, gint32 *dim, 
-//		       pointer *data);
-
 
 %inline %{
 // Structure for InfoList entry
@@ -274,11 +245,10 @@ void InfoListRemove (ObitInfoList *in, char *name) {
   return ObitInfoListRemove (in, name);
 } // end InfoListRemove
 
-void InfoListItemResize(ObitInfoList *in, 
-			    char *name, long type, long *dim) {
-   gint32 i, ddim[5];
+void InfoListItemResize(ObitInfoList *in, char *name, long type, long *dim) {
+  gint32 i, ddim[5];
 
-   for (i=0; i<5; i++) ddim[i] = dim[i];
+  for (i=0; i<5; i++) ddim[i] = dim[i];
   ObitInfoListResize (in, name, type, ddim);
 } // end InfoListItemResize
 
@@ -289,8 +259,8 @@ int InfoListIsA (ObitInfoList* in) {
 
 // Put by type
 // Ints passed as long
-extern void InfoListPutInt(ObitInfoList *in, char *name, long *dim, 
-	             long* data, ObitErr *err) {
+extern void InfoListPutInt(ObitInfoList *in, char *name, long *dim,
+                           long* data, ObitErr *err) {
    gint32 ddim[5];
    olong i, lng, *ldata=NULL;
 
@@ -304,7 +274,7 @@ extern void InfoListPutInt(ObitInfoList *in, char *name, long *dim,
 } // end InfoListPutInt
 
 extern void InfoListAlwaysPutInt(ObitInfoList *in, char *name, 
-	             long *dim, long* data) {
+                                 long *dim, long* data) {
    gint32 ddim[5];
    olong i, lng, *ldata=NULL;
 
@@ -680,19 +650,19 @@ static PyObject* Info2List(ObitInfoType type, gint32 dim[5], void *data)
       // First dimension is the length of strings
       tstring	= g_malloc0(count[0]+1);
       if (ndim==1) {  // single dimension - one string
-        for (i=0; i<count[0]; i++) tstring[i]=cdata[ii++]; tstring[i]=0;
+        for (i=0; i<count[0]; i++) {tstring[i]=cdata[ii++];} tstring[i]=0;
         o = PyString_InternFromString(tstring);
         PyList_SetItem(outList, 0, o);
       } else { // 2 or more dimensions
         for (j=0; j<count[1]; j++) {  // loop over second dimension
           if (ndim==2) {  // two dimensions
-            for (i=0; i<count[0]; i++) tstring[i]=cdata[ii++]; tstring[i]=0;
+            for (i=0; i<count[0]; i++) {tstring[i]=cdata[ii++];} tstring[i]=0;
             o = PyString_InternFromString(tstring);
             PyList_SetItem(outList, j, o);
           } else { // 3 (or more) dimensions
             outList2 = PyList_New(count[2]);
             for (k=0; k<count[2]; k++) {  // loop over third dimension
-              for (i=0; i<count[0]; i++) tstring[i]=cdata[ii++]; tstring[i]=0;
+              for (i=0; i<count[0]; i++) {tstring[i]=cdata[ii++];} tstring[i]=0;
               o = PyString_InternFromString(tstring);
               PyList_SetItem(outList2, k, o);
             } // end loop over third dimension
@@ -843,4 +813,3 @@ extern PyObject* InfoListGetDict(ObitInfoList *in)
 } // end InfoListGetDict
 
 %}
-

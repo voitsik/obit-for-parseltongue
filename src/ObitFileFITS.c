@@ -1232,7 +1232,7 @@ void ObitFileFITSClear (gpointer inn)
   }
 
   /* free this class members */
-  if (in->myFptr) fits_close_file(in->myFptr, &status); in->myFptr = NULL;
+  if (in->myFptr) {fits_close_file(in->myFptr, &status); in->myFptr = NULL;}
   
   /* unlink parent class members */
   ParentClass = (ObitClassInfo*)(myClassInfo.ParentClass);

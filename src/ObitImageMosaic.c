@@ -2681,7 +2681,7 @@ void ObitImageMosaicCopyCC (ObitImageMosaic *in, ObitUV *inUV, ObitErr *err)
   olong i, CCVer, noParms, ifield, numPar;
   ObitInfoType type;
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
-  gchar keyword[9];
+  gchar keyword[16];
   gchar *routine = "ObitImageMosaicCopyCC";
 
   /* error checks */

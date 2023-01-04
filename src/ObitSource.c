@@ -259,8 +259,8 @@ void ObitSourceInit  (gpointer inn)
   in->RAMean  = 0.0;
   in->DecMean = 0.0;
   in->Bandwidth = 0.0;
-  for (i=0; i<16; i++) in->SourceName[i] = ' '; in->SourceName[i] = 0;
-  for (i=0; i<4; i++)  in->CalCode[i] = ' ';    in->CalCode[i]    = 0;
+  for (i=0; i<16; i++) {in->SourceName[i] = ' ';} in->SourceName[i] = 0;
+  for (i=0; i<4; i++)  {in->CalCode[i] = ' ';}    in->CalCode[i]    = 0;
   in->IFlux     = NULL;
   in->QFlux     = NULL;
   in->UFlux     = NULL;
