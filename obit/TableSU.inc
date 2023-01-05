@@ -72,9 +72,9 @@ extern void TableSUSetHeadKeys (ObitTable *inTab, PyObject *inDict) {
   char *tstr;
   int lstr=MAXKEYCHARTABLESU;
 
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "velType"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "velType"));
   strncpy (lTab->velType, tstr, lstr); lTab->velType[lstr-1]=0;
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "velDef"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "velDef"));
   strncpy (lTab->velDef, tstr, lstr); lTab->velDef[lstr-1]=0;
   lTab->FreqID = (oint)PyLong_AsLong(PyDict_GetItemString(inDict, "FreqID"));
 

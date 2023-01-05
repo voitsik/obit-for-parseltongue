@@ -75,11 +75,11 @@ extern void TableATSetHeadKeys (ObitTable *inTab, PyObject *inDict) {
   int lstr=MAXKEYCHARTABLEAT;
 
   lTab->revision = (oint)PyLong_AsLong(PyDict_GetItemString(inDict, "revision"));
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "obscode"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "obscode"));
   strncpy (lTab->obscode, tstr, lstr); lTab->obscode[lstr-1]=0;
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "RefDate"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "RefDate"));
   strncpy (lTab->RefDate, tstr, lstr); lTab->RefDate[lstr-1]=0;
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "polType"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "polType"));
   strncpy (lTab->polType, tstr, lstr); lTab->polType[lstr-1]=0;
   lTab->FreqID = (oint)PyLong_AsLong(PyDict_GetItemString(inDict, "FreqID"));
 

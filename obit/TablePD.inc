@@ -78,7 +78,7 @@ extern void TablePDSetHeadKeys (ObitTable *inTab, PyObject *inDict) {
 
   lTab->revision = (oint)PyLong_AsLong(PyDict_GetItemString(inDict, "revision"));
   lTab->numAnt = (oint)PyLong_AsLong(PyDict_GetItemString(inDict, "numAnt"));
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "polType"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "polType"));
   strncpy (lTab->polType, tstr, lstr); lTab->polType[lstr-1]=0;
 
   if ((lTab->myDesc->access==OBIT_IO_ReadWrite) || (lTab->myDesc->access==OBIT_IO_WriteOnly)) 

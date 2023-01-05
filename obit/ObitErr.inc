@@ -75,14 +75,14 @@ void DeleteOErr(PyObject *self) {
 } // end DeleteOErr
 
 ObitErr* OErr_Get_me(PyObject *self) {
-   void *ptr;
-   int ret,flags=0;
-   ret = SWIG_Python_ConvertPtr(self, &ptr, SWIGTYPE_p_OErr, flags);
-   if (!SWIG_IsOK(ret)) {
-	PyErr_SetString(PyExc_RuntimeError,"Get_me: could not recover c struct");
-	return NULL;
-   }
-   return ((OErr*)ptr)->me;
+  void *ptr;
+  int ret,flags=0;
+  ret = SWIG_Python_ConvertPtr(self, &ptr, SWIGTYPE_p_OErr, flags);
+  if (!SWIG_IsOK(ret)) {
+    PyErr_SetString(PyExc_RuntimeError,"Get_me: could not recover c struct");
+    return NULL;
+  }
+  return ((OErr*)ptr)->me;
 } // end OErr_Get_me
 
 void OErr_Set_me(PyObject *self, ObitErr *me) {

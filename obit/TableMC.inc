@@ -74,9 +74,9 @@ extern void TableMCSetHeadKeys (ObitTable *inTab, PyObject *inDict) {
   char *tstr;
   int lstr=MAXKEYCHARTABLEMC;
 
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "obscode"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "obscode"));
   strncpy (lTab->obscode, tstr, lstr); lTab->obscode[lstr-1]=0;
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "RefDate"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "RefDate"));
   strncpy (lTab->RefDate, tstr, lstr); lTab->RefDate[lstr-1]=0;
   lTab->revision = (oint)PyLong_AsLong(PyDict_GetItemString(inDict, "revision"));
 

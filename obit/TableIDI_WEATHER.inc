@@ -79,7 +79,7 @@ extern void TableIDI_WEATHERSetHeadKeys (ObitTable *inTab, PyObject *inDict) {
   int lstr=MAXKEYCHARTABLEIDI_WEATHER;
 
   lTab->tabrev = (oint)PyLong_AsLong(PyDict_GetItemString(inDict, "tabrev"));
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "RefDate"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "RefDate"));
   strncpy (lTab->RefDate, tstr, lstr); lTab->RefDate[lstr-1]=0;
   lTab->no_chan = (oint)PyLong_AsLong(PyDict_GetItemString(inDict, "no_chan"));
   lTab->no_stkd = (oint)PyLong_AsLong(PyDict_GetItemString(inDict, "no_stkd"));
@@ -87,7 +87,7 @@ extern void TableIDI_WEATHERSetHeadKeys (ObitTable *inTab, PyObject *inDict) {
   lTab->ref_freq = (odouble)PyFloat_AsDouble(PyDict_GetItemString(inDict, "ref_freq"));
   lTab->chan_bw = (odouble)PyFloat_AsDouble(PyDict_GetItemString(inDict, "chan_bw"));
   lTab->ref_pixl = (oint)PyLong_AsLong(PyDict_GetItemString(inDict, "ref_pixl"));
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "obscode"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "obscode"));
   strncpy (lTab->obscode, tstr, lstr); lTab->obscode[lstr-1]=0;
 
   if ((lTab->myDesc->access==OBIT_IO_ReadWrite) || (lTab->myDesc->access==OBIT_IO_WriteOnly)) 

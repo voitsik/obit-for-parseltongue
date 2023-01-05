@@ -257,21 +257,21 @@ extern void ImageDescSetDict(ObitImageDesc* in, PyObject *inDict) {
         return;
   }
 
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "object"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "object"));
   strncpy (in->object, tstr, IMLEN_VALUE); in->object[IMLEN_VALUE-1]=0;
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "obsdat"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "obsdat"));
   strncpy (in->obsdat, tstr, IMLEN_VALUE); in->obsdat[IMLEN_VALUE-1]=0;
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "bunit"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "bunit"));
   strncpy (in->bunit, tstr, IMLEN_VALUE); in->bunit[IMLEN_VALUE-1]=0;
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "teles"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "teles"));
   strncpy (in->teles, tstr, IMLEN_VALUE); in->teles[IMLEN_VALUE-1]=0;
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "instrume"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "instrume"));
   strncpy (in->instrument, tstr, IMLEN_VALUE); in->instrument[IMLEN_VALUE-1]=0;
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "observer"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "observer"));
   strncpy (in->observer, tstr, IMLEN_VALUE); in->observer[IMLEN_VALUE-1]=0;
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "origin"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "origin"));
   strncpy (in->origin, tstr, IMLEN_VALUE); in->origin[IMLEN_VALUE-1]=0;
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "date"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "date"));
   strncpy (in->date, tstr, IMLEN_VALUE); in->date[IMLEN_VALUE-1]=0;
   in->epoch   = (float)PyFloat_AsDouble(PyDict_GetItemString(inDict, "epoch"));
   in->equinox = (float)PyFloat_AsDouble(PyDict_GetItemString(inDict, "equinox"));
@@ -300,7 +300,7 @@ extern void ImageDescSetDict(ObitImageDesc* in, PyObject *inDict) {
   list1 = PyDict_GetItemString(inDict, "ctype");
   number = MIN (IM_MAXDIM, PyList_Size(list1));
   for (i=0; i<number; i++) {
-    tstr = PyString_AsString(PyList_GetItem(list1, i));
+    tstr = PyUnicode_AsUTF8(PyList_GetItem(list1, i));
     strncpy (in->ctype[i], tstr, IMLEN_KEYWORD);
   }
   list2 = PyDict_GetItemString(inDict, "crval");

@@ -70,7 +70,7 @@ extern void TablePOSetHeadKeys (ObitTable *inTab, PyObject *inDict) {
   int lstr=MAXKEYCHARTABLEPO;
 
   lTab->revision = (oint)PyLong_AsLong(PyDict_GetItemString(inDict, "revision"));
-  tstr = PyString_AsString(PyDict_GetItemString(inDict, "RefDate"));
+  tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "RefDate"));
   strncpy (lTab->RefDate, tstr, lstr); lTab->RefDate[lstr-1]=0;
 
   if ((lTab->myDesc->access==OBIT_IO_ReadWrite) || (lTab->myDesc->access==OBIT_IO_WriteOnly)) 

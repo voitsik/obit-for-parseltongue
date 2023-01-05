@@ -218,7 +218,7 @@ extern void TableDescSetDict(ObitTableDesc* in, PyObject *inDict) {
   list = PyDict_GetItemString(inDict, "FieldName");
   number = MIN (in->nfield, PyList_Size(list));
   for (i=0; i<number; i++) {
-    tstr = PyString_AsString(PyList_GetItem(list, i));
+    tstr = PyUnicode_AsUTF8(PyList_GetItem(list, i));
     if (in->FieldName[i]) g_free(in->FieldName[i]);
     in->FieldName[i] = g_strdup(tstr);
   }
@@ -226,7 +226,7 @@ extern void TableDescSetDict(ObitTableDesc* in, PyObject *inDict) {
   list = PyDict_GetItemString(inDict, "FieldUnit");
   number = MIN (in->nfield, PyList_Size(list));
   for (i=0; i<number; i++) {
-    tstr = PyString_AsString(PyList_GetItem(list, i));
+    tstr = PyUnicode_AsUTF8(PyList_GetItem(list, i));
     if (in->FieldUnit[i]) g_free(in->FieldUnit[i]);
     in->FieldUnit[i] = g_strdup(tstr);
   }
@@ -345,20 +345,20 @@ extern ObitTableDesc* TableDescDef(PyObject *inDict) {
     PyErr_SetString(PyExc_TypeError,"Table name not found");
     return out;
   }
-  tstr = PyString_AsString(thing);
+  tstr = PyUnicode_AsUTF8(thing);
   if (out->TableName) g_free(out->TableName);
   out->TableName = g_strdup(tstr);
 
   // field names
   for (i=0; i<nfield; i++) {
-    tstr = PyString_AsString(PyList_GetItem(fieldname, i));
+    tstr = PyUnicode_AsUTF8(PyList_GetItem(fieldname, i));
     if (out->FieldName[i]) g_free(out->FieldName[i]);
     out->FieldName[i] = g_strdup(tstr);
   }
 
   // field units
   for (i=0; i<nfield; i++) {
-    tstr = PyString_AsString(PyList_GetItem(fieldunit, i));
+    tstr = PyUnicode_AsUTF8(PyList_GetItem(fieldunit, i));
     if (out->FieldUnit[i]) g_free(out->FieldUnit[i]);
     out->FieldUnit[i] = g_strdup(tstr);
   }

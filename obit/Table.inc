@@ -535,7 +535,7 @@ extern long TableWriteRow (ObitTable *in, long rowno, PyObject *inDict,
   /* Check that correct table type */
   TabName = PyDict_GetItemString(inDict, "Table name");
   if (TabName!=NULL)
-    tstr = PyString_AsString(TabName);
+    tstr = PyUnicode_AsUTF8(TabName);
   if (TabName==NULL || tstr==NULL) {  /* Found it? */
     Obit_log_error(err, OBIT_Error, "%s: Table Name not given", routine);
     return 1;
@@ -632,7 +632,7 @@ extern long TableWriteRow (ObitTable *in, long rowno, PyObject *inDict,
       cdata = ((gchar*)row->myRowData)+desc->offset[i];
       /* null terminate string */
       for (j=0; j<desc->repeat[i]/MAX (1,MAX(desc->dim[i][0],desc->dim[i][1])); j++) {
-        ctemp = PyString_AsString(PyList_GetItem(list, j));
+        ctemp = PyUnicode_AsUTF8(PyList_GetItem(list, j));
 	size = (long)strlen(ctemp);
         for (k=0; k<size; k++) cdata[k] = ctemp[k];
 	cdata += desc->dim[i][0];
