@@ -201,25 +201,25 @@ void CreateInfoList(PyObject *self) {
 } // end CreateInfoList
 
 void DeleteInfoList(PyObject *self) {
-   void *ptr;
-   int ret, flags=0;
-   ret = SWIG_Python_ConvertPtr(self, &ptr, SWIGTYPE_p_InfoList, flags);
-   if (!SWIG_IsOK(ret)) {
-	PyErr_SetString(PyExc_RuntimeError,"DeleteInfoList: could not recover c struct");
-	return;
-   }
-   ((InfoList*)ptr)->me = ObitInfoListUnref(((InfoList*)ptr)->me);
-}// end DeleteInfoList
+  void *ptr;
+  int ret, flags=0;
+  ret = SWIG_Python_ConvertPtr(self, &ptr, SWIGTYPE_p_InfoList, flags);
+  if (!SWIG_IsOK(ret)) {
+    PyErr_SetString(PyExc_RuntimeError,"DeleteInfoList: could not recover c struct");
+    return;
+  }
+  ((InfoList*)ptr)->me = ObitInfoListUnref(((InfoList*)ptr)->me);
+}  // end DeleteInfoList
 
 ObitInfoList* InfoList_Get_me(PyObject *self) {
-   void *ptr;
-   int ret,flags=0;
-   ret = SWIG_Python_ConvertPtr(self, &ptr, SWIGTYPE_p_InfoList, flags);
-   if (!SWIG_IsOK(ret)) {
-	PyErr_SetString(PyExc_RuntimeError,"InfoList_Get_me: could not recover c struct");
-	return NULL;
-   }
-   return ((InfoList*)ptr)->me;
+  void *ptr;
+  int ret,flags=0;
+  ret = SWIG_Python_ConvertPtr(self, &ptr, SWIGTYPE_p_InfoList, flags);
+  if (!SWIG_IsOK(ret)) {
+    PyErr_SetString(PyExc_RuntimeError,"InfoList_Get_me: could not recover c struct");
+    return NULL;
+  }
+  return ((InfoList*)ptr)->me;
 }  // end InfoList_Get_me
 
 void InfoList_Set_me(PyObject *self, ObitInfoList *me) {
@@ -248,7 +248,9 @@ void InfoListRemove (ObitInfoList *in, char *name) {
 void InfoListItemResize(ObitInfoList *in, char *name, long type, long *dim) {
   gint32 i, ddim[5];
 
-  for (i=0; i<5; i++) ddim[i] = dim[i];
+  for (i=0; i<5; i++)
+    ddim[i] = dim[i];
+
   ObitInfoListResize (in, name, type, ddim);
 } // end InfoListItemResize
 
@@ -721,9 +723,9 @@ extern PyObject* InfoListGet(ObitInfoList *in, const char *name) {
   PyList_SetItem(outList, 0, o);
   o = PyString_InternFromString(name);
   PyList_SetItem(outList, 1, o);
-  PyList_SetItem(outList, 2, NULL);
-  PyList_SetItem(outList, 3, NULL);
-  PyList_SetItem(outList, 4, NULL);
+  PyList_SetItem(outList, 2, Py_None);
+  PyList_SetItem(outList, 3, Py_None);
+  PyList_SetItem(outList, 4, Py_None);
   return outList;
 } // end InfoListGet
 
@@ -768,10 +770,10 @@ extern PyObject* InfoListGetNumber(ObitInfoList *in, long number)
   o = PyLong_FromLong((long)999);
   PyList_SetItem(outList, 0, o);
   o = PyString_InternFromString(name);
-  PyList_SetItem(outList, 1, o);	
-  PyList_SetItem(outList, 2, NULL);	
-  PyList_SetItem(outList, 3, NULL);	
-  PyList_SetItem(outList, 4, NULL);	
+  PyList_SetItem(outList, 1, o);
+  PyList_SetItem(outList, 2, Py_None);
+  PyList_SetItem(outList, 3, Py_None);
+  PyList_SetItem(outList, 4, Py_None);
   return outList;
 } // end InfoListGetNumber
 
