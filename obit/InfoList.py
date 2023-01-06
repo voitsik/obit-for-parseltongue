@@ -40,8 +40,6 @@ Dict      - Python dictionary with contents of InfoList
 
 # Python shadow class to ObitInfoList class
 
-import six
-
 from . import Obit, OErr, _Obit
 
 # Make sure we have a long type in python3

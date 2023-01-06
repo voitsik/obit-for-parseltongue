@@ -189,16 +189,16 @@ ObitInfoList* InfoListUnref (ObitInfoList* in) {
 } // end InfoListUnref
 
 void CreateInfoList(PyObject *self) {
-   void *ptr;
-   long ret, flags=0;
-   ret = SWIG_Python_ConvertPtr(self, &ptr, SWIGTYPE_p_InfoList, flags);
-   if (!SWIG_IsOK(ret)) {
-	PyErr_SetString(PyExc_RuntimeError,"CreateInfoList: could not recover c struct");
-	return;
-   }
-   ((InfoList*)(ptr))->me = InfoListCreate();
-   return;
- } // end CreateInfoList
+  void *ptr;
+  long ret, flags=0;
+  ret = SWIG_Python_ConvertPtr(self, &ptr, SWIGTYPE_p_InfoList, flags);
+  if (!SWIG_IsOK(ret)) {
+    PyErr_SetString(PyExc_RuntimeError,"CreateInfoList: could not recover c struct");
+    return;
+  }
+  ((InfoList*)(ptr))->me = InfoListCreate();
+  return;
+} // end CreateInfoList
 
 void DeleteInfoList(PyObject *self) {
    void *ptr;
@@ -390,7 +390,7 @@ extern void InfoListPutSString(ObitInfoList *in, char *name, long *dim,
 
 // single string version 
 extern void InfoListAlwaysPutSString(ObitInfoList *in, char *name, 
-	             long *dim, char** data) {
+                                     long *dim, char** data) {
    gint32 i, ddim[5];
 
    for (i=0; i<5; i++) ddim[i] = dim[i];
@@ -398,7 +398,7 @@ extern void InfoListAlwaysPutSString(ObitInfoList *in, char *name,
 } // end InfoListAlwayPutsString
 
 static long InfoListGetHelper(ObitInfoList *in, char *name, ObitInfoType type,
-	gint32 dim[5], void *data, InfoListBlob *outBlob)
+                              gint32 dim[5], void *data, InfoListBlob *outBlob)
 {
   gint32 i, j, count;
   float  *fdata;
@@ -454,8 +454,9 @@ static long InfoListGetHelper(ObitInfoList *in, char *name, ObitInfoType type,
       codata = (char*)outBlob->data;
       count /= dim[0];  /* now number of strings rather than total */
       for (i=0; i<count; i++) {  // add nulls at end of strings
-	for (j=0; j<dim[0]; j++)  *(codata++) = *(cdata++);
-	*(codata++) = 0;
+        for (j=0; j<dim[0]; j++)
+          *(codata++) = *(cdata++);
+        *(codata++) = 0;
       }
       break;
     default:
@@ -492,7 +493,7 @@ static PyObject* Info2List(ObitInfoType type, gint32 dim[5], void *data)
       outList = PyList_New(count[0]);  // Output list
       idata = (int*)data;
       for (i=0; i<count[0]; i++) {
-  	if (ndim==1) {  // single dimension
+        if (ndim==1) {  // single dimension
           o = PyLong_FromLong((long)idata[ii++]);
           PyList_SetItem(outList, i, o);
         } else { // 2 or more dimensions
@@ -518,7 +519,7 @@ static PyObject* Info2List(ObitInfoType type, gint32 dim[5], void *data)
       outList = PyList_New(count[0]);  // Output list
       odata = (oint*)data;
       for (i=0; i<count[0]; i++) {
-  	if (ndim==1) {  // single dimension
+        if (ndim==1) {  // single dimension
           o = PyLong_FromLong((long)odata[ii++]);
           PyList_SetItem(outList, i, o);
         } else { // 2 or more dimensions
@@ -544,7 +545,7 @@ static PyObject* Info2List(ObitInfoType type, gint32 dim[5], void *data)
       outList = PyList_New(count[0]);  // Output list
       ldata = (long*)data;
       for (i=0; i<count[0]; i++) {
-  	if (ndim==1) {  // single dimension
+        if (ndim==1) {  // single dimension
           o = PyLong_FromLong((long)ldata[ii++]);
           PyList_SetItem(outList, i, o);
         } else { // 2 or more dimensions
@@ -570,7 +571,7 @@ static PyObject* Info2List(ObitInfoType type, gint32 dim[5], void *data)
       outList = PyList_New(count[0]);  // Output list
       fdata = (float*)data;
       for (i=0; i<count[0]; i++) {
-  	if (ndim==1) {  // single dimension
+      if (ndim==1) {  // single dimension
           o = PyFloat_FromDouble((double)fdata[ii++]);
           PyList_SetItem(outList, i, o);
         } else { // 2 or more dimensions
@@ -596,7 +597,7 @@ static PyObject* Info2List(ObitInfoType type, gint32 dim[5], void *data)
       outList = PyList_New(count[0]);  // Output list
       ddata = (double*)data;
       for (i=0; i<count[0]; i++) {
-  	if (ndim==1) {  // single dimension
+        if (ndim==1) {  // single dimension
           o = PyFloat_FromDouble((double)ddata[ii++]);
           PyList_SetItem(outList, i, o);
         } else { // 2 or more dimensions
@@ -622,7 +623,7 @@ static PyObject* Info2List(ObitInfoType type, gint32 dim[5], void *data)
       outList = PyList_New(count[0]);  // Output list
       bdata = (gboolean*)data;
       for (i=0; i<count[0]; i++) {
-  	if (ndim==1) {  // single dimension
+        if (ndim==1) {  // single dimension
           o = PyLong_FromLong((long)bdata[ii++]);
           PyList_SetItem(outList, i, o);
         } else { // 2 or more dimensions
@@ -686,7 +687,7 @@ static PyObject* Info2List(ObitInfoType type, gint32 dim[5], void *data)
 //       2 - type
 //       3 - dimension array
 //       4 - data array
-extern PyObject* InfoListGet(ObitInfoList *in, char *name) {
+extern PyObject* InfoListGet(ObitInfoList *in, const char *name) {
   gint32 i, dim[5];
   ObitInfoType type;
   void  *data;
@@ -701,28 +702,28 @@ extern PyObject* InfoListGet(ObitInfoList *in, char *name) {
     o = PyLong_FromLong((long)0);
     PyList_SetItem(outList, 0, o);
     o = PyString_InternFromString(name);
-    PyList_SetItem(outList, 1, o);	
+    PyList_SetItem(outList, 1, o);
     o = PyLong_FromLong((long)type);
     PyList_SetItem(outList, 2, o);
     tl = PyList_New(5);
     for (i=0; i<5; i++) {
       o = PyLong_FromLong((long)dim[i]);
       PyList_SetItem(tl, i, o);
-    }	
-    PyList_SetItem(outList, 3, tl);	
-    PyList_SetItem(outList, 4, dlist);	
+    }
+    PyList_SetItem(outList, 3, tl);
+    PyList_SetItem(outList, 4, dlist);
     return outList;
-   } /* end worked OK */
+  } /* end worked OK */
 
-  // failed 
+  // failed
   //PyErr_SetString(PyExc_TypeError,"Item not found");
   o = PyLong_FromLong((long)999);
   PyList_SetItem(outList, 0, o);
   o = PyString_InternFromString(name);
-  PyList_SetItem(outList, 1, o);	
-  PyList_SetItem(outList, 2, NULL);	
-  PyList_SetItem(outList, 3, NULL);	
-  PyList_SetItem(outList, 4, NULL);	
+  PyList_SetItem(outList, 1, o);
+  PyList_SetItem(outList, 2, NULL);
+  PyList_SetItem(outList, 3, NULL);
+  PyList_SetItem(outList, 4, NULL);
   return outList;
 } // end InfoListGet
 
@@ -756,11 +757,11 @@ extern PyObject* InfoListGetNumber(ObitInfoList *in, long number)
     for (i=0; i<5; i++) {
       o = PyLong_FromLong((long)dim[i]);
       PyList_SetItem(tl, i, o);
-    }	
-    PyList_SetItem(outList, 3, tl);	
-    PyList_SetItem(outList, 4, dlist);	
+    }
+    PyList_SetItem(outList, 3, tl);
+    PyList_SetItem(outList, 4, dlist);
     return outList;
-   } /* end worked OK */
+  } /* end worked OK */
 
   // failed 
   PyErr_SetString(PyExc_TypeError,"Item not found");
@@ -802,13 +803,13 @@ extern PyObject* InfoListGetDict(ObitInfoList *in)
       for (i=0; i<5; i++) {
         o = PyLong_FromLong((long)dim[i]);
         PyList_SetItem(tl, i, o);
-      }	
-      PyList_SetItem(tList, 1, tl);	
-      PyList_SetItem(tList, 2, dlist);	
+      }
+      PyList_SetItem(tList, 1, tl);
+      PyList_SetItem(tList, 2, dlist);
       // add to output
       PyDict_SetItemString(outDict, name, tList);
     } /* end worked OK */
-  }	  // end element loop
+  }  // end element loop
   return outDict;
 } // end InfoListGetDict
 
