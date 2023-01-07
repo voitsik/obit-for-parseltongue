@@ -192,7 +192,7 @@ ObitErr *ObitErrUnref(ObitErr *in)
 /**
  * Initialize message/error handling
  * err has prtLv to value of "prtLv" in info if defined.
- * err has logFile menber set to "taskLog" in info if defined and
+ * err has logFile member set to "taskLog" in info if defined and
  * the logging handler is set to write messages to that file
  * rather than a terminal.
  * \param  in   Pointer to message/error object

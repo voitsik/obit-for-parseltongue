@@ -27,7 +27,7 @@
 # -----------------------------------------------------------------------
 
 # Python shadow class to ObitErr class
-from . import Obit, InfoList, _Obit
+from . import InfoList, Obit, _Obit
 
 
 class OErr(Obit.OErr):
@@ -115,7 +115,7 @@ def PIsErr(err):
     ################################################################
     # Checks
     if not OErrIsA(err):
-        print("calls itself", err, "\n\n")
+        # print("calls itself", err, "\n\n")
         raise TypeError("err MUST be a Python ObitErr")
     return Obit.isError(err.me) != 0
     # end PIsErr
@@ -200,6 +200,10 @@ def printErr(err):
     # end PrintErr
 
 
+class ObitError(Exception):
+    """Obit related error."""
+
+
 def printErrMsg(err, message="Error"):
     """
     Print Obit error stack and throws runtime exception on error.
@@ -214,8 +218,8 @@ def printErrMsg(err, message="Error"):
     ierr = Obit.isError(err.me)
     Obit.ObitErrLog(err.me)
     if ierr:
-        print(message)
-        raise Exception
+        # print(message)
+        raise ObitError(message)
     # end printErrMsg
 
 

@@ -461,7 +461,7 @@ class OData(Obit.OData):
         * err    = Python Obit Error/message stack
         """
         # Stubbed
-        raise RuntimeError("Info: Not Defined for virtual base class OData")
+        raise NotImplementedError("Info: Not Defined for virtual base class OData")
         # end Info
 
     def ZapTable(self, tabType, tabVer, err):
