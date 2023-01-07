@@ -43,7 +43,7 @@ static ObitInfoElem *ObitInfoListFind(ObitInfoList *in, const gchar *name);
 /*---------------Public functions---------------------------*/
 
 /** name of the class defined in this file */
-static gchar *myClassName = "ObitInfoList";
+static const gchar *myClassName = "ObitInfoList";
 
 /**
  *Constructor.
@@ -903,7 +903,7 @@ void ObitInfoListRemove(ObitInfoList *in, const gchar *name)
  * any existing data will be lost.
  * \param in   Pointer to InfoList.
  * \param name The label (keyword) of the element to change.
- * \param type Mew data type of data element (enum).
+ * \param type New data type of data element (enum).
  * \param dim  New dimensionality of datum.
  */
 void ObitInfoListResize(ObitInfoList *in,
