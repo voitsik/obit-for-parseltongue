@@ -201,10 +201,10 @@ class InfoList(Obit.InfoList):
                     PAlwaysPutBoolean(self, name, dim, value)
                     return
                 else:
-                    raise RuntimeError("Unknown type " + str(jtype))
+                    raise TypeError("Unknown type " + str(jtype))
 
             else:
-                raise RuntimeError("Unknown type " + str(itype))
+                raise TypeError("Unknown type " + str(itype))
 
         # Scalars
         # float
@@ -231,8 +231,7 @@ class InfoList(Obit.InfoList):
             Obit.InfoListAlwaysPutBoolean(self.me, name, dim, [long(tvalue)])
             return
         else:
-            raise "Unsupported type".with_traceback(itype)
-        return
+            raise TypeError(f"Unsupported type {itype}")
 
     # end set
 
@@ -240,14 +239,15 @@ class InfoList(Obit.InfoList):
         """
         Retrieve a value from an InfoList.
 
-        returns python list containing data:
+        Returns python list containing data:
 
         =====  ===================
         index  description
         =====  ===================
         0      return code, 0=OK else failed
         1      name
-        2      type code: int=1, oint=3, long=4, float=9, double=10, string=13, boolean=14
+        2      type code: int=2, oint=3, long=4, float=10, double=11, string=14,
+               boolean=15
         3      dimension array as list, e.g. [1,1,1,1,1] for scalar
         4      data array
         =====  ===================
@@ -256,16 +256,11 @@ class InfoList(Obit.InfoList):
         * name     = name of desired entry
         """
         # Ignore any exception when item not found
-        try:
-            out = Obit.InfoListGet(self.me, name)
-            return out
-        except Exception:
-            return out
-        else:
-            return out
+        return Obit.InfoListGet(self.me, name)
 
     # end set
-    # end InfoList Class
+
+# end InfoList Class
 
 
 # Commonly used, dangerous variables
@@ -303,7 +298,7 @@ def PCopyData(inList, outList):
 
 def PRemove(inList, name):
     """
-    Removes item name fro list.
+    Remove item name from list.
 
     * inList    = input Python InfoList
     * name      = name of desired entry
@@ -315,11 +310,16 @@ def PRemove(inList, name):
 
 def PItemResize(inList, name, type, dim):
     """
+    Change the dimension and/or data type of an entry.
+
+    Create an entry in list if it doesn't previously exist,
+    any existing data will be lost.
+
     * inList   = input Python InfoList
 
     * name     = name of desired entry
     * type     = data type of object
-               * int=1, oint=3, long=4, float=9, double=10, string=13, boolean=14
+               * int=2, oint=3, long=4, float=10, double=11, string=14, boolean=15
     * dim      = dimensionality of array as list, e.g. [1,1,1,1,1] for scalar
     """
     ################################################################
@@ -331,14 +331,15 @@ def PIsA(inList):
     """
     Tell if input really is InfoList.
 
-    returns true, false (1,0)
+    Returns True or False
 
     * inList    = input Python InfoList
     """
     ################################################################
     # Checks
-    if inList.__class__ != InfoList:
-        return 0
+    if not isinstance(inList, InfoList):
+        return False
+
     return Obit.InfoListIsA(inList.me)
     # end PIsA
 
@@ -350,34 +351,37 @@ def PPutInt(inList, name, dim, data, err):
     * inList   = input Python InfoList
     * name     = name of desired entry
     * dim      = dimensionality of array as list, e.g. [1,1,1,1,1] for scalar
-               MUST have 5 entries
+                 MUST have 5 entries
     * data     = data as a 1-D array of integers
     * err      = Python Obit Error/message stack
     """
     ################################################################
     # Checks
-    if type(data[0]) not in (int,):
-        raise TypeError("data MUST be int or long")
+    if not isinstance(data[0], int):
+        # print("class is", data[0].__class__)
+        raise TypeError("data MUST be list of ints")
+
     if len(dim) < 5:
-        print("class is", data[0].__class__)
-        raise RuntimeError("dim has fewer then 5 entries")
-    # make sure dim is long
-    ldim = []
-    for d in dim:
-        ldim.append(long(d))
-    # make sure data is long
-    ldata = []
-    for d in data:
-        ldata.append(long(d))
+        raise ValueError("dim has fewer then 5 entries")
+
+    # make sure dim is int
+    ldim = [int(d) for d in dim]
+
+    # make sure data is int
+    ldata = [int(d) for d in data]
+
     prod = 1
     for x in dim:
         if x > 0:
             prod = prod * x
     if prod < len(data):
-        raise RuntimeError("more data than defined in dim")
+        raise ValueError("more data than defined in dim")
+
     if prod > len(data):
-        raise RuntimeError("less data than defined in dim")
+        raise ValueError("less data than defined in dim")
+
     Obit.InfoListPutInt(inList.me, name, ldim, ldata, err.me)
+
     if err.isErr:
         OErr.printErrMsg(err, "Error adding entry")
     # end PPutInt
@@ -385,37 +389,40 @@ def PPutInt(inList, name, dim, data, err):
 
 def PAlwaysPutInt(inList, name, dim, data):
     """
-    Add an long entry, changing type/dim of entry if needed.
+    Add an int entry, changing type/dim of entry if needed.
 
     * inList   = input Python InfoList
     * name     = name of desired entry
     * dim      = dimensionality of array as list, e.g. [1,1,1,1,1] for scalar
-               MUST have 5 entries
+                 MUST have 5 entries
     * data     = data as a 1-D array of integers
     """
     ################################################################
     # Checks
-    if type(data[0]) not in (int,):
-        print("class is", data[0].__class__)
-        raise TypeError("data MUST be int or long")
+    if not isinstance(data[0], int):
+        # print("class is", data[0].__class__)
+        raise TypeError("data MUST be list of ints")
+
     if len(dim) < 5:
-        raise RuntimeError("dim has fewer then 5 entries")
-    # make sure dim is long (python3 problem)
-    ldim = []
-    for d in dim:
-        ldim.append(long(d))
-    # make sure data is long
-    ldata = []
-    for d in data:
-        ldata.append(long(d))
+        raise ValueError("dim has fewer then 5 entries")
+
+    # make sure dim is int
+    ldim = [int(d) for d in dim]
+
+    # make sure data is int
+    ldata = [int(d) for d in data]
+
     prod = 1
     for x in dim:
         if x > 0:
             prod = prod * x
+
     if prod < len(data):
-        raise RuntimeError("more data than defined in dim")
+        raise ValueError("more data than defined in dim")
+
     if prod > len(data):
-        raise RuntimeError("less data than defined in dim")
+        raise ValueError("less data than defined in dim")
+
     Obit.InfoListAlwaysPutInt(inList.me, name, ldim, ldata)
     # end PAlwaysPutInt
 
@@ -433,28 +440,32 @@ def PPutLong(inList, name, dim, data, err):
     """
     ################################################################
     # Checks
-    if data[0].__class__ not in (int,):
-        raise TypeError("data MUST be long")
+    if not isinstance(data[0], int):
+        # print("class is", data[0].__class__)
+        raise TypeError("data MUST be list of ints")
+
     if len(dim) < 5:
-        print("class is", data[0].__class__)
-        raise RuntimeError("dim has fewer then 5 entries")
-    # make sure dim is long
-    ldim = []
-    for d in dim:
-        ldim.append(long(d))
-    # make sure data is long
-    ldata = []
-    for d in data:
-        ldata.append(long(d))
+        raise ValueError("dim has fewer then 5 entries")
+
+    # make sure dim is int
+    ldim = [int(d) for d in dim]
+
+    # make sure data is int
+    ldata = [int(d) for d in data]
+
     prod = 1
     for x in dim:
         if x > 0:
             prod = prod * x
+
     if prod < len(data):
-        raise RuntimeError("more data than defined in dim")
+        raise ValueError("more data than defined in dim")
+
     if prod > len(data):
-        raise RuntimeError("less data than defined in dim")
+        raise ValueError("less data than defined in dim")
+
     Obit.InfoListPutLong(inList.me, name, ldim, ldata, err.me)
+
     if err.isErr:
         OErr.printErrMsg(err, "Error adding entry")
     # end PPutLong
@@ -467,32 +478,35 @@ def PAlwaysPutLong(inList, name, dim, data):
     * inList   = input Python InfoList
     * name     = name of desired entry
     * dim      = dimensionality of array as list, e.g. [1,1,1,1,1] for scalar
-               MUST have 5 entries
+                 MUST have 5 entries
     * data     = data as a 1-D array of integers
     """
     ################################################################
     # Checks
-    if data[0].__class__ not in (int,):
-        print("class is", data[0].__class__)
-        raise TypeError("data MUST be long")
+    if not isinstance(data[0], int):
+        # print("class is", data[0].__class__)
+        raise TypeError("data MUST be list of ints")
+
     if len(dim) < 5:
-        raise RuntimeError("dim has fewer then 5 entries")
-    # make sure dim is long
-    ldim = []
-    for d in dim:
-        ldim.append(long(d))
-    # make sure data is long
-    ldata = []
-    for d in data:
-        ldata.append(long(d))
+        raise ValueError("dim has fewer then 5 entries")
+
+    # make sure dim is int
+    ldim = [int(d) for d in dim]
+
+    # make sure data is int
+    ldata = [int(d) for d in data]
+
     prod = 1
     for x in dim:
         if x > 0:
             prod = prod * x
+
     if prod < len(data):
-        raise RuntimeError("more data than defined in dim")
+        raise ValueError("more data than defined in dim")
+
     if prod > len(data):
-        raise RuntimeError("less data than defined in dim")
+        raise ValueError("less data than defined in dim")
+
     Obit.InfoListAlwaysPutLong(inList.me, name, ldim, ldata)
     # end PAlwaysPutLong
 
@@ -504,30 +518,36 @@ def PPutFloat(inList, name, dim, data, err):
     * inList   = input Python InfoList
     * name     = name of desired entry
     * dim      = dimensionality of array as list, e.g. [1,1,1,1,1] for scalar
-               MUST have 5 entries
+                 MUST have 5 entries
     * data     = data as a 1-D array of float
     * err      = Python Obit Error/message stack
     """
     ################################################################
     # Checks
-    if data[0].__class__ != float:
-        raise TypeError("data MUST be float")
+    if not isinstance(data[0], float):
+        # print("class is", data[0].__class__)
+        raise TypeError("data MUST be list of floats")
+
     if len(dim) < 5:
-        raise RuntimeError("dim has fewer then 5 entries")
-    # make sure dim is long
-    ldim = []
-    for d in dim:
-        ldim.append(long(d))
+        raise ValueError("dim has fewer then 5 entries")
+
+    # make sure dim is int
+    ldim = [int(d) for d in dim]
+
     prod = 1
     for x in dim:
         if x > 0:
             prod = prod * x
+
     if prod < len(data):
-        print("data, size", prod, data)
-        raise RuntimeError("more data than defined in dim")
+        # print("data, size", prod, data)
+        raise ValueError("more data than defined in dim")
+
     if prod > len(data):
-        raise RuntimeError("less data than defined in dim")
+        raise ValueError("less data than defined in dim")
+
     Obit.InfoListPutFloat(inList.me, name, ldim, data, err.me)
+
     if err.isErr:
         OErr.printErrMsg(err, "Error adding entry")
     # end PPutFloat
@@ -545,23 +565,24 @@ def PAlwaysPutFloat(inList, name, dim, data):
     """
     ################################################################
     # Checks
-    if data[0].__class__ != float:
-        print("class is", data[0].__class__)
-        raise TypeError("data MUST be float")
+    if not isinstance(data[0], float):
+        # print("class is", data[0].__class__)
+        raise TypeError("data MUST be list of floats")
+
     if len(dim) < 5:
-        raise RuntimeError("dim has fewer then 5 entries")
-    # make sure dim is long
-    ldim = []
-    for d in dim:
-        ldim.append(long(d))
+        raise ValueError("dim has fewer then 5 entries")
+
+    # make sure dim is int
+    ldim = [int(d) for d in dim]
+
     prod = 1
     for x in dim:
         if x > 0:
             prod = prod * x
     if prod < len(data):
-        raise RuntimeError("more data than defined in dim")
+        raise ValueError("more data than defined in dim")
     if prod > len(data):
-        raise RuntimeError("less data than defined in dim")
+        raise ValueError("less data than defined in dim")
     Obit.InfoListAlwaysPutFloat(inList.me, name, ldim, data)
     # end PAlwaysPutFloat
 
@@ -579,24 +600,29 @@ def PPutDouble(inList, name, dim, data, err):
     """
     ################################################################
     # Checks
-    if data[0].__class__ != float:
-        print("class is", data[0].__class__)
-        raise TypeError("data MUST be float")
+    if not isinstance(data[0], float):
+        # print("class is", data[0].__class__)
+        raise TypeError("data MUST be list of floats")
+
     if len(dim) < 5:
-        raise RuntimeError("dim has fewer then 5 entries")
-    # make sure dim is long
-    ldim = []
-    for d in dim:
-        ldim.append(long(d))
+        raise ValueError("dim has fewer then 5 entries")
+
+    # make sure dim is int
+    ldim = [int(d) for d in dim]
+
     prod = 1
     for x in dim:
         if x > 0:
             prod = prod * x
+
     if prod < len(data):
-        raise RuntimeError("more data than defined in dim")
+        raise ValueError("more data than defined in dim")
+
     if prod > len(data):
-        raise RuntimeError("less data than defined in dim")
+        raise ValueError("less data than defined in dim")
+
     Obit.InfoListPutDouble(inList.me, name, ldim, data, err.me)
+
     if err.isErr:
         OErr.printErrMsg(err, "Error adding entry")
     # end  PPutDouble
@@ -609,28 +635,32 @@ def PAlwaysPutDouble(inList, name, dim, data):
     * inList   = input Python InfoList
     * name     = name of desired entry
     * dim      = dimensionality of array as list, e.g. [1,1,1,1,1] for scalar
-               MUST have 5 entries
+                 MUST have 5 entries
     * data     = data as a 1-D array of double
     """
     ################################################################
     # Checks
-    if data[0].__class__ != float:
-        print("class is", data[0].__class__)
-        raise TypeError("data MUST be float")
+    if not isinstance(data[0], float):
+        # print("class is", data[0].__class__)
+        raise TypeError("data MUST be list of floats")
+
     if len(dim) < 5:
-        raise RuntimeError("dim has fewer then 5 entries")
-    # make sure dim is long
-    ldim = []
-    for d in dim:
-        ldim.append(long(d))
+        raise ValueError("dim has fewer then 5 entries")
+
+    # make sure dim is int
+    ldim = [int(d) for d in dim]
+
     prod = 1
     for x in dim:
         if x > 0:
             prod = prod * x
+
     if prod < len(data):
-        raise RuntimeError("more data than defined in dim")
+        raise ValueError("more data than defined in dim")
+
     if prod > len(data):
-        raise RuntimeError("less data than defined in dim")
+        raise ValueError("less data than defined in dim")
+
     Obit.InfoListAlwaysPutDouble(inList.me, name, ldim, data)
     # end PAlwaysPutDouble
 
@@ -642,34 +672,38 @@ def PPutBoolean(inList, name, dim, data, err):
     * inList   = input Python InfoList
     * name     = name of desired entry
     * dim      = dimensionality of array as list, e.g. [1,1,1,1,1] for scalar
-               MUST have 5 entries
+                 MUST have 5 entries
     * data     = data as a 1-D array of boolean (1,0)
     * err      = Python Obit Error/message stack
     """
     ################################################################
     # Checks
-    if data[0].__class__ != bool:
-        print("class is", data[0].__class__)
-        raise TypeError("data MUST be bool")
+    if not isinstance(data[0], bool):
+        # print("class is", data[0].__class__)
+        raise TypeError("data MUST be list of bools")
+
     if len(dim) < 5:
-        raise RuntimeError("dim has fewer then 5 entries")
-    # make sure dim is long
-    ldim = []
-    for d in dim:
-        ldim.append(long(d))
-    # make sure data is long
-    ldata = []
-    for d in data:
-        ldata.append(long(d))
+        raise ValueError("dim has fewer then 5 entries")
+
+    # make sure dim is int
+    ldim = [int(d) for d in dim]
+
+    # make sure data is int
+    ldata = [int(d) for d in data]
+
     prod = 1
     for x in dim:
         if x > 0:
             prod = prod * x
+
     if prod < len(data):
-        raise RuntimeError("more data than defined in dim")
+        raise ValueError("more data than defined in dim")
+
     if prod > len(data):
-        raise RuntimeError("less data than defined in dim")
+        raise ValueError("less data than defined in dim")
+
     Obit.InfoListPutBoolean(inList.me, name, ldim, ldata, err.me)
+
     if err.isErr:
         OErr.printErrMsg(err, "Error adding entry")
     # end PPutBoolean
@@ -682,32 +716,35 @@ def PAlwaysPutBoolean(inList, name, dim, data):
     * inList   = input Python InfoList
     * name     = name of desired entry
     * dim      = dimensionality of array as list, e.g. [1,1,1,1,1] for scalar
-               MUST have 5 entries
+                 MUST have 5 entries
     * data     = data as a 1-D array of boolean (1,0)
     """
     ################################################################
     # Checks
-    if data[0].__class__ != bool:
-        print("class is", data[0].__class__)
-        raise TypeError("data MUST be bool")
+    if not isinstance(data[0], bool):
+        # print("class is", data[0].__class__)
+        raise TypeError("data[0] MUST be bool")
+
     if len(dim) < 5:
-        raise RuntimeError("dim has fewer then 5 entries")
-    # make sure dim is long
-    ldim = []
-    for d in dim:
-        ldim.append(long(d))
-    # make sure data is long
-    ldata = []
-    for d in data:
-        ldata.append(long(d))
+        raise ValueError("dim has fewer then 5 entries")
+
+    # make sure dim is int
+    ldim = [int(d) for d in dim]
+
+    # make sure data is int
+    ldata = [int(d) for d in data]
+
     prod = 1
     for x in dim:
         if x > 0:
             prod = prod * x
+
     if prod < len(data):
-        raise RuntimeError("more data than defined in dim")
+        raise ValueError("more data than defined in dim")
+
     if prod > len(data):
-        raise RuntimeError("less data than defined in dim")
+        raise ValueError("less data than defined in dim")
+
     Obit.InfoListAlwaysPutBoolean(inList.me, name, ldim, ldata)
     # end PAlwaysPutBoolean
 
@@ -725,26 +762,29 @@ def PPutString(inList, name, dim, data, err):
     """
     ################################################################
     # Checks
-    if data[0].__class__ != str:
-        print("class is", data[0].__class__)
+    if not isinstance(data[0], str):
+        # print("class is", data[0].__class__)
         raise TypeError("data MUST be a string")
+
     if len(dim) < 5:
-        raise RuntimeError("dim has fewer then 5 entries")
-    # make sure dim is long
-    ldim = []
-    for d in dim:
-        ldim.append(long(d))
+        raise ValueError("dim has fewer then 5 entries")
+
+    # make sure dim is int
+    ldim = [int(d) for d in dim]
+
     prod = 1
     for x in dim:
         if x > 0:
             prod = prod * x
     if prod < len(data):
-        raise RuntimeError("more data than defined in dim")
+        raise ValueError("more data than defined in dim")
+
     # Call depends on whether single string, 1 or 2 D arrays
     if dim[1] > 1:  # array of strings
         Obit.InfoListPutString(inList.me, name, ldim, data, err.me)
     else:  # single
         Obit.InfoListPutSString(inList.me, name, ldim, data, err.me)
+
     if err.isErr:
         OErr.printErrMsg(err, "Error adding entry")
     # end  PPutString
@@ -757,26 +797,28 @@ def PAlwaysPutString(inList, name, dim, data):
     * inList   = input Python InfoList
     * name     = name of desired entry
     * dim      = dimensionality of array as list, e.g. [1,1,1,1,1] for scalar
-               MUST have 5 entries
+                 MUST have 5 entries
     * data     = data as a 1-D array of (rectangular char array)
     """
     ################################################################
     # Checks
-    if data[0].__class__ != str:
-        print("class is", data[0].__class__)
-        raise TypeError("data MUST be a string")
+    if not isinstance(data[0], str):
+        # print("class is", data[0].__class__)
+        raise TypeError("type of data[0] MUST be a string")
+
     if len(dim) < 5:
-        raise RuntimeError("dim has fewer then 5 entries")
-    # make sure dim is long
-    ldim = []
-    for d in dim:
-        ldim.append(long(d))
+        raise ValueError("dim has fewer then 5 entries")
+
+    # make sure dim is int
+    ldim = [int(d) for d in dim]
+
     prod = 1
     for x in dim:
         if x > 0:
             prod = prod * x
     if prod < len(data):
-        raise RuntimeError("more data than defined in dim")
+        raise ValueError("more data than defined in dim")
+
     # Call depends on whether single string, 1 or 2 D arrays
     if dim[1] > 1:  # array of strings
         Obit.InfoListAlwaysPutString(inList.me, name, ldim, data)
@@ -797,19 +839,21 @@ def PGet(inList, name):
 
     * inList   = input Python InfoList
     * type     = data type of object
-               * int=1, oint=3, long=4, float=9, double=10, string=13, boolean=14
+               * int=2, oint=3, long=4, float=10, double=11, string=14, boolean=15
     * dim      = dimensionality of array as list, e.g. [1,1,1,1,1] for scalar
     * data     = data as a multi dimensional array of (rectangular char array)
     """
     ################################################################
     # Checks
     if not PIsA(inList):
-        print("Actually ", inList.__class__)
-        raise TypeError("inList MUST be a Python Obit InfoList")
+        # print("Actually ", inList.__class__)
+        raise TypeError(f"inList MUST be a Python Obit InfoList, not {type(inList)}")
 
     retVal = Obit.InfoListGet(inList.me, name)
+
     if retVal[0] != 0:
-        raise RuntimeError(name + " not found in InfoList")
+        raise KeyError(f"{name} not found in InfoList")
+
     return retVal
     # end PGet
 
@@ -823,16 +867,16 @@ def PGetDict(inList):
        2 - data array
 
     * type     = data type of object
-               * int=2, oint=3, long=4, float=9, double=10, string=13, boolean=14
+               * int=2, oint=3, long=4, float=10, double=11, string=14, boolean=15
     * dim      = dimensionality of array as list, e.g. [1,1,1,1,1] for scalar
     * data     = data as a multi dimensional array of (rectangular char array)
-    * inList    = input Python InfoList
+    * inList   = input Python InfoList
     """
     ################################################################
     # Checks
     if not PIsA(inList):
-        print("Actually ", inList.__class__)
-        raise TypeError("inList MUST be a Python Obit InfoList")
+        # print("Actually ", inList.__class__)
+        raise TypeError(f"inList MUST be a Python Obit InfoList, not {type(inList)}")
 
     return Obit.InfoListGetDict(inList.me)
     # end PGetDict
@@ -840,13 +884,13 @@ def PGetDict(inList):
 
 def PSetDict(outList, inDict):
     """
-    Adds entries in InfoList from elements of a python dict, each element is
+    Add entries in InfoList from elements of a python dict, each element is
     a list with the following elements:
 
     =====  ===========
     index  description
     =====  ===========
-    0      type code: int=2, oint=3, long=4, float=9, double=10, string=13, boolean=14
+    0      type code: int=2, oint=3, long=4, float=10, double=11, string=14, boolean=15
     1      dim, dimension array, an list of 5 int
     2      data list, a 1-D list all of the data type given by type
     =====  ===========
@@ -857,32 +901,39 @@ def PSetDict(outList, inDict):
     ################################################################
     # Checks
     if not PIsA(outList):
-        print("Actually ", outList.__class__)
+        # print("Actually ", outList.__class__)
         raise TypeError("outList MUST be a Python Obit InfoList")
-    if not type(inDict) == dict:
+    if not isinstance(inDict, dict):
         raise TypeError("inDict MUST be a Python dict")
+
     # Loop over dict
     for x in inDict:
         data = inDict[x]
-        # print "DEBUG",x,data
+        # print("DEBUG:", x, data)
+
         # Check that entry is an list
-        if not type(data) == list:
-            print("Bad entry:", data)
-            raise TypeError("entry for " + x + " MUST be a list")
+        if not isinstance(data, list):
+            # print("Bad entry:", data)
+            raise TypeError(f"entry for {x} MUST be a list")
+
         # Check type (data[0])
-        if not type(data[0]) == long:
-            raise TypeError("type for " + x + " MUST be a long")
+        if not isinstance(data[0], int):
+            raise TypeError(f"type for {x} MUST be a int")
+
         # Check dim (data[1])
-        if not type(data[1]) == list:
-            raise TypeError("dim for " + x + " MUST be a list of 5 long")
-        if not type(data[1][0]) == long:
-            raise TypeError("dim for " + x + " MUST be a list of 5 long")
+        if not isinstance(data[1], list):
+            raise TypeError(f"dim for {x} MUST be a list of 5 int")
+
+        if not isinstance(data[1][0], int):
+            raise TypeError(f"dim for {x} MUST be a list of 5 int")
+
         # data (data[2]) must be as a list
-        if not type(data[2]) == list:
-            raise TypeError("data for " + x + " MUST be a list")
+        if not isinstance(data[2], list):
+            raise TypeError(f"data for {x} MUST be a list")
+
         #
         # Switch on type
-        if data[0] in [1, 2, 3, 4]:  # int (long)
+        if data[0] in (1, 2, 3, 4):  # int (long)
             PAlwaysPutLong(outList, x, data[1], data[2])
         elif data[0] == 10:  # float
             PAlwaysPutFloat(outList, x, data[1], data[2])
@@ -893,7 +944,7 @@ def PSetDict(outList, inDict):
         elif data[0] == 15:  # boolean
             PAlwaysPutBoolean(outList, x, data[1], data[2])
         else:  # Unknown
-            raise RuntimeError("Unknown data type code " + str(data[0]) + " for " + x)
+            raise TypeError(f"Unknown data type code {data[0]} for {x}")
     # end loop over entries
     # end PSetDict
 
