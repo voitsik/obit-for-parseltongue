@@ -43,7 +43,7 @@ jobs:
           
       - name: Build and Install Obit
         run: |
-          pip install .
+          pip install -e .
             
       - name: Run tests
         run: |
