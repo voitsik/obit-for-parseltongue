@@ -52,3 +52,30 @@ def test_pget(info_list):
     info_list.set("a", 111)
 
     assert InfoList.PGet(info_list, "a") == [0, "a", 4, [1, 1, 1, 1, 1], [111]]
+
+
+def test_always_put_int(info_list):
+    value_int = 123
+    dim = [1, 1, 1, 1, 1]
+
+    InfoList.PAlwaysPutInt(info_list, "val", dim, [value_int])
+    assert info_list.get("val") == [0, "val", 4, dim, [value_int]]
+
+
+def test_always_put_float(info_list):
+    value_float = 1.234
+    dim = [1, 1, 1, 1, 1]
+
+    InfoList.PAlwaysPutFloat(info_list, "val", dim, [value_float])
+    assert info_list.get("val") == [0, "val", 10, dim, pytest.approx([value_float])]
+
+    InfoList.PAlwaysPutDouble(info_list, "val", dim, [value_float])
+    assert info_list.get("val") == [0, "val", 11, dim, pytest.approx([value_float])]
+
+
+def test_always_put_str(info_list):
+    value_str = "raes03ad"
+    dim = [8, 1, 1, 1, 1]
+
+    InfoList.PAlwaysPutString(info_list, "val", dim, [value_str])
+    assert info_list.get("val") == [0, "val", 14, dim, [value_str]]
