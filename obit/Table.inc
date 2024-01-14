@@ -41,6 +41,7 @@
 #include "ObitTableCT.h"
 #include "ObitTableFG.h"
 #include "ObitTableFQ.h"
+#include "ObitTableFS.h"
 #include "ObitTableGC.h"
 #include "ObitTableIM.h"
 #include "ObitTableMC.h"
@@ -84,7 +85,6 @@ static void TableDeeBlank (gchar *in)
      if (in[i]==' ') in[i] = 0;
      else if (in[i]!=' ') break;
   }
-
 } // end TableDeeBlank
 
 extern ObitTable* TableCreate (gchar* name) {
@@ -476,25 +476,25 @@ extern  PyObject *TableReadRow (ObitTable *in, long rowno, ObitErr *err) {
       kdata = ((oint*)row->myRowData)+desc->offset[i];
       j1 = 0; j2 = 0;
       for (j=0; j<desc->repeat[i]; j++) {
-      size = (long)sizeof(oint);
-	if (j2>=size) {  /* next integer worth? */
+        size = (long)sizeof(oint);
+        if (j2>=size) {  /* next integer worth? */
           j1++;
           j2 = 0;
         }
-	o = PyLong_FromLong((long)((kdata[j1] & (1 << j2)) ? 1 : 0));
+        o = PyLong_FromLong((long)((kdata[j1] & (1 << j2)) ? 1 : 0));
         j2++;
         PyList_SetItem(list, j, o);
       }
       break;
     default:
       /* Cannot deal with type */
-      Obit_log_error(err, OBIT_Error, 
-		   "%s: Cannot deal with Table row data type %d in %s", 
-		   routine, desc->type[i], in->name);
+      Obit_log_error(err, OBIT_Error,
+                     "%s: Cannot deal with Table row data type %d in %s",
+                     routine, desc->type[i], in->name);
     }; /* end switch by type */
 
     /* Set field in output dict */
-    ctemp =  g_strdup(desc->FieldName[i]);
+    ctemp = g_strdup(desc->FieldName[i]);
     TableDeeBlank(ctemp);
     PyDict_SetItemString(outDict, ctemp, list);
     Py_DECREF(list);
@@ -507,8 +507,7 @@ extern  PyObject *TableReadRow (ObitTable *in, long rowno, ObitErr *err) {
   return outDict;	
 } // end TableReadRow
 
-extern long TableWriteRow (ObitTable *in, long rowno, PyObject *inDict,
-                          ObitErr *err) {
+extern long TableWriteRow (ObitTable *in, long rowno, PyObject *inDict, ObitErr *err) {
   ObitIOCode ret = OBIT_IO_SpecErr;
   ObitTableDesc *desc = in->myDesc;
   olong i, j, lrowno = rowno;
@@ -516,10 +515,11 @@ extern long TableWriteRow (ObitTable *in, long rowno, PyObject *inDict,
   ObitTableRow* row = newObitTableRow (in);
   PyObject *list = NULL, *TabName=NULL;
   gshort   *idata;
-  olong     *jdata;
+  olong    *jdata;
   oint     *kdata;
   olong    *ldata, ltemp;
-  gchar    *cdata, *ctemp, *tstr=NULL;
+  gchar    *cdata, *ctemp;
+  const gchar *tstr = NULL;
   gboolean *bdata, bad;
   ofloat   *fdata;
   odouble  *ddata;
@@ -528,8 +528,8 @@ extern long TableWriteRow (ObitTable *in, long rowno, PyObject *inDict,
   if (err->error) return 1;
 
   if (!PyDict_Check(inDict)) {
-	PyErr_SetString(PyExc_TypeError,"Input not a Dict");
-        return 1;
+    PyErr_SetString(PyExc_TypeError,"Input not a Dict");
+    return 1;
   }
 
   /* Check that correct table type */
@@ -561,7 +561,7 @@ extern long TableWriteRow (ObitTable *in, long rowno, PyObject *inDict,
   /* Loop over fields */
   for (i=0; i<in->myDesc->nfield; i++) {
     bad = FALSE;  /* Check for field size */
-    ctemp =  g_strdup(desc->FieldName[i]);
+    ctemp = g_strdup(desc->FieldName[i]);
     TableDeeBlank(ctemp);
     list = PyDict_GetItemString(inDict, ctemp);
     if (list==NULL) {
@@ -632,10 +632,11 @@ extern long TableWriteRow (ObitTable *in, long rowno, PyObject *inDict,
       cdata = ((gchar*)row->myRowData)+desc->offset[i];
       /* null terminate string */
       for (j=0; j<desc->repeat[i]/MAX (1,MAX(desc->dim[i][0],desc->dim[i][1])); j++) {
-        ctemp = PyUnicode_AsUTF8(PyList_GetItem(list, j));
-	size = (long)strlen(ctemp);
-        for (k=0; k<size; k++) cdata[k] = ctemp[k];
-	cdata += desc->dim[i][0];
+        tstr = PyUnicode_AsUTF8(PyList_GetItem(list, j));
+        size = (long)strlen(tstr);
+        for (k=0; k<size; k++)
+          cdata[k] = tstr[k];
+        cdata += desc->dim[i][0];
       }
       break;
     case OBIT_bool:
@@ -653,7 +654,7 @@ extern long TableWriteRow (ObitTable *in, long rowno, PyObject *inDict,
       j1 = 0; j2 = 0;
       for (j=0; j<desc->repeat[i]; j++) {
         size = (long)sizeof(oint);
-	if (j2>=size) {  /* next integer worth? */
+        if (j2>=size) {  /* next integer worth? */
           j1++;
           j2 = 0;
         }
@@ -663,17 +664,17 @@ extern long TableWriteRow (ObitTable *in, long rowno, PyObject *inDict,
       break;
     default:
       /* Cannot deal with type */
-      Obit_log_error(err, OBIT_Error, 
-		   "%s: Cannot deal with Table row data type %d in %s", 
-		   routine, desc->type[i], in->name);
+      Obit_log_error(err, OBIT_Error,
+                     "%s: Cannot deal with Table row data type %d in %s",
+                     routine, desc->type[i], in->name);
       return 1;
   }; /* end switch by type */
 
   /* Check if sizes compatible */
   if (bad) {
-      Obit_log_error(err, OBIT_Error, 
-		   "%s: wrong size %d %d for %s", 
-		   routine, desc->repeat[i], (olong)PyList_Size(list), desc->FieldName[i]);
+      Obit_log_error(err, OBIT_Error,
+                     "%s: wrong size %d %d for %s",
+                     routine, desc->repeat[i], (olong)PyList_Size(list), desc->FieldName[i]);
       return 1;
   }
 
@@ -737,4 +738,3 @@ extern long TableUtilSort (ObitTable* in, char *colName, long desc, ObitErr *err
 }
 
 %}
-

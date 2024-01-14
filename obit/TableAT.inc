@@ -71,7 +71,7 @@ extern PyObject* TableATGetHeadKeys (ObitTable *inTab) {
 
 extern void TableATSetHeadKeys (ObitTable *inTab, PyObject *inDict) {
   ObitTableAT *lTab = (ObitTableAT*)inTab;
-  char *tstr;
+  const char *tstr;
   int lstr=MAXKEYCHARTABLEAT;
 
   lTab->revision = (oint)PyLong_AsLong(PyDict_GetItemString(inDict, "revision"));

@@ -249,12 +249,12 @@ extern PyObject *ImageDescGetDict(ObitImageDesc* in) {
 
 extern void ImageDescSetDict(ObitImageDesc* in, PyObject *inDict) {
   PyObject *list1, *list2, *list3, *list4, *list5, *list6;
-  char *tstr;
+  const char *tstr;
   int i, number;
 
   if (!PyDict_Check(inDict)) {
-	PyErr_SetString(PyExc_TypeError,"Input not a Dict");
-        return;
+    PyErr_SetString(PyExc_TypeError,"Input not a Dict");
+    return;
   }
 
   tstr = PyUnicode_AsUTF8(PyDict_GetItemString(inDict, "object"));

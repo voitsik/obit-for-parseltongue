@@ -34,29 +34,24 @@
  
 %inline %{
  
-extern ObitTable* TableAN (ObitData *inData, long *tabVer,
- 	                   long access,
- 	                   char *tabName,
-                           int numIF, int numOrb, int numPCal,
-                           ObitErr *err)
- {
-   ObitIOAccess laccess;
-   /* Cast structural keywords to correct type */
-   oint lnumIF = (oint)numIF;
-   oint lnumOrb = (oint)numOrb;
-   oint lnumPCal = (oint)numPCal;
-   olong ltabVer = (olong)*tabVer;
-   ObitTable *outTable=NULL;
-   laccess = OBIT_IO_ReadOnly;
-   if (access==2) laccess = OBIT_IO_WriteOnly;
-   else if (access==3) laccess = OBIT_IO_ReadWrite;
-   outTable = (ObitTable*)newObitTableANValue ((gchar*)tabName, inData, (olong*)&ltabVer,
-   			   laccess, 
-                           lnumIF, lnumOrb, lnumPCal,
-                           err);
-   *tabVer = (long)ltabVer;
-   return outTable;
-   }
+extern ObitTable* TableAN (ObitData *inData, long *tabVer, long access, char *tabName,
+                           int numIF, int numOrb, int numPCal, ObitErr *err)
+{
+  ObitIOAccess laccess;
+  /* Cast structural keywords to correct type */
+  oint lnumIF = (oint)numIF;
+  oint lnumOrb = (oint)numOrb;
+  oint lnumPCal = (oint)numPCal;
+  olong ltabVer = (olong)*tabVer;
+  ObitTable *outTable=NULL;
+  laccess = OBIT_IO_ReadOnly;
+  if (access==2) laccess = OBIT_IO_WriteOnly;
+  else if (access==3) laccess = OBIT_IO_ReadWrite;
+  outTable = (ObitTable*)newObitTableANValue ((gchar*)tabName, inData, (olong*)&ltabVer,
+                                              laccess, lnumIF, lnumOrb, lnumPCal, err);
+  *tabVer = (long)ltabVer;
+  return outTable;
+}
  
 extern PyObject* TableANGetHeadKeys (ObitTable *inTab) {
   PyObject *outDict=PyDict_New();
@@ -98,7 +93,7 @@ extern PyObject* TableANGetHeadKeys (ObitTable *inTab) {
 
 extern void TableANSetHeadKeys (ObitTable *inTab, PyObject *inDict) {
   ObitTableAN *lTab = (ObitTableAN*)inTab;
-  char *tstr;
+  const char *tstr;
   int lstr=MAXKEYCHARTABLEAN;
 
   lTab->revision = (oint)PyLong_AsLong(PyDict_GetItemString(inDict, "revision"));
