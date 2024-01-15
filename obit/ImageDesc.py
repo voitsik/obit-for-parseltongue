@@ -43,13 +43,9 @@ Member List (readonly)
 # -----------------------------------------------------------------------
 
 # Python shadow class to ObitImageDesc class
-from __future__ import absolute_import, print_function
-
 import math
 
 from . import InfoList, Obit, OErr, _Obit
-
-# from six.moves import range
 
 
 class ImageDesc(Obit.ImageDesc):

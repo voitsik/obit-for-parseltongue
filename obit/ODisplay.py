@@ -32,7 +32,6 @@ ONLY ONE MAY EXIST
 # -----------------------------------------------------------------------
 
 # Python shadow class to ObitDisplay class
-from __future__ import absolute_import, print_function
 
 from . import Obit, OWindow, _Obit
 
@@ -46,7 +45,7 @@ class ODisplay(Obit.ODisplay):
     """
 
     def __init__(self, name, serverURL, err):
-        super(ODisplay, self).__init__()
+        super().__init__()
         Obit.CreateODisplay(self.this, name, serverURL, err.me)
         self.serverURL = serverURL
 
@@ -57,7 +56,7 @@ class ODisplay(Obit.ODisplay):
     def __setattr__(self, name, value):
         if name == "me":
             # Out with the old
-            if self.this != None:
+            if self.this is not None:
                 Obit.ODisplayUnref(Obit.ODisplay_Get_me(self.this))
             # In with the new
             Obit.ODisplay_Set_me(self.this, value)
@@ -85,7 +84,7 @@ class ODisplay(Obit.ODisplay):
 
         * self      = Display object
         """
-        from six.moves.xmlrpc_client import ServerProxy
+        from xmlrpc.client import ServerProxy
 
         url = self.serverURL
         if url == "ObitView":
@@ -93,7 +92,7 @@ class ODisplay(Obit.ODisplay):
         server = ServerProxy(url)
         try:
             answer = server.ping(42)
-        except:
+        except Exception:
             answer = False
             pass
         else:

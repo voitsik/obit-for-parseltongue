@@ -28,15 +28,11 @@
 # -----------------------------------------------------------------------
 
 # Python interface to FITS directory utilities
-from __future__ import absolute_import
-
 import os
 import pydoc
 import string
 
 from . import Obit, OErr
-
-# from six.moves import range
 
 global FITSdisks, nFITS
 FITSdisks = []

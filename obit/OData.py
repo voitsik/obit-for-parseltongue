@@ -45,8 +45,6 @@ List   used to pass instructions to processing
 
 # Python shadow class to ObitOData class
 
-# import string
-
 from . import History, InfoList, Obit, OErr, Table, _Obit
 
 # class name in C
@@ -125,7 +123,7 @@ class OData(Obit.OData):
                 else:
                     recast = self
                 return recast
-        except:
+        except Exception:
             pass
         # Try Image
         try:
@@ -136,7 +134,7 @@ class OData(Obit.OData):
                 else:
                     recast = self
                 return recast
-        except:
+        except Exception:
             pass
         # Try ImageMF
         try:
@@ -158,7 +156,7 @@ class OData(Obit.OData):
             if Obit.ODataIsA(self.me) != 0:
                 recast = self
                 return recast
-        except:
+        except Exception:
             pass
         # If it gets here bail
         raise TypeError("Unknown type to cast")

@@ -144,13 +144,12 @@ Data selection, calibration and editing parameters on List member:
 
 # Python shadow class to ObitUV class
 
-# import string
-
 from . import (
     AIPSDir,
     FITSDir,
     InfoList,
     Obit,
+    OData,
     OErr,
     OSystem,
     Table,
@@ -159,12 +158,6 @@ from . import (
     UVVis,
     _Obit,
 )
-
-from . import OData
-
-# from six.moves import range
-
-# import AIPSData
 
 # class name in C
 myClass = "ObitUV"
@@ -665,12 +658,11 @@ def newPACNO(disk, cno, exists, err, verbose=True, nvis=1000):
     # print "disk, aseq", disk, seq
     # Does it really previously exist?
     test = AIPSDir.PInfo(disk, user, cno, err)
-    out.exist = test != None
+    out.exist = test is not None
 
     if exists:
         Obit.UVSetAIPS(out.me, nvis, disk, cno, user, err.me)
         Obit.UVfullInstantiate(out.me, 1, err.me)
-
     else:
         Obit.UVSetAIPS(out.me, nvis, disk, cno, user, err.me)
 
@@ -1466,12 +1458,12 @@ def PUtilIndex(inUV, err, maxScan=None, maxGap=None):
         raise TypeError("err MUST be an OErr")
     #
     # Max scan time specified?
-    if maxScan != None:
+    if maxScan is not None:
         inInfo = PGetList(inUV)  #
         dim = [1, 1, 1, 1, 1]
         InfoList.PAlwaysPutFloat(inInfo, "maxScan", dim, [maxScan])
     # Max scan gap specified?
-    if maxGap != None:
+    if maxGap is not None:
         inInfo = PGetList(inUV)  #
         dim = [1, 1, 1, 1, 1]
         InfoList.PAlwaysPutFloat(inInfo, "maxGap", dim, [maxGap])

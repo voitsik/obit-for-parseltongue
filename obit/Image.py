@@ -72,9 +72,6 @@ from . import (
     _Obit,
 )
 
-# from six.moves import range
-
-# import AIPSData
 
 # Python shadow class to ObitImage class
 
@@ -854,7 +851,7 @@ def newPACNO(disk, cno, exists, err, verbose=True):
     # print "disk, aseq", disk, seq
     # Does it really previously exist?
     test = AIPSDir.PInfo(disk, user, cno, err)
-    out.exist = test != None
+    out.exist = test is not None
 
     if exists:
         Obit.ImageSetAIPS(out.me, 2, disk, cno, user, blc, trc, err.me)
@@ -1206,7 +1203,7 @@ def PCopyQuantizeFITS(inImage, outImage, err, fract=0.25, quant=None, inHistory=
     # OErr.printErrMsg(err, "Error opening output")
 
     # Copy history if requested
-    if inHistory != None:
+    if inHistory is not None:
         outHistory = History.History("Output history", outImage.List, err)
         History.PCopy2Header(inHistory, outHistory, err)
         OErr.printErrMsg(err, "Error with history")
@@ -1592,7 +1589,7 @@ def PGetPlane(inImage, array, plane, err):
     # Checks
     if not inCast.ImageIsA():
         raise TypeError("inImage MUST be a Python Obit Image")
-    if not ((array == None) or FArray.PIsA(array)):
+    if not ((array is None) or FArray.PIsA(array)):
         raise TypeError("array MUST be a Python Obit FArray or None")
     if len(plane) != 5:
         raise TypeError("plane must have 5 integer elements")
@@ -1603,7 +1600,7 @@ def PGetPlane(inImage, array, plane, err):
     for p in plane:
         lplane.append(int(p))
     #
-    if array == None:
+    if array is None:
         tarray = inCast.FArray  # use image objects FArray
         larray = tarray.me
     else:
@@ -1633,7 +1630,7 @@ def PPutPlane(inImage, array, plane, err):
     # Checks
     if not inCast.ImageIsA():
         raise TypeError("inImage MUST be a Python Obit Image")
-    if not ((array == None) or FArray.PIsA(array)):
+    if not ((array is None) or FArray.PIsA(array)):
         raise TypeError("array MUST be a Python Obit FArray or None")
     if len(plane) != 5:
         raise TypeError("plane must have 5 integer elements")
@@ -1644,7 +1641,7 @@ def PPutPlane(inImage, array, plane, err):
     lplane = []
     for p in plane:
         lplane.append(int(p))
-    if array == None:
+    if array is None:
         tarray = inCast.FArray  # use image objects FArray
         larray = tarray.me
     else:
@@ -1727,7 +1724,7 @@ def PUpdateDesc(inImage, err, Desc=None):
         raise TypeError("inImage MUST be a Python Obit Image")
     #
     # if Desc=None make copy of current contents
-    if Desc == None:
+    if Desc is None:
         d = inImage.Desc.Dict
         dd = inImage.Desc.List.Dict
     else:
@@ -1892,7 +1889,7 @@ def PFArray2FITS(inArray, outFile, err, outDisk=1, oDesc=None):
     naxis = [naxis[0], naxis[1], 1, 1, 1, 1, 1]
     #
     # Set size on image descriptor
-    if oDesc != None:
+    if oDesc is not None:
         desc = oDesc
         descDict = desc.Dict  # Input Python dict object
     else:
@@ -2202,7 +2199,7 @@ def PIsA(inImage):
     inCast = inImage.cast("ObitImage")
     try:
         return inCast.ImageIsA() != 0
-    except:
+    except Exception:
         return False
     # end PIsA
 

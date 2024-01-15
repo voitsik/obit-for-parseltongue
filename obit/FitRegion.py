@@ -45,11 +45,8 @@ models    Array of FitModels
 # -----------------------------------------------------------------------
 
 # Obit FitRegion
-from __future__ import absolute_import, print_function
 
 from . import FInterpolate, FitModel, Image, Obit, ODisplay, OErr, OWindow, _Obit
-
-# from six.moves import range
 
 # Python shadow class to ObitFitRegion class
 
@@ -79,7 +76,7 @@ class FitRegion(Obit.FitRegion):
         fluxResid=0.0,
         models=[],
     ):
-        super(FitRegion, self).__init__()
+        super().__init__()
         Obit.CreateFitRegion(
             self.this, name, corner, dim, peak, peakResid, RMSResid, fluxResid
         )
@@ -95,7 +92,7 @@ class FitRegion(Obit.FitRegion):
     def __setattr__(self, name, value):
         if name == "me":
             # Out with the old
-            if self.this != None:
+            if self.this is not None:
                 Obit.FitRegionUnref(Obit.FitRegion_Get_me(self.this))
             # In with the new
             Obit.FitRegion_Set_me(self.this, value)

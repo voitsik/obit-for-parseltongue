@@ -27,16 +27,12 @@
 #                         Charlottesville, VA 22903-2475 USA
 # -----------------------------------------------------------------------
 
-from __future__ import absolute_import, print_function
-
 import os
 import pydoc
 import re
 
 # Python interface to AIPS directory utilities
 from . import UV, Image, Obit, OErr, OSystem
-
-# from six.moves import range
 
 
 def ehex(n, width=0, padding=None):
