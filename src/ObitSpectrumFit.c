@@ -1,6 +1,6 @@
 /* $Id$      */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2008-2022                                          */
+/*;  Copyright (C) 2008-2023                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;                                                                   */
 /*;  This program is free software; you can redistribute it and/or    */
@@ -2131,7 +2131,7 @@ static void NLFit (NLFitArg *arg)
 	gsl_multifit_fdfsolver_jac(solver, J);
 #else
 	J = solver->J;
-#endif
+#endif /* HAVE_GSL2 */ 
 	gsl_multifit_covar (J, 0.0, covar);
 	/* Cleanup */
 #if HAVE_GSL2==1
@@ -2282,7 +2282,7 @@ static void NLFitBP (NLFitArg *arg)
 	gsl_multifit_fdfsolver_jac(solver, J);
 #else
 	J = solver->J;
-#endif
+#endif /* HAVE_GSL2 */ 
     gsl_multifit_covar (J, 0.0, covar);
 #if HAVE_GSL2==1
 	if (J) gsl_matrix_free (J);

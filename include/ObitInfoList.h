@@ -89,7 +89,7 @@ ObitInfoList *newObitInfoList(void);
 ObitInfoList *freeObitInfoList(ObitInfoList *in);
 
 /** Public: Copy constructor. */
-ObitInfoList *ObitInfoListCopy(ObitInfoList *in);
+ObitInfoList *ObitInfoListCopy(const ObitInfoList *in);
 
 /** Public: Reference object pointer. */
 ObitInfoList *ObitInfoListRef(ObitInfoList *in);
@@ -98,62 +98,62 @@ ObitInfoList *ObitInfoListRef(ObitInfoList *in);
 ObitInfoList *ObitInfoListUnref(ObitInfoList *in);
 
 /** Public: Copy entries from one list to another. */
-ObitInfoList *ObitInfoListCopyData(ObitInfoList *in, ObitInfoList *out);
+ObitInfoList *ObitInfoListCopyData(const ObitInfoList *in, ObitInfoList *out);
 
 /** Public: Copy entries from one list to another controlled by a list. */
-void ObitInfoListCopyList(ObitInfoList *in, ObitInfoList *out, gchar **list);
+void ObitInfoListCopyList(const ObitInfoList *in, ObitInfoList *out, const gchar **list);
 
 /** Public: Copy entries from one list to another controlled by a list with rename. */
-void ObitInfoListCopyListRename(ObitInfoList *in, ObitInfoList *out,
-                                gchar **inList, gchar **outList);
+void ObitInfoListCopyListRename(const ObitInfoList *in, ObitInfoList *out,
+                                const gchar **inList, const gchar **outList);
 
 /** Public: Copy entries from one list to another adding a prefix. */
-void ObitInfoListCopyAddPrefix(ObitInfoList *in, ObitInfoList *out,
+void ObitInfoListCopyAddPrefix(const ObitInfoList *in, ObitInfoList *out,
                                const gchar *prefix);
 
 /** Public: Copy entries with a given prefix from one list to another. */
-void ObitInfoListCopyWithPrefix(ObitInfoList *in, ObitInfoList *out,
+void ObitInfoListCopyWithPrefix(const ObitInfoList *in, ObitInfoList *out,
                                 const gchar *prefix, gboolean strip);
 
 /** Public: Store item to InfoList. */
 void ObitInfoListPut(ObitInfoList *in,
-                     const gchar *name, ObitInfoType type, gint32 *dim,
-                     gconstpointer data, ObitErr *err);
+                     const gchar *name, ObitInfoType type, const gint32 *dim,
+                     const gconstpointer data, ObitErr *err);
 
 /** Public: Store item to InfoList, redefine item if necessary */
 void ObitInfoListAlwaysPut(ObitInfoList *in,
-                           const gchar *name, ObitInfoType type, gint32 *dim,
+                           const gchar *name, ObitInfoType type, const gint32 *dim,
                            gconstpointer data);
 
 /** Public: Get info about item from InfoList by name. */
-gboolean ObitInfoListInfo(ObitInfoList *in,
+gboolean ObitInfoListInfo(const ObitInfoList *in,
                           const gchar *name, ObitInfoType *type, gint32 *dim,
                           ObitErr *err);
 
 /** Public: Retrieve item from InfoList by name. */
-gboolean ObitInfoListGet(ObitInfoList *in,
+gboolean ObitInfoListGet(const ObitInfoList *in,
                          const gchar *name, ObitInfoType *type, gint32 *dim,
                          gpointer data, ObitErr *err);
 
 /** Public: Return pointers to an item in InfoList by name. */
-gboolean ObitInfoListGetP(ObitInfoList *in,
+gboolean ObitInfoListGetP(const ObitInfoList *in,
                           const gchar *name, ObitInfoType *type, gint32 *dim,
                           gpointer *data);
 
 /** Public: Test retrieve of an item from InfoList. */
-gboolean ObitInfoListGetTest(ObitInfoList *in,
+gboolean ObitInfoListGetTest(const ObitInfoList *in,
                              const gchar *name, ObitInfoType *type, gint32 *dim,
                              gpointer data);
 
 /** Public: Retrieve item from InfoList by number. */
 gboolean
-ObitInfoListGetNumber(ObitInfoList *in, olong number,
+ObitInfoListGetNumber(const ObitInfoList *in, olong number,
                       gchar **name, ObitInfoType *type, gint32 *dim,
                       gpointer data, ObitErr *err);
 
 /** Public: Return pointers to an item in InfoList by number. */
 gboolean
-ObitInfoListGetNumberP(ObitInfoList *in, olong number,
+ObitInfoListGetNumberP(const ObitInfoList *in, olong number,
                        gchar **name, ObitInfoType *type, gint32 *dim,
                        gpointer *data);
 
@@ -165,9 +165,9 @@ void ObitInfoListResize(ObitInfoList *in,
                         const gchar *name, ObitInfoType type, gint32 *dim);
 
 /** Public: Print contents to file (e.g. stdout) */
-void ObitInfoListPrint(ObitInfoList *in, FILE *file);
+void ObitInfoListPrint(const ObitInfoList *in, FILE *file);
 
 /** Public: Returns true if input is a  ObitInfoList* */
-gboolean ObitInfoListIsA(ObitInfoList *in);
+gboolean ObitInfoListIsA(const ObitInfoList *in);
 
 #endif /* OBITINFOLIST_H */

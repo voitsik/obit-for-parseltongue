@@ -43,7 +43,7 @@ typedef struct {
     /**  Pointer */
     gpointer mem;
     /** size in bytes */
-    gulong size;
+    gsize size;
     /** name (20 char) */
     gchar name[21];
 }  memTableElem;
@@ -61,7 +61,7 @@ typedef struct  {
     /** glib singly linked list for registered allocated memory */
     GHashTable *memTable;
     /** How many entries */
-    gulong number;
+    gsize number;
 } ObitMemClassInfo;
 
 /**
@@ -92,7 +92,7 @@ static ObitMemValidStruc myValidTest = {FALSE, NULL};
 
 /*---------------Private function prototypes----------------*/
 /** Private: Create a memTableElem. */
-static memTableElem *newmemTableElem(gpointer mem, gulong size, gchar *name);
+static memTableElem *newmemTableElem(gpointer mem, gsize size, const gchar *name);
 
 /** Private: Delete a memTableElem. */
 static void freememTableElem(memTableElem *in);
@@ -124,7 +124,7 @@ static void  memTableSum(gpointer key, gpointer inn, gpointer dcount);
  * \param size Number of bytes requested
  * \return pointer to allocated memory, NULL on failure
  */
-gpointer ObitMemAlloc(gulong size)
+gpointer ObitMemAlloc(gsize size)
 {
 #ifdef FASTOBITMEM /* Fast allocation */
     return g_malloc(size);
@@ -165,7 +165,7 @@ gpointer ObitMemAlloc(gulong size)
  * \param size Number of bytes requested
  * \return pointer to allocated memory, NULL on failure
  */
-gpointer ObitMemAlloc0(gulong size)
+gpointer ObitMemAlloc0(gsize size)
 {
 #ifdef FASTOBITMEM /* Fast allocation */
     return g_malloc0(size);
@@ -206,7 +206,7 @@ gpointer ObitMemAlloc0(gulong size)
  * \param name Name for entry, up to 20 char.  Useful for debugging.
  * \return pointer to allocated memory, NULL on failure
  */
-gpointer ObitMemAllocName(gulong size, gchar *name)
+gpointer ObitMemAllocName(gsize size, const gchar *name)
 {
 #ifdef FASTOBITMEM /* Fast allocation */
     return g_malloc(size);
@@ -247,7 +247,7 @@ gpointer ObitMemAllocName(gulong size, gchar *name)
  * \param name Name for entry, up to 20 char.  Useful for debugging.
  * \return pointer to allocated memory, NULL on failure
  */
-gpointer ObitMemAlloc0Name(gulong size, gchar *name)
+gpointer ObitMemAlloc0Name(gsize size, const gchar *name)
 {
 #ifdef FASTOBITMEM /* Fast allocation */
     return g_malloc0(size);
@@ -293,7 +293,7 @@ gpointer ObitMemAlloc0Name(gulong size, gchar *name)
  * \param size Number of bytes requested
  * \return pointer to allocated memory, NULL on failure
  */
-gpointer ObitMemRealloc(gpointer mem, gulong size)
+gpointer ObitMemRealloc(gpointer mem, gsize size)
 {
 #ifdef FASTOBITMEM /* Fast allocation */
     return g_realloc(mem, size);
@@ -512,7 +512,7 @@ void ObitMemClassInit(void)
  * \param name Name for entry, up to 20 char.  NULL = none.
  * \return the new  object.
  */
-static memTableElem *newmemTableElem(gpointer mem, gulong size, gchar *name)
+static memTableElem *newmemTableElem(gpointer mem, gsize size, const gchar *name)
 {
     memTableElem *out = NULL;
 

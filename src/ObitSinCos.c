@@ -1,6 +1,6 @@
 /* $Id$ */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2009-2020                                          */
+/*;  Copyright (C) 2009-2023                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;                                                                   */
 /*;  This program is free software; you can redistribute it and/or    */
@@ -112,10 +112,10 @@ void ObitSinCosVec(olong n, ofloat *angle, ofloat *sin, ofloat *cos)
 {
   olong i, ndo, nleft;
   /** SSE/AVX/AVX512 implementation */
-#if   HAVE_AVX512==1
+#if HAVE_AVX512==1
   CV16SF vvanglet, vvss, vvcc;
 #endif
-#if   HAVE_AVX==1
+#if HAVE_AVX==1
   CV8SF vanglet, vss, vcc;
 #elif HAVE_SSE==1
   CV4SF vanglet, vss, vcc;

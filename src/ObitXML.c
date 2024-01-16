@@ -1,6 +1,6 @@
 /* $Id$        */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2005-2009                                          */
+/*;  Copyright (C) 2005-2023                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;                                                                   */
 /*;  This program is free software; you can redistribute it and/or    */
@@ -361,7 +361,7 @@ ObitXMLXML2InfoList (ObitXML *xml, ObitErr *err)
   xmlrpc_bool xmlBool;
   xmlrpc_type xmlType, xmlTypeA=0;
   const char* xmlChar, **xmlCArray=NULL;
-  gsize size, maxchar = 0;
+  olong size, maxchar = 0;
   gint32 dim[MAXINFOELEMDIM];
   gpointer data=NULL;
   xmlrpc_value *v=NULL, *k=NULL, *e=NULL;
@@ -436,7 +436,7 @@ ObitXMLXML2InfoList (ObitXML *xml, ObitErr *err)
       XMLRPC_FAIL_IF_FAULT(&xml->envP);
       data = g_strdup (xmlChar);
       dim[0] = strlen (xmlChar);
-      free ((void *)xmlChar); xmlChar = NULL;
+      /*free (xmlChar); xmlChar = NULL; this is a const variable */
       break;
 
    case XMLRPC_TYPE_ARRAY:
@@ -482,7 +482,7 @@ ObitXMLXML2InfoList (ObitXML *xml, ObitErr *err)
 	 XMLRPC_FAIL_IF_FAULT(&xml->envP);
 	 maxchar = MAX (maxchar, strlen (xmlChar));
 	 xmlCArray[j] = g_strdup(xmlChar);
-	 free ((void *)xmlChar); xmlChar = NULL;
+	 /*free (xmlChar); xmlChar = NULL; this is a const variable */
 	 break;
        default:
 	 g_assert_not_reached(); /* unknown, barf */
@@ -1263,7 +1263,6 @@ ObitInfoList*
 ObitXMLGetServerResult (ObitXML *xml,  ObitErr *err)
 {
   ObitInfoList  *out=NULL;
-  xmlrpc_type xmlType;
   gchar *routine = "ObitXMLGetServerResult";
 
   /* error checks */
@@ -1271,7 +1270,7 @@ ObitXMLGetServerResult (ObitXML *xml,  ObitErr *err)
   g_assert (ObitXMLIsA(xml));
   
     /* Be sure xml->parmP a struct */
-  xmlType = xmlrpc_value_type (xml->parmP);
+  /*xmlType = xmlrpc_value_type (xml->parmP);*/
   Obit_retval_if_fail(((xml->type == OBIT_XML_InfoList) || 
 		       (xml->type == OBIT_XML_Reply)), err, out,
 		      "%s: xml wrong type %d != %d", 
@@ -1781,7 +1780,7 @@ static void decodeInfoList (ObitXMLEnv *envP, ObitXMLValue *parmP,
 	  strncpy ((char*)data, xmlChar, num);
 	  XMLRPC_FAIL_IF_FAULT(envP);
 	  xmlrpc_DECREF(e);
-	  free ((void *)xmlChar); xmlChar = NULL;
+	  /* free (xmlChar); xmlChar = NULL;  this is a const variable */
 	  break;
 	case OBIT_bool:
 	  data = g_malloc (num*sizeof(gboolean));
@@ -1826,3 +1825,5 @@ static void decodeInfoList (ObitXMLEnv *envP, ObitXMLValue *parmP,
   }
   
 } /*  end decodeInfoList */
+
+

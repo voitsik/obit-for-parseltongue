@@ -1,6 +1,6 @@
 /* $Id$     */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2009-2015                                          */
+/*;  Copyright (C) 2009-2023                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;                                                                   */
 /*;  This program is free software; you can redistribute it and/or    */
@@ -56,17 +56,17 @@ static ObitUVSortBufferClassInfo myClassInfo = {FALSE};
 
 /*---------------Private function prototypes----------------*/
 /** Private: Initialize newly instantiated object. */
-void  ObitUVSortBufferInit(gpointer in);
+void  ObitUVSortBufferInit  (gpointer in);
 
 /** Private: Deallocate members. */
-void  ObitUVSortBufferClear(gpointer in);
+void  ObitUVSortBufferClear (gpointer in);
 
 /** Private: Set Class function pointers. */
-static void ObitUVSortBufferClassInfoDefFn(gpointer inClass);
+static void ObitUVSortBufferClassInfoDefFn (gpointer inClass);
 
 /** Private: Sort comparison function for floats */
-static gint CompareFloat(gconstpointer in1, gconstpointer in2,
-                         gpointer ncomp);
+static gint CompareFloat (gconstpointer in1, gconstpointer in2, 
+			  gpointer ncomp);
 
 /*----------------------Public functions---------------------------*/
 /**
@@ -75,39 +75,39 @@ static gint CompareFloat(gconstpointer in1, gconstpointer in2,
  * \param name An optional name for the object.
  * \return the new object.
  */
-ObitUVSortBuffer *newObitUVSortBuffer(gchar *name)
+ObitUVSortBuffer* newObitUVSortBuffer (gchar* name)
 {
-    ObitUVSortBuffer *out;
+  ObitUVSortBuffer* out;
 
-    /* Class initialization if needed */
-    if (!myClassInfo.initialized) ObitUVSortBufferClassInit();
+  /* Class initialization if needed */
+  if (!myClassInfo.initialized) ObitUVSortBufferClassInit();
 
-    /* allocate/init structure */
-    out = g_malloc0(sizeof(ObitUVSortBuffer));
+  /* allocate/init structure */
+  out = g_malloc0(sizeof(ObitUVSortBuffer));
 
-    /* initialize values */
-    if (name != NULL) out->name = g_strdup(name);
-    else out->name = g_strdup("Noname");
+  /* initialize values */
+  if (name!=NULL) out->name = g_strdup(name);
+  else out->name = g_strdup("Noname");
 
-    /* set ClassInfo */
-    out->ClassInfo = (gpointer)&myClassInfo;
+  /* set ClassInfo */
+  out->ClassInfo = (gpointer)&myClassInfo;
 
-    /* initialize other stuff */
-    ObitUVSortBufferInit((gpointer)out);
+  /* initialize other stuff */
+  ObitUVSortBufferInit((gpointer)out);
 
-    return out;
+ return out;
 } /* end newObitUVSortBuffer */
 
 /**
  * Returns ClassInfo pointer for the class.
  * \return pointer to the class structure.
  */
-gconstpointer ObitUVSortBufferGetClass(void)
+gconstpointer ObitUVSortBufferGetClass (void)
 {
-    /* Class initialization if needed */
-    if (!myClassInfo.initialized) ObitUVSortBufferClassInit();
+  /* Class initialization if needed */
+  if (!myClassInfo.initialized) ObitUVSortBufferClassInit();
 
-    return (gconstpointer)&myClassInfo;
+  return (gconstpointer)&myClassInfo;
 } /* end ObitUVSortBufferGetClass */
 
 /**
@@ -117,51 +117,46 @@ gconstpointer ObitUVSortBufferGetClass(void)
  * \param err Obit error stack object.
  * \return pointer to the new object.
  */
-ObitUVSortBuffer *ObitUVSortBufferCopy(ObitUVSortBuffer *in,
-                                       ObitUVSortBuffer *out, ObitErr *err)
+ObitUVSortBuffer* ObitUVSortBufferCopy  (ObitUVSortBuffer *in, 
+					 ObitUVSortBuffer *out, ObitErr *err)
 {
-    const ObitClassInfo *ParentClass;
-    olong i;
-    gboolean oldExist;
-    gchar *outName;
+  const ObitClassInfo *ParentClass;
+  olong i;
+  gboolean oldExist;
+  gchar *outName;
 
-    /* error checks */
-    g_assert(ObitErrIsA(err));
+  /* error checks */
+  g_assert (ObitErrIsA(err));
+  if (err->error) return out;
+  g_assert (ObitIsA(in, &myClassInfo));
+  if (out) g_assert (ObitIsA(out, &myClassInfo));
 
-    if (err->error) return out;
+  /* Create if it doesn't exist */
+  oldExist = out!=NULL;
+  if (!oldExist) {
+    /* derive object name */
+    outName = g_strconcat ("Copy: ",in->name,NULL);
+    out = newObitUVSortBuffer(outName);
+    g_free(outName);
+  }
 
-    g_assert(ObitIsA(in, &myClassInfo));
+  /* deep copy any base class members */
+  ParentClass = myClassInfo.ParentClass;
+  g_assert ((ParentClass!=NULL) && (ParentClass->ObitCopy!=NULL));
+  ParentClass->ObitCopy (in, out, err);
 
-    if (out) g_assert(ObitIsA(out, &myClassInfo));
+  /*  copy this class */
+  out->myUVdata   = ObitUVRef(in->myUVdata);
+  out->nvis       = in->nvis;
+  out->hiVis      = in->hiVis;
+  out->myBuffer   = g_malloc0((in->nvis+2)*in->myUVdata->myDesc->lrec*sizeof(ofloat));
+  out->SortStruct = g_malloc0((in->nvis+2)*sizeof(ObitUVSortStruct));
+  out->info       = ObitInfoListCopyData(in->info, out->info);
+  /* Copy contents of buffer */
+  for (i=0; i<in->hiVis*in->myUVdata->myDesc->lrec; i++) 
+    out->myBuffer[i] = in->myBuffer[i];
 
-    /* Create if it doesn't exist */
-    oldExist = out != NULL;
-
-    if (!oldExist) {
-        /* derive object name */
-        outName = g_strconcat("Copy: ", in->name, NULL);
-        out = newObitUVSortBuffer(outName);
-        g_free(outName);
-    }
-
-    /* deep copy any base class members */
-    ParentClass = myClassInfo.ParentClass;
-    g_assert((ParentClass != NULL) && (ParentClass->ObitCopy != NULL));
-    ParentClass->ObitCopy(in, out, err);
-
-    /*  copy this class */
-    out->myUVdata   = ObitUVRef(in->myUVdata);
-    out->nvis       = in->nvis;
-    out->hiVis      = in->hiVis;
-    out->myBuffer   = g_malloc0((in->nvis + 2) * in->myUVdata->myDesc->lrec * sizeof(ofloat));
-    out->SortStruct = g_malloc0((in->nvis + 2) * sizeof(ObitUVSortStruct));
-    out->info       = ObitInfoListCopyData(in->info, out->info);
-
-    /* Copy contents of buffer */
-    for (i = 0; i < in->hiVis * in->myUVdata->myDesc->lrec; i++)
-        out->myBuffer[i] = in->myBuffer[i];
-
-    return out;
+  return out;
 } /* end ObitUVSortBufferCopy */
 
 /**
@@ -171,61 +166,59 @@ ObitUVSortBuffer *ObitUVSortBufferCopy(ObitUVSortBuffer *in,
  * \param out An existing object pointer for output, must be defined.
  * \param err Obit error stack object.
  */
-void ObitUVSortBufferClone(ObitUVSortBuffer *in, ObitUVSortBuffer *out,
-                           ObitErr *err)
+void ObitUVSortBufferClone  (ObitUVSortBuffer *in, ObitUVSortBuffer *out, 
+			     ObitErr *err)
 {
-    const ObitClassInfo *ParentClass;
+  const ObitClassInfo *ParentClass;
 
-    /* error checks */
-    g_assert(ObitErrIsA(err));
+  /* error checks */
+  g_assert (ObitErrIsA(err));
+  if (err->error) return;
+  g_assert (ObitIsA(in, &myClassInfo));
+  g_assert (ObitIsA(out, &myClassInfo));
 
-    if (err->error) return;
+  /* deep copy any base class members */
+  ParentClass = myClassInfo.ParentClass;
+  g_assert ((ParentClass!=NULL) && (ParentClass->ObitCopy!=NULL));
+  ParentClass->ObitCopy (in, out, err);
 
-    g_assert(ObitIsA(in, &myClassInfo));
-    g_assert(ObitIsA(out, &myClassInfo));
-
-    /* deep copy any base class members */
-    ParentClass = myClassInfo.ParentClass;
-    g_assert((ParentClass != NULL) && (ParentClass->ObitCopy != NULL));
-    ParentClass->ObitCopy(in, out, err);
-
-    /*  copy this class */
-    out->myUVdata   = ObitUVRef(in->myUVdata);
-    out->nvis       = in->nvis;
-    out->hiVis      = 0;
-    out->myBuffer   = g_malloc0((in->nvis + 2) * in->myUVdata->myDesc->lrec * sizeof(ofloat));
-    out->SortStruct = g_malloc0((in->nvis + 2) * sizeof(ObitUVSortStruct));
-    out->info       = ObitInfoListCopyData(in->info, out->info);
+  /*  copy this class */
+  out->myUVdata   = ObitUVRef(in->myUVdata);
+  out->nvis       = in->nvis;
+  out->hiVis      = 0;
+  out->myBuffer   = g_malloc0((in->nvis+2)*in->myUVdata->myDesc->lrec*sizeof(ofloat));
+  out->SortStruct = g_malloc0((in->nvis+2)*sizeof(ObitUVSortStruct));
+  out->info       = ObitInfoListCopyData(in->info, out->info);
 
 } /* end ObitUVSortBufferClone */
 
 /**
- * Creates an ObitUVSortBuffer
+ * Creates an ObitUVSortBuffer 
  * \param name  An optional name for the object.
  * \param inUV  ObitUV from which the buffer is to be created.
  * \param nvis  Size in visibilities of the buffer
  * \param err   Obit error stack object.
  * \return the new object.
  */
-ObitUVSortBuffer *ObitUVSortBufferCreate(gchar *name, ObitUV *inUV,
-        olong nvis, ObitErr *err)
+ObitUVSortBuffer* ObitUVSortBufferCreate (gchar* name, ObitUV *inUV, 
+					  olong nvis, ObitErr *err)
 {
-    ObitUVSortBuffer *out;
+  ObitUVSortBuffer* out;
 
-    /* Create basic structure */
-    out = newObitUVSortBuffer(name);
+  /* Create basic structure */
+  out = newObitUVSortBuffer (name);
 
-    /* Save values */
-    out->nvis     = nvis;
-    out->myUVdata = ObitUVRef(inUV);
+  /* Save values */
+  out->nvis     = nvis;
+  out->myUVdata = ObitUVRef(inUV);
 
-    /* Create buffer */
-    out->myBuffer   = g_malloc0((nvis + 2) * inUV->myDesc->lrec * sizeof(ofloat));
-    /* Sorting structure */
-    out->SortStruct = g_malloc0((nvis + 2) * sizeof(ObitUVSortStruct));
-    out->hiVis = 0;
+  /* Create buffer */
+  out->myBuffer   = g_malloc0((nvis+2)*inUV->myDesc->lrec*sizeof(ofloat));
+  /* Sorting structure */
+  out->SortStruct = g_malloc0((nvis+2)*sizeof(ObitUVSortStruct));
+  out->hiVis = 0;
 
-    return out;
+  return out;
 } /* end ObitUVSortBufferCreate */
 
 /**
@@ -237,82 +230,76 @@ ObitUVSortBuffer *ObitUVSortBufferCreate(gchar *name, ObitUV *inUV,
  * \param lastTime Highest time (days) to write.
  * \param err      Obit error stack object.
  */
-void ObitUVSortBufferAddVis(ObitUVSortBuffer *in, ofloat *vis,
-                            ofloat lastTime, ObitErr *err)
+void ObitUVSortBufferAddVis (ObitUVSortBuffer *in, ofloat *vis,
+			     ofloat lastTime, ObitErr *err)
 {
-    olong i, lrec, delta, nwrite, nmove, NPIO, bindx, ivis, jvis, ncopy;
-    ObitUVSortStruct *sortKeys = NULL;
-    gchar *routine = "ObitUVSortBufferAddVis";
+  olong i, lrec, delta, nwrite, nmove, NPIO, bindx, ivis, jvis, ncopy;
+  ObitUVSortStruct *sortKeys=NULL;
+  gchar *routine = "ObitUVSortBufferAddVis";
 
-    /* error checks */
-    if (err->error) return;
+  /* error checks */
+  if (err->error) return;
 
-    /* Sanity check */
-    Obit_return_if_fail((in->hiVis < in->nvis), err,
-                        "%s: Sort buffer full", routine);
+  /* Sanity check */
+  Obit_return_if_fail((in->hiVis<in->nvis), err, 
+ 		      "%s: Sort buffer full", routine);
 
-    /* Add to buffer */
-    lrec  = in->myUVdata->myDesc->lrec;
-    ncopy = lrec * sizeof(ofloat);
-    bindx = in->hiVis * lrec;
-    memmove(&in->myBuffer[bindx], vis, ncopy);
-    in->hiVis++;
+  /* Add to buffer */
+  lrec  = in->myUVdata->myDesc->lrec;
+  ncopy = lrec*sizeof(ofloat);
+  bindx = in->hiVis*lrec;
+  memmove(&in->myBuffer[bindx], vis, ncopy);
+  in->hiVis++;
 
-    /* Is it full? */
-    if (in->hiVis < in->nvis) return; /* Nope */
+  /* Is it full? */
+  if (in->hiVis<in->nvis) return;   /* Nope */
 
-    /* Sort */
-    ObitUVSortBufferSort(in, err);
+  /* Sort */
+  ObitUVSortBufferSort(in, err);
 
-    /* How big is I/O buffer? */
-    NPIO = in->myUVdata->bufferSize / lrec;
-
-    /* Write with times up to lastTime */
-    delta = sizeof(ObitUVSortStruct) / sizeof(ofloat);
-    ivis = 0;
-
-    while (ivis < in->hiVis) { /* outer loop */
-        nwrite = 0;
-        bindx  = 0;
-        nmove = MIN(NPIO - 2, in->hiVis - ivis);
-
-        /* Inner loop copying to I/O buffer */
-        for (i = 0; i < nmove; i++) {
-            sortKeys = (ObitUVSortStruct *)&in->SortStruct[ivis * delta];
-
-            if (sortKeys->key[0] > lastTime) break; /* Past lastTime? */
-
-            /* Copy to I/O buffer */
-            jvis = sortKeys->index.itg;
-            memmove(&in->myUVdata->buffer[bindx], &in->myBuffer[jvis * lrec], ncopy);
-            bindx += lrec;
-            nwrite++;
-            ivis++;
-        } /* End loop copying to IO buffer */
-
-        /* Write */
-        in->myUVdata->myDesc->numVisBuff = nwrite;
-        ObitUVWrite(in->myUVdata, in->myUVdata->buffer, err);
-
-        if (err->error) Obit_traceback_msg(err, routine, in->name);
-
-        if (sortKeys->key[0] > lastTime) break; /* Past lastTime? */
-    } /* end outer loop */
-
-    /* Copy rest to start of Sort Buffer */
-    nmove = 0;
+  /* How big is I/O buffer? */
+  NPIO = in->myUVdata->bufferSize/lrec;
+  
+  /* Write with times up to lastTime */
+  delta = sizeof(ObitUVSortStruct)/sizeof(ofloat);
+  ivis = 0;
+  while (ivis<in->hiVis) {  /* outer loop */
+    nwrite = 0;
     bindx  = 0;
+    nmove = MIN(NPIO-2, in->hiVis-ivis);
+    
+    /* Inner loop copying to I/O buffer */
+    for (i=0; i<nmove; i++) {
+      sortKeys = (ObitUVSortStruct*)&in->SortStruct[ivis*delta];
+      if (sortKeys->key[0]>lastTime) break; /* Past lastTime? */
+      /* Copy to I/O buffer */
+      jvis = sortKeys->index.itg;
+      memmove(&in->myUVdata->buffer[bindx], &in->myBuffer[jvis*lrec], ncopy);
+      bindx += lrec;
+      nwrite++;
+      ivis++;
+    } /* End loop copying to IO buffer */
+  
+    /* Write */
+    in->myUVdata->myDesc->numVisBuff = nwrite;
+    ObitUVWrite (in->myUVdata, in->myUVdata->buffer, err);
+    if(err->error) Obit_traceback_msg (err, routine, in->name);
+    
+    if (sortKeys->key[0]>lastTime) break; /* Past lastTime? */
+  } /* end outer loop */
 
-    while (ivis < in->hiVis) { /* outer loop */
-        sortKeys = (ObitUVSortStruct *)&in->SortStruct[ivis * delta];
-        jvis = sortKeys->index.itg;
-        memmove(&in->myBuffer[bindx], &in->myBuffer[jvis * lrec], ncopy);
-        bindx += lrec;
-        nmove ++;
-        ivis++;
-    }
-
-    in->hiVis = nmove;   /* New number in buffer */
+  /* Copy rest to start of Sort Buffer */
+  nmove = 0;
+  bindx  = 0;
+  while (ivis<in->hiVis) {  /* outer loop */
+    sortKeys = (ObitUVSortStruct*)&in->SortStruct[ivis*delta];
+    jvis = sortKeys->index.itg;
+    memmove(&in->myBuffer[bindx], &in->myBuffer[jvis*lrec], ncopy);
+    bindx += lrec;
+    nmove ++;
+    ivis++;
+  }
+  in->hiVis = nmove;   /* New number in buffer */
 } /* end ObitUVSortBufferAddVis */
 
 /**
@@ -320,52 +307,50 @@ void ObitUVSortBufferAddVis(ObitUVSortBuffer *in, ofloat *vis,
  * \param in    The object to flush
  * \param err   Obit error stack object.
  */
-void ObitUVSortBufferFlush(ObitUVSortBuffer *in, ObitErr *err)
+void ObitUVSortBufferFlush (ObitUVSortBuffer *in, ObitErr *err)
 {
-    olong i, ivis, jvis, lrec, delta, nwrite, nmove, NPIO, bindx, ncopy;
-    ObitUVSortStruct *sortKeys;
-    gchar *routine = "ObitUVSortBufferFlush";
+  olong i, ivis, jvis, lrec, delta, nwrite, nmove, NPIO, bindx, ncopy;
+  ObitUVSortStruct *sortKeys;
+  gchar *routine = "ObitUVSortBufferFlush";
 
-    /* error checks */
-    if (err->error) return;
+  /* error checks */
+  if (err->error) return;
 
-    /* Sort */
-    ObitUVSortBufferSort(in, err);
+  /* Sort */
+  ObitUVSortBufferSort(in, err);
 
-    /* How big is I/O buffer? */
-    lrec = in->myUVdata->myDesc->lrec;
-    NPIO = in->myUVdata->bufferSize / lrec;
-    ncopy = lrec * sizeof(ofloat);
+  /* How big is I/O buffer? */
+  lrec = in->myUVdata->myDesc->lrec;
+  NPIO = in->myUVdata->bufferSize/lrec;
+  ncopy = lrec*sizeof(ofloat);
+  
+  /* Loop writing to I/O buffer and writing */
+  delta = sizeof(ObitUVSortStruct)/sizeof(ofloat);
+  ivis = 0;
+  while (ivis<in->hiVis) {  /* outer loop */
+    nwrite = 0;
+    bindx  = 0;
+    nmove = MIN(NPIO-2, in->hiVis-ivis);
+    
+    /* Inner loop copying to I/O buffer */
+    for (i=0; i<nmove; i++) {
+      sortKeys = (ObitUVSortStruct*)&in->SortStruct[ivis*delta];
+      /* Copy to I/O buffer */
+      jvis = sortKeys->index.itg;
+      memmove(&in->myUVdata->buffer[bindx], &in->myBuffer[jvis*lrec], ncopy);
+      bindx += lrec;
+      nwrite ++;
+      ivis++;
 
-    /* Loop writing to I/O buffer and writing */
-    delta = sizeof(ObitUVSortStruct) / sizeof(ofloat);
-    ivis = 0;
+    } /* End loop copying to IO buffer */
+  
+    /* Write */
+    in->myUVdata->myDesc->numVisBuff = nwrite;
+    ObitUVWrite (in->myUVdata, in->myUVdata->buffer, err);
+    if(err->error) Obit_traceback_msg (err, routine, in->name);
+  } /* end outer loop */
 
-    while (ivis < in->hiVis) { /* outer loop */
-        nwrite = 0;
-        bindx  = 0;
-        nmove = MIN(NPIO - 2, in->hiVis - ivis);
-
-        /* Inner loop copying to I/O buffer */
-        for (i = 0; i < nmove; i++) {
-            sortKeys = (ObitUVSortStruct *)&in->SortStruct[ivis * delta];
-            /* Copy to I/O buffer */
-            jvis = sortKeys->index.itg;
-            memmove(&in->myUVdata->buffer[bindx], &in->myBuffer[jvis * lrec], ncopy);
-            bindx += lrec;
-            nwrite ++;
-            ivis++;
-
-        } /* End loop copying to IO buffer */
-
-        /* Write */
-        in->myUVdata->myDesc->numVisBuff = nwrite;
-        ObitUVWrite(in->myUVdata, in->myUVdata->buffer, err);
-
-        if (err->error) Obit_traceback_msg(err, routine, in->name);
-    } /* end outer loop */
-
-    in->hiVis = 0;
+  in->hiVis = 0;
 
 } /* end ObitUVSortBufferFlush */
 
@@ -374,92 +359,89 @@ void ObitUVSortBufferFlush(ObitUVSortBuffer *in, ObitErr *err)
  * \param in  The object to sort
  * \param err Obit error stack object.
  */
-void ObitUVSortBufferSort(ObitUVSortBuffer *in, ObitErr *err)
+void ObitUVSortBufferSort (ObitUVSortBuffer *in, ObitErr *err)
 {
-    olong i, delta, lrec, iloct, ilocb, iloca1, iloca2, number, size, ncomp;
-    ObitUVSortStruct *sortKeys;
+  olong i, delta, lrec, iloct, ilocb, iloca1, iloca2, number, size, ncomp; 
+  ObitUVSortStruct *sortKeys;
 
-    /* error checks */
-    if (err->error) return;
+  /* error checks */
+  if (err->error) return;
+  g_assert (ObitIsA(in, &myClassInfo));
 
-    g_assert(ObitIsA(in, &myClassInfo));
+  /* Set sort keys */
+  delta  = sizeof(ObitUVSortStruct)/sizeof(ofloat);
+  lrec   = in->myUVdata->myDesc->lrec;
+  iloct  = in->myUVdata->myDesc->iloct;
+  ilocb  = in->myUVdata->myDesc->ilocb;
+  iloca1 = in->myUVdata->myDesc->iloca1;
+  iloca2 = in->myUVdata->myDesc->iloca2;
+  for (i=0; i<in->hiVis; i++) {
+    sortKeys = (ObitUVSortStruct*)&in->SortStruct[i*delta];
+    sortKeys->index.itg = i;
+    sortKeys->key[0]    = in->myBuffer[i*lrec+iloct];
+    /* Baseline or antennas */
+    if (ilocb>=0) sortKeys->key[1] = in->myBuffer[i*lrec+ilocb];
+    else sortKeys->key[1] = 
+	   (1000.0*in->myBuffer[i*lrec+iloca1])+in->myBuffer[i*lrec+iloca2];
+  }
 
-    /* Set sort keys */
-    delta  = sizeof(ObitUVSortStruct) / sizeof(ofloat);
-    lrec   = in->myUVdata->myDesc->lrec;
-    iloct  = in->myUVdata->myDesc->iloct;
-    ilocb  = in->myUVdata->myDesc->ilocb;
-    iloca1 = in->myUVdata->myDesc->iloca1;
-    iloca2 = in->myUVdata->myDesc->iloca2;
-
-    for (i = 0; i < in->hiVis; i++) {
-        sortKeys = (ObitUVSortStruct *)&in->SortStruct[i * delta];
-        sortKeys->index.itg = i;
-        sortKeys->key[0]    = in->myBuffer[i * lrec + iloct];
-
-        /* Baseline or antennas */
-        if (ilocb >= 0) sortKeys->key[1] = in->myBuffer[i * lrec + ilocb];
-        else sortKeys->key[1] =
-                (1000.0 * in->myBuffer[i * lrec + iloca1]) + in->myBuffer[i * lrec + iloca2];
-    }
-
-    /* Sort SortStruct */
-    number = in->hiVis;
-    size   = sizeof(ObitUVSortStruct);
-    ncomp  = 2;
-    g_qsort_with_data(in->SortStruct, number, size, CompareFloat, &ncomp);
+  /* Sort SortStruct */
+  number = in->hiVis;
+  size   = sizeof(ObitUVSortStruct);
+  ncomp  = 2;
+  g_qsort_with_data (in->SortStruct, number, size, CompareFloat, &ncomp);
 
 } /* end ObitUVSortBufferSort */
 
 /**
  * Initialize global ClassInfo Structure.
  */
-void ObitUVSortBufferClassInit(void)
+void ObitUVSortBufferClassInit (void)
 {
-    if (myClassInfo.initialized) return;  /* only once */
+  if (myClassInfo.initialized) return;  /* only once */
+  
+  /* Set name and parent for this class */
+  myClassInfo.ClassName   = g_strdup(myClassName);
+  myClassInfo.ParentClass = ObitParentGetClass();
 
-    /* Set name and parent for this class */
-    myClassInfo.ClassName   = g_strdup(myClassName);
-    myClassInfo.ParentClass = ObitParentGetClass();
-
-    /* Set function pointers */
-    ObitUVSortBufferClassInfoDefFn((gpointer)&myClassInfo);
-
-    myClassInfo.initialized = TRUE; /* Now initialized */
-
+  /* Set function pointers */
+  ObitUVSortBufferClassInfoDefFn ((gpointer)&myClassInfo);
+ 
+  myClassInfo.initialized = TRUE; /* Now initialized */
+ 
 } /* end ObitUVSortBufferClassInit */
 
 /**
  * Initialize global ClassInfo Function pointers.
  */
-static void ObitUVSortBufferClassInfoDefFn(gpointer inClass)
+static void ObitUVSortBufferClassInfoDefFn (gpointer inClass)
 {
-    ObitUVSortBufferClassInfo *theClass = (ObitUVSortBufferClassInfo *)inClass;
-    ObitClassInfo *ParentClass = (ObitClassInfo *)myClassInfo.ParentClass;
+  ObitUVSortBufferClassInfo *theClass = (ObitUVSortBufferClassInfo*)inClass;
+  ObitClassInfo *ParentClass = (ObitClassInfo*)myClassInfo.ParentClass;
 
-    if (theClass->initialized) return;  /* only once */
+  if (theClass->initialized) return;  /* only once */
 
-    /* Check type of inClass */
-    g_assert(ObitInfoIsA(inClass, (ObitClassInfo *)&myClassInfo));
+  /* Check type of inClass */
+  g_assert (ObitInfoIsA(inClass, (ObitClassInfo*)&myClassInfo));
 
-    /* Initialize (recursively) parent class first */
-    if ((ParentClass != NULL) &&
-            (ParentClass->ObitClassInfoDefFn != NULL))
-        ParentClass->ObitClassInfoDefFn(theClass);
+  /* Initialize (recursively) parent class first */
+  if ((ParentClass!=NULL) && 
+      (ParentClass->ObitClassInfoDefFn!=NULL))
+    ParentClass->ObitClassInfoDefFn(theClass);
 
-    /* function pointers defined or overloaded this class */
-    theClass->ObitClassInit = (ObitClassInitFP)ObitUVSortBufferClassInit;
-    theClass->newObit       = (newObitFP)newObitUVSortBuffer;
-    theClass->ObitClassInfoDefFn = (ObitClassInfoDefFnFP)ObitUVSortBufferClassInfoDefFn;
-    theClass->ObitGetClass  = (ObitGetClassFP)ObitUVSortBufferGetClass;
-    theClass->ObitCopy      = (ObitCopyFP)ObitUVSortBufferCopy;
-    theClass->ObitClone     = NULL;
-    theClass->ObitClear     = (ObitClearFP)ObitUVSortBufferClear;
-    theClass->ObitInit      = (ObitInitFP)ObitUVSortBufferInit;
-    theClass->ObitUVSortBufferCreate = (ObitUVSortBufferCreateFP)ObitUVSortBufferCreate;
-    theClass->ObitUVSortBufferAddVis = (ObitUVSortBufferAddVisFP)ObitUVSortBufferAddVis;
-    theClass->ObitUVSortBufferSort   = (ObitUVSortBufferSortFP)ObitUVSortBufferSort;
-    theClass->ObitUVSortBufferFlush  = (ObitUVSortBufferFlushFP)ObitUVSortBufferFlush;
+  /* function pointers defined or overloaded this class */
+  theClass->ObitClassInit = (ObitClassInitFP)ObitUVSortBufferClassInit;
+  theClass->newObit       = (newObitFP)newObitUVSortBuffer;
+  theClass->ObitClassInfoDefFn = (ObitClassInfoDefFnFP)ObitUVSortBufferClassInfoDefFn;
+  theClass->ObitGetClass  = (ObitGetClassFP)ObitUVSortBufferGetClass;
+  theClass->ObitCopy      = (ObitCopyFP)ObitUVSortBufferCopy;
+  theClass->ObitClone     = NULL;
+  theClass->ObitClear     = (ObitClearFP)ObitUVSortBufferClear;
+  theClass->ObitInit      = (ObitInitFP)ObitUVSortBufferInit;
+  theClass->ObitUVSortBufferCreate = (ObitUVSortBufferCreateFP)ObitUVSortBufferCreate;
+  theClass->ObitUVSortBufferAddVis = (ObitUVSortBufferAddVisFP)ObitUVSortBufferAddVis;
+  theClass->ObitUVSortBufferSort   = (ObitUVSortBufferSortFP)ObitUVSortBufferSort;
+  theClass->ObitUVSortBufferFlush  = (ObitUVSortBufferFlushFP)ObitUVSortBufferFlush;
 
 
 } /* end ObitUVSortBufferClassDefFn */
@@ -471,26 +453,25 @@ static void ObitUVSortBufferClassInfoDefFn(gpointer inClass)
  * Parent classes portions are (recursively) initialized first
  * \param inn Pointer to the object to initialize.
  */
-void ObitUVSortBufferInit(gpointer inn)
+void ObitUVSortBufferInit  (gpointer inn)
 {
-    ObitClassInfo *ParentClass;
-    ObitUVSortBuffer *in = inn;
+  ObitClassInfo *ParentClass;
+  ObitUVSortBuffer *in = inn;
 
-    /* error checks */
-    g_assert(in != NULL);
+  /* error checks */
+  g_assert (in != NULL);
 
-    /* recursively initialize parent class members */
-    ParentClass = (ObitClassInfo *)(myClassInfo.ParentClass);
+  /* recursively initialize parent class members */
+  ParentClass = (ObitClassInfo*)(myClassInfo.ParentClass);
+  if ((ParentClass!=NULL) && ( ParentClass->ObitInit!=NULL)) 
+    ParentClass->ObitInit (inn);
 
-    if ((ParentClass != NULL) && (ParentClass->ObitInit != NULL))
-        ParentClass->ObitInit(inn);
-
-    /* set members in this class */
-    in->thread     = newObitThread();
-    in->info       = newObitInfoList();
-    in->myUVdata   = NULL;
-    in->myBuffer   = NULL;
-    in->SortStruct = NULL;
+  /* set members in this class */
+  in->thread     = newObitThread();
+  in->info       = newObitInfoList();
+  in->myUVdata   = NULL;
+  in->myBuffer   = NULL;
+  in->SortStruct = NULL;
 
 } /* end ObitUVSortBufferInit */
 
@@ -500,41 +481,27 @@ void ObitUVSortBufferInit(gpointer inn)
  * \param  inn Pointer to the object to deallocate.
  *           Actually it should be an ObitUVSortBuffer* cast to an Obit*.
  */
-void ObitUVSortBufferClear(gpointer inn)
+void ObitUVSortBufferClear (gpointer inn)
 {
-    ObitClassInfo *ParentClass;
-    ObitUVSortBuffer *in = inn;
+  ObitClassInfo *ParentClass;
+  ObitUVSortBuffer *in = inn;
 
-    /* error checks */
-    g_assert(ObitIsA(in, &myClassInfo));
+  /* error checks */
+  g_assert (ObitIsA(in, &myClassInfo));
 
-    /* delete this class members */
-    if (in->info)       {
-        ObitInfoListUnref(in->info);
-        in->info = NULL;
-    }
-
-    if (in->thread)     in->thread   = ObitThreadUnref(in->thread);
-
-    if (in->myUVdata)   in->myUVdata = ObitUVUnref(in->myUVdata);
-
-    if (in->myBuffer)   {
-        g_free(in->myBuffer);
-        in->myBuffer   = NULL;
-    }
-
-    if (in->SortStruct) {
-        g_free(in->SortStruct);
-        in->SortStruct = NULL;
-    }
-
-    /* unlink parent class members */
-    ParentClass = (ObitClassInfo *)(myClassInfo.ParentClass);
-
-    /* delete parent class members */
-    if ((ParentClass != NULL) && (ParentClass->ObitClear != NULL))
-        ParentClass->ObitClear(inn);
-
+  /* delete this class members */
+  if (in->info)       {ObitInfoListUnref (in->info); in->info = NULL;}
+  if (in->thread)     in->thread   = ObitThreadUnref (in->thread);
+  if (in->myUVdata)   in->myUVdata = ObitUVUnref(in->myUVdata);
+  if (in->myBuffer)   {g_free(in->myBuffer);    in->myBuffer   = NULL;}
+  if (in->SortStruct) {g_free(in->SortStruct);  in->SortStruct = NULL;}
+  
+  /* unlink parent class members */
+  ParentClass = (ObitClassInfo*)(myClassInfo.ParentClass);
+  /* delete parent class members */
+  if ((ParentClass!=NULL) && ( ParentClass->ObitClear!=NULL)) 
+    ParentClass->ObitClear (inn);
+  
 } /* end ObitUVSortBufferClear */
 
 /**
@@ -543,35 +510,34 @@ void ObitUVSortBufferClear(gpointer inn)
  * \param in1   First list, preceeded by olong index
  * \param in2   Second list, preceeded by olong index
  * \param ncomp Number of values to compare
- * \return <0 -> in1 < in2; =0 -> in1 == in2; >0 -> in1 > in2;
+ * \return <0 -> in1 < in2; =0 -> in1 == in2; >0 -> in1 > in2; 
  */
-static gint CompareFloat(gconstpointer in1, gconstpointer in2,
-                         gpointer ncomp)
+static gint CompareFloat (gconstpointer in1, gconstpointer in2, 
+			  gpointer ncomp)
 {
-    gint out = 0;
-    olong nc, i;
-    ObitUVSortStruct *float1, *float2;
+  gint out = 0;
+  olong nc, i;
+  ObitUVSortStruct *float1, *float2;
 
-    /* get correctly typed local values */
-    float1 = (ObitUVSortStruct *)in1;
-    float2 = (ObitUVSortStruct *)in2;
-    nc = *(olong *)ncomp;
+  /* get correctly typed local values */
+  float1 = (ObitUVSortStruct*)in1;
+  float2 = (ObitUVSortStruct*)in2;
+  nc = *(olong*)ncomp;
 
-    /* List or single value? */
-    if (nc == 1) {
-        if (float1->key[0] < float2->key[0])      out = -1;
-        else if (float1->key[0] > float2->key[0]) out = 1;
-        else                                    out = 0;
-    } else { /* list */
-        for (i = 0; i < nc; i++) {
-            if (float1->key[i] < float2->key[i])      out = -1;
-            else if (float1->key[i] > float2->key[i]) out = 1;
-            else                                    out = 0;
-
-            if (out) break;   /* stop at first not equal */
-        }
+  /* List or single value? */
+  if (nc==1) {
+    if (float1->key[0]<float2->key[0])      out = -1;
+    else if (float1->key[0]>float2->key[0]) out = 1;
+    else                                    out = 0;
+  } else { /* list */
+    for (i=0; i<nc; i++) {
+      if (float1->key[i]<float2->key[i])      out = -1;
+      else if (float1->key[i]>float2->key[i]) out = 1;
+      else                                    out = 0;
+      if (out) break;   /* stop at first not equal */
     }
+  }
 
-    return out;
+  return out;
 } /* end CompareFloat */
 

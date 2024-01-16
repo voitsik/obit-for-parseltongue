@@ -104,10 +104,12 @@ olong nvis;
 /** length of visibilities in floats */
 olong lenvis;
 /*----------------------------------------------------------*/
-// /* GPU version stuff */
-// /** Use a GPU? */
-// gboolean doGPUGrid;
-// /** which cuda enabled GPU? */
-// olong cuda_device;
-// /** GPU/CUDA gridding info */
-// ObitGPUGrid *gridInfo;
+#if HAVE_GPU==1  /* GPU? */
+/* GPU version stuff */
+/** Use a GPU? */
+gboolean doGPUGrid;
+/** which cuda enabled GPU? */
+olong cuda_device;
+/** GPU/CUDA gridding info */
+ObitGPUGrid *gridInfo;
+#endif /* HAVE_GPU */

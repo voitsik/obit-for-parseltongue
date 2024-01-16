@@ -373,7 +373,7 @@ ObitIOCode ObitTableANSelect (ObitUV *inUV, ObitUV *outUV, ObitErr *err)
   odouble dtemp;
   gboolean wanted, doPol;
   gchar tempName[MAXKEYCHARTABLEAN+4], *ANType = "AIPS AN";
-  gchar *CopyList[] = {"ARRAYX", "ARRAYY", "ARRAYZ", "GSTIA0",
+  const gchar *CopyList[] = {"ARRAYX", "ARRAYY", "ARRAYZ", "GSTIA0",
 		       "DEGPDY", "FREQ",   "RDATE",  "POLARX", "POLARY",
 		       "UT1UTC", "DATUTC", "TIMSYS", "ARRNAM",
 		       "NUMORB", "NOPCAL", "FREQID", "IATUTC", 

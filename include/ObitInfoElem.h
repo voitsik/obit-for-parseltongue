@@ -60,33 +60,33 @@ typedef struct {
 
 /** Constructor  */
 ObitInfoElem *newObitInfoElem(const gchar *label, ObitInfoType type,
-                              gint32 *dim, gconstpointer data);
+                              const gint32 *dim, const gconstpointer data);
 /** Copy Constructor  */
-ObitInfoElem *ObitInfoElemCopy(ObitInfoElem *in);
+ObitInfoElem *ObitInfoElemCopy(const ObitInfoElem *in);
 
 /** Destructor  */
 void freeObitInfoElem(ObitInfoElem *me);
 
 /**  Compare element name with test string. true=match, else no match  */
-gboolean ObitInfoElemTest(ObitInfoElem *me, const char *testname);
+gboolean ObitInfoElemTest(const ObitInfoElem *me, const char *testname);
 
 /**  Compare size and type. TRUE = same  */
-gboolean ObitInfoElemComp(ObitInfoElem *me, ObitInfoType type, gint32 *dim);
+gboolean ObitInfoElemComp(const ObitInfoElem *me, ObitInfoType type, const gint32 *dim);
 
 /**  Update contents of an info element; returns TRUE if successful.  */
 gboolean ObitInfoElemUpdate(ObitInfoElem *me, gint32 type,
-                            gint32 *dim, gconstpointer data, gboolean warn);
+                            const gint32 *dim, const gconstpointer data, gboolean warn);
 
 /** store data */
-void ObitInfoElemSave(ObitInfoElem *me, gconstpointer data);
+void ObitInfoElemSave(ObitInfoElem *me, const gconstpointer data);
 
 /**  Change type, resize data */
-void ObitInfoElemResize(ObitInfoElem *me, ObitInfoType type, gint32 *dim);
+void ObitInfoElemResize(ObitInfoElem *me, ObitInfoType type, const gint32 *dim);
 
 /** determine the size in bytes of an element */
-olong ObitInfoElemSize(ObitInfoType type, gint32 *dim);
+olong ObitInfoElemSize(ObitInfoType type, const gint32 *dim);
 
 /** Print the contents of an object */
-void  ObitInfoElemPrint(ObitInfoElem *me, FILE *file);
+void  ObitInfoElemPrint(const ObitInfoElem *me, FILE *file);
 
 #endif /* OBITINFOELEM_H */

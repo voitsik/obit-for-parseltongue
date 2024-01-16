@@ -49,19 +49,19 @@ void ObitMemClassInit (void);
 
 #ifndef MEMWATCH
 /** Public: allocate memory. */
-gpointer ObitMemAlloc (gulong size);
+gpointer ObitMemAlloc (gsize size);
 
 /** Public: allocate memory and zero fill. */
-gpointer ObitMemAlloc0 (gulong size);
+gpointer ObitMemAlloc0 (gsize size);
 
 /** Public: allocate memory giving name. */
-gpointer ObitMemAllocName (gulong size, gchar *name);
+gpointer ObitMemAllocName (gsize size, const gchar *name);
 
 /** Public: allocate memory and zero fill, giving name. */
-gpointer ObitMemAlloc0Name (gulong size, gchar *name);
+gpointer ObitMemAlloc0Name (gsize size, const gchar *name);
 
 /** Public: reallocate memory */
-gpointer ObitMemRealloc (gpointer mem, gulong size);
+gpointer ObitMemRealloc (gpointer mem, gsize size);
 
 /** Public: deallocate */
 gpointer ObitMemFree (gpointer mem);

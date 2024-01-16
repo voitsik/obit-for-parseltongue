@@ -1,6 +1,6 @@
 /* $Id$  */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2003-2013                                          */
+/*;  Copyright (C) 2003-2023                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;                                                                   */
 /*;  This program is free software; you can redistribute it and/or    */
@@ -25,8 +25,6 @@
 /*;                         520 Edgemont Road                         */
 /*;                         Charlottesville, VA 22903-2475 USA        */
 /*--------------------------------------------------------------------*/
-
-#include <strings.h>
 
 #include "ObitIOTableFITS.h"
 #include "ObitFITS.h"
@@ -782,7 +780,7 @@ ObitIOCode ObitIOTableFITSReadRow (ObitIOTableFITS *in, olong rowno,
     }
 
     /* init '_status' column to 0 */
-    memmove (&cdata[offset+desc->byteOffset[desc->nfield-1]], 
+    g_memmove (&cdata[offset+desc->byteOffset[desc->nfield-1]], 
 	       (gchar*)&izero, sizeof(olong));
 
     offset  += len;       /* offset in data buffer in bytes */
@@ -950,7 +948,7 @@ ObitIOCode ObitIOTableFITSReadRowSelect (ObitIOTableFITS *in, olong rowno,
     }
 
     /* init '_status' column to 0 */
-    memmove (&cdata[offset+desc->byteOffset[desc->nfield-1]], 
+    g_memmove (&cdata[offset+desc->byteOffset[desc->nfield-1]], 
 	       (gchar*)&izero, sizeof(olong));
 
     offset  += len;       /* offset in data buffer in bytes */
@@ -996,7 +994,6 @@ ObitIOCode ObitIOTableFITSWriteRow (ObitIOTableFITS *in, olong rowno,
 {
   ObitIOCode retCode = OBIT_IO_SpecErr;
   ObitTableDesc* desc;
-  ObitTableSel* sel;
   ofloat fblank = ObitMagicF();
   gboolean  *inBool;
   int ftype, iCol, status = 0;
@@ -1018,7 +1015,6 @@ ObitIOCode ObitIOTableFITSWriteRow (ObitIOTableFITS *in, olong rowno,
 		      "Cannot write, I/O not currently active");
 
   desc = in->myDesc; /* Table descriptor pointer */
-  sel  = in->mySel;  /* selector pointer */
 
   /* which row to start , specified or highest? */
   if (rowno>0) desc->firstRow = rowno;
@@ -1919,7 +1915,7 @@ void  ObitIOTableKeysOtherRead(ObitIOTableFITS *in, olong *lstatus,
 			       ObitErr *err)
 {
   gchar keywrd[FLEN_KEYWORD], value[FLEN_VALUE], commnt[FLEN_COMMENT+1];
-  gchar *first, *last, *anF, *aT, dtype, svalue[FLEN_VALUE];
+  gchar *first, *last, *aT, dtype, svalue[FLEN_VALUE];
   int i, j, k, l, keys, morekeys, status = (int)*lstatus;
   olong ivalue;
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
@@ -1977,16 +1973,15 @@ void  ObitIOTableKeysOtherRead(ObitIOTableFITS *in, olong *lstatus,
 	case 'C':  /* Character string */
 	  first = index (value,'\'')+1; /* a string? */
 	  last = rindex(value,'\'')-1;
-	  memmove(svalue, first, (last-first+1));
+	  g_memmove(svalue, first, (last-first+1));
 	  svalue[last-first+1] = 0; /* null terminate */
 	  /* add to InfoList */
 	  dim[0] = strlen(svalue);
 	  ObitInfoListPut(desc->info, keywrd, OBIT_string, dim, 
 			  (gconstpointer)svalue, err);
-
+	  
 	  break;
 	case 'L':  /* logical 'T', 'F' */
-	  anF   = index (value,'F'); /* Logical */
 	  aT    = index (value,'T'); /* Logical */
 	  bvalue = FALSE;
 	  if (aT!=NULL) bvalue = TRUE;

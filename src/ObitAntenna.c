@@ -1,6 +1,6 @@
 /* $Id$     */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2003-2020                                          */
+/*;  Copyright (C) 2003-2023                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;                                                                   */
 /*;  This program is free software; you can redistribute it and/or    */
@@ -51,13 +51,13 @@ static ObitAntennaClassInfo myClassInfo = {FALSE};
 
 /*---------------Private function prototypes----------------*/
 /** Private: Initialize newly instantiated object. */
-void  ObitAntennaInit(gpointer in);
+void  ObitAntennaInit  (gpointer in);
 
 /** Private: Deallocate members. */
-void  ObitAntennaClear(gpointer in);
+void  ObitAntennaClear (gpointer in);
 
 /** Private: Set Class function pointers. */
-static void ObitAntennaClassInfoDefFn(gpointer inClass);
+static void ObitAntennaClassInfoDefFn (gpointer inClass);
 
 /*----------------------Public functions---------------------------*/
 /**
@@ -65,27 +65,27 @@ static void ObitAntennaClassInfoDefFn(gpointer inClass);
  * Initializes class if needed on first call.
  * \return the new object.
  */
-ObitAntenna *newObitAntenna(gchar *name)
+ObitAntenna* newObitAntenna (gchar* name)
 {
-    ObitAntenna *out;
+  ObitAntenna* out;
 
-    /* Class initialization if needed */
-    if (!myClassInfo.initialized) ObitAntennaClassInit();
+  /* Class initialization if needed */
+  if (!myClassInfo.initialized) ObitAntennaClassInit();
 
-    /* allocate/init structure */
-    out = g_malloc0(sizeof(ObitAntenna));
+  /* allocate/init structure */
+  out = g_malloc0(sizeof(ObitAntenna));
 
-    /* initialize values */
-    if (name != NULL) out->name = g_strdup(name);
-    else out->name = g_strdup("Noname");
+  /* initialize values */
+  if (name!=NULL) out->name = g_strdup(name);
+  else out->name = g_strdup("Noname");
 
-    /* set classInfo */
-    out->ClassInfo = (gpointer)&myClassInfo;
+ /* set classInfo */
+  out->ClassInfo = (gpointer)&myClassInfo;
 
-    /* initialize other stuff */
-    ObitAntennaInit((gpointer)out);
+  /* initialize other stuff */
+  ObitAntennaInit((gpointer)out);
 
-    return out;
+  return out;
 } /* end newObitAntenna */
 
 /**
@@ -93,12 +93,12 @@ ObitAntenna *newObitAntenna(gchar *name)
  * Initializes class if needed on first call.
  * \return pointer to the class structure.
  */
-gconstpointer ObitAntennaGetClass(void)
+gconstpointer ObitAntennaGetClass (void)
 {
-    /* Class initialization if needed */
-    if (!myClassInfo.initialized) ObitAntennaClassInit();
+  /* Class initialization if needed */
+  if (!myClassInfo.initialized) ObitAntennaClassInit();
 
-    return (gconstpointer)&myClassInfo;
+  return (gconstpointer)&myClassInfo;
 } /* end ObitGetIOClass */
 
 /**
@@ -109,119 +109,104 @@ gconstpointer ObitAntennaGetClass(void)
  * \param err Obit error stack object.
  * \return pointer to the new object.
  */
-ObitAntenna *ObitAntennaCopy(ObitAntenna *in, ObitAntenna *out, ObitErr *err)
+ObitAntenna* ObitAntennaCopy (ObitAntenna *in, ObitAntenna *out, ObitErr *err)
 {
-    const ObitClassInfo *ParentClass;
-    gboolean oldExist;
-    olong i;
-    gchar *outName;
+  const ObitClassInfo *ParentClass;
+  gboolean oldExist;
+  olong i;
+  gchar *outName;
 
-    /* error checks */
-    g_assert(ObitErrIsA(err));
+  /* error checks */
+  g_assert (ObitErrIsA(err));
+  if (err->error) return out;
+  g_assert (ObitIsA(in, &myClassInfo));
+  if (out) g_assert (ObitIsA(out, &myClassInfo));
 
-    if (err->error) return out;
+  /* Create if it doesn't exist */
+  oldExist = out!=NULL;
+  if (!oldExist) {
+    /* derive object name */
+    outName = g_strconcat ("Copy: ",in->name,NULL);
+    out = newObitAntenna(outName);
+    if (outName) {g_free(outName); outName = NULL;}
+  }
 
-    g_assert(ObitIsA(in, &myClassInfo));
+  /* deep copy any base class members */
+  ParentClass = myClassInfo.ParentClass;
+  g_assert ((ParentClass!=NULL) && (ParentClass->ObitCopy!=NULL));
+  ParentClass->ObitCopy (in, out, err);
 
-    if (out) g_assert(ObitIsA(out, &myClassInfo));
+  /*  copy this class */
+  for (i=0; i<8; i++) out->AntName[i] = in->AntName[i];
+  out->AntID = in->AntID;
+  for (i=0; i<3; i++) out->AntXYZ[i] = in->AntXYZ[i];
+  out->AntMount = in->AntMount;
+  out->AntLong  = in->AntLong;
+  out->AntLat   = in->AntLat;
+  out->AntRad   = in->AntRad;
+  out->FeedAPA  = in->FeedAPA;
+  out->FeedBPA  = in->FeedBPA;
+  out->FeedBType= in->FeedBType;
+  out->FeedAType= in->FeedAType;
+  out->numPCal  = in->numPCal;
+  out->Diam     = in->Diam;
+  out->AxisOff  = in->AxisOff;
+  out->numIF    = in->numIF;
+  out->BeamFWHM =  g_realloc(out->BeamFWHM, out->numIF*sizeof(ofloat));
+  for (i=0; i<out->numIF; i++) out->BeamFWHM[i] = in->BeamFWHM[i];
+  out->FeedAPCal =  g_realloc(out->FeedAPCal, in->numPCal*sizeof(ofloat));
+  for (i=0; i<out->numPCal; i++) out->FeedAPCal[i] = in->FeedAPCal[i];
+  out->FeedBPCal =  g_realloc(out->FeedBPCal, in->numPCal*sizeof(ofloat));
+  for (i=0; i<out->numPCal; i++) out->FeedBPCal[i] = in->FeedBPCal[i];
 
-    /* Create if it doesn't exist */
-    oldExist = out != NULL;
-
-    if (!oldExist) {
-        /* derive object name */
-        outName = g_strconcat("Copy: ", in->name, NULL);
-        out = newObitAntenna(outName);
-
-        if (outName) g_free(outName);
-
-        outName = NULL;
-    }
-
-    /* deep copy any base class members */
-    ParentClass = myClassInfo.ParentClass;
-    g_assert((ParentClass != NULL) && (ParentClass->ObitCopy != NULL));
-    ParentClass->ObitCopy(in, out, err);
-
-    /*  copy this class */
-    for (i = 0; i < 8; i++) out->AntName[i] = in->AntName[i];
-
-    out->AntID = in->AntID;
-
-    for (i = 0; i < 3; i++) out->AntXYZ[i] = in->AntXYZ[i];
-
-    out->AntMount = in->AntMount;
-    out->AntLong  = in->AntLong;
-    out->AntLat   = in->AntLat;
-    out->AntRad   = in->AntRad;
-    out->FeedAPA  = in->FeedAPA;
-    out->FeedBPA  = in->FeedBPA;
-    out->FeedBType = in->FeedBType;
-    out->FeedAType = in->FeedAType;
-    out->numPCal  = in->numPCal;
-    out->Diam     = in->Diam;
-    out->AxisOff  = in->AxisOff;
-    out->numIF    = in->numIF;
-    out->BeamFWHM =  g_realloc(out->BeamFWHM, out->numIF * sizeof(ofloat));
-
-    for (i = 0; i < out->numIF; i++) out->BeamFWHM[i] = in->BeamFWHM[i];
-
-    out->FeedAPCal =  g_realloc(out->FeedAPCal, in->numPCal * sizeof(ofloat));
-
-    for (i = 0; i < out->numPCal; i++) out->FeedAPCal[i] = in->FeedAPCal[i];
-
-    out->FeedBPCal =  g_realloc(out->FeedBPCal, in->numPCal * sizeof(ofloat));
-
-    for (i = 0; i < out->numPCal; i++) out->FeedBPCal[i] = in->FeedBPCal[i];
-
-    return out;
+  return out;
 } /* end ObitAntennaCopy */
 
 
 /**
  * Initialize global ClassInfo Structure.
  */
-void ObitAntennaClassInit(void)
+void ObitAntennaClassInit (void)
 {
-    if (myClassInfo.initialized) return;  /* only once */
+  if (myClassInfo.initialized) return;  /* only once */
+  
+  /* Set name and parent for this class */
+  myClassInfo.ClassName   = g_strdup(myClassName);
+  myClassInfo.ParentClass = ObitParentGetClass();
 
-    /* Set name and parent for this class */
-    myClassInfo.ClassName   = g_strdup(myClassName);
-    myClassInfo.ParentClass = ObitParentGetClass();
-
-    /* Set function pointers */
-    ObitAntennaClassInfoDefFn((gpointer)&myClassInfo);
-
-    myClassInfo.initialized = TRUE; /* Now initialized */
-
+  /* Set function pointers */
+  ObitAntennaClassInfoDefFn ((gpointer)&myClassInfo);
+ 
+  myClassInfo.initialized = TRUE; /* Now initialized */
+ 
 } /* end ObitAntennaClassInit */
 
 /**
  * Initialize global ClassInfo Function pointers.
  */
-static void ObitAntennaClassInfoDefFn(gpointer inClass)
+static void ObitAntennaClassInfoDefFn (gpointer inClass)
 {
-    ObitAntennaClassInfo *theClass = (ObitAntennaClassInfo *)inClass;
-    ObitClassInfo *ParentClass = (ObitClassInfo *)myClassInfo.ParentClass;
+  ObitAntennaClassInfo *theClass = (ObitAntennaClassInfo*)inClass;
+  ObitClassInfo *ParentClass = (ObitClassInfo*)myClassInfo.ParentClass;
 
-    if (theClass->initialized) return;  /* only once */
+  if (theClass->initialized) return;  /* only once */
 
-    /* Check type of inClass */
-    g_assert(ObitInfoIsA(inClass, (ObitClassInfo *)&myClassInfo));
+  /* Check type of inClass */
+  g_assert (ObitInfoIsA(inClass, (ObitClassInfo*)&myClassInfo));
 
-    /* Initialize (recursively) parent class first */
-    if ((ParentClass != NULL) &&
-            (ParentClass->ObitClassInfoDefFn != NULL))
-        ParentClass->ObitClassInfoDefFn(theClass);
+  /* Initialize (recursively) parent class first */
+  if ((ParentClass!=NULL) && 
+      (ParentClass->ObitClassInfoDefFn!=NULL))
+    ParentClass->ObitClassInfoDefFn(theClass);
 
-    /* function pointers defined or overloaded this class */
-    theClass->ObitClassInit = (ObitClassInitFP)ObitAntennaClassInit;
-    theClass->ObitClassInfoDefFn = (ObitClassInfoDefFnFP)ObitAntennaClassInfoDefFn;
-    theClass->ObitGetClass  = (ObitGetClassFP)ObitAntennaGetClass;
-    theClass->newObit       = (newObitFP)newObitAntenna;
-    theClass->ObitCopy      = (ObitCopyFP)ObitAntennaCopy;
-    theClass->ObitClone     = NULL;
-    theClass->ObitClear     = (ObitClearFP)ObitAntennaClear;
+  /* function pointers defined or overloaded this class */
+  theClass->ObitClassInit = (ObitClassInitFP)ObitAntennaClassInit;
+  theClass->ObitClassInfoDefFn = (ObitClassInfoDefFnFP)ObitAntennaClassInfoDefFn;
+  theClass->ObitGetClass  = (ObitGetClassFP)ObitAntennaGetClass;
+  theClass->newObit       = (newObitFP)newObitAntenna;
+  theClass->ObitCopy      = (ObitCopyFP)ObitAntennaCopy;
+  theClass->ObitClone     = NULL;
+  theClass->ObitClear     = (ObitClearFP)ObitAntennaClear;
 
 } /* end ObitAntennaClassDefFn */
 
@@ -229,33 +214,32 @@ static void ObitAntennaClassInfoDefFn(gpointer inClass)
 
 /**
  * Creates empty member objects, initialize reference count.
- * Does (recursive) initialization of base class members before
+ * Does (recursive) initialization of base class members before 
  * this class.
  * \param inn Pointer to the object to initialize.
  */
-void ObitAntennaInit(gpointer inn)
+void ObitAntennaInit  (gpointer inn)
 {
-    ObitClassInfo *ParentClass;
-    ObitAntenna *in = inn;
+  ObitClassInfo *ParentClass;
+  ObitAntenna *in = inn;
 
-    /* error checks */
-    g_assert(in != NULL);
+  /* error checks */
+  g_assert (in != NULL);
+  
+  /* recursively initialize parent class members */
+  ParentClass = (ObitClassInfo*)(myClassInfo.ParentClass);
+  if ((ParentClass!=NULL) && ( ParentClass->ObitInit!=NULL)) 
+    ParentClass->ObitInit (inn);
 
-    /* recursively initialize parent class members */
-    ParentClass = (ObitClassInfo *)(myClassInfo.ParentClass);
-
-    if ((ParentClass != NULL) && (ParentClass->ObitInit != NULL))
-        ParentClass->ObitInit(inn);
-
-    /* set members in this class */
-    in->AntID     = -1;
-    in->numPCal   = 0;
-    in->numIF     = 0;
-    in->BeamFWHM  = NULL;
-    in->FeedAPCal = NULL;
-    in->FeedBPCal = NULL;
-    in->Diam      = 0.0;
-    in->AxisOff   = 0.0;
+  /* set members in this class */
+  in->AntID     = -1;
+  in->numPCal   = 0;
+  in->numIF     = 0;
+  in->BeamFWHM  = NULL;
+  in->FeedAPCal = NULL;
+  in->FeedBPCal = NULL;
+  in->Diam      = 0.0;
+  in->AxisOff   = 0.0;
 } /* end ObitAntennaInit */
 
 /**
@@ -263,32 +247,26 @@ void ObitAntennaInit(gpointer inn)
  * Does (recursive) deallocation of parent class members.
  * \param  inn Pointer to the object to deallocate.
  */
-void ObitAntennaClear(gpointer inn)
+void ObitAntennaClear (gpointer inn)
 {
-    ObitClassInfo *ParentClass;
-    ObitAntenna *in = inn;
+  ObitClassInfo *ParentClass;
+  ObitAntenna *in = inn;
 
-    /* error checks */
-    g_assert(ObitIsA(in, &myClassInfo));
+  /* error checks */
+  g_assert (ObitIsA(in, &myClassInfo));
 
-    /* free this class members */
-    if (in->BeamFWHM)  g_free(in->BeamFWHM);
-
-    in->BeamFWHM  = NULL;
-
-    if (in->FeedAPCal) g_free(in->FeedAPCal);
-
-    in->FeedAPCal = NULL;
-
-    if (in->FeedBPCal) g_free(in->FeedBPCal);
-
-    in->FeedBPCal = NULL;
-
-    /* unlink parent class members */
-    ParentClass = (ObitClassInfo *)(myClassInfo.ParentClass);
-
-    /* delete parent class members */
-    if ((ParentClass != NULL) && (ParentClass->ObitClear != NULL))
-        ParentClass->ObitClear(inn);
-
+  /* free this class members */
+  if (in->BeamFWHM)  {g_free(in->BeamFWHM);  in->BeamFWHM  = NULL;}
+  if (in->FeedAPCal) {g_free(in->FeedAPCal); in->FeedAPCal = NULL;}
+  if (in->FeedBPCal) {g_free(in->FeedBPCal); in->FeedBPCal = NULL;}
+  
+  /* unlink parent class members */
+  ParentClass = (ObitClassInfo*)(myClassInfo.ParentClass);
+  
+  /* delete parent class members */
+  if ((ParentClass!=NULL) && ( ParentClass->ObitClear!=NULL)) 
+    ParentClass->ObitClear (inn);
+  
 } /* end ObitAntennaClear */
+
+  

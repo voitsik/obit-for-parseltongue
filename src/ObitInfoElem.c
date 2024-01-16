@@ -45,7 +45,7 @@
  * \return the new object.
  */
 ObitInfoElem *newObitInfoElem(const gchar *label, ObitInfoType type,
-                              gint32 *dim, gconstpointer data)
+                              const gint32 *dim, const gconstpointer data)
 {
     ObitInfoElem *me;
     gchar *name;
@@ -76,7 +76,7 @@ ObitInfoElem *newObitInfoElem(const gchar *label, ObitInfoType type,
  * \param in   Object to copy
  * \return the new object, a byte-for-byte copy.
  */
-ObitInfoElem *ObitInfoElemCopy(ObitInfoElem *in)
+ObitInfoElem *ObitInfoElemCopy(const ObitInfoElem *in)
 {
     ObitInfoElem *out;
     olong i;
@@ -130,7 +130,7 @@ void freeObitInfoElem(ObitInfoElem *me)
  * \param testname String to compare with
  * \return True if they are the same.
  */
-gboolean ObitInfoElemTest(ObitInfoElem *me, const char *testname)
+gboolean ObitInfoElemTest(const ObitInfoElem *me, const char *testname)
 {
     g_assert(me != NULL);
     g_assert(testname != NULL);
@@ -149,8 +149,8 @@ gboolean ObitInfoElemTest(ObitInfoElem *me, const char *testname)
  * \param dim Dimension array to compare (max MAXINFOELEMDIM)
  * \return True if they are the same.
  */
-gboolean ObitInfoElemComp(ObitInfoElem *me, ObitInfoType type,
-                          gint32 *dim)
+gboolean ObitInfoElemComp(const ObitInfoElem *me, ObitInfoType type,
+                          const gint32 *dim)
 {
     gint32 i;
 
@@ -178,7 +178,7 @@ gboolean ObitInfoElemComp(ObitInfoElem *me, ObitInfoType type,
  * \return TRUE if OK, FALSE if object incompatable with request.
  */
 gboolean ObitInfoElemUpdate(ObitInfoElem *me, gint32 type,
-                            gint32 *dim, gconstpointer data, gboolean warn)
+                            const gint32 *dim, const gconstpointer data, gboolean warn)
 {
     gboolean OK = FALSE;
 
@@ -213,7 +213,7 @@ gboolean ObitInfoElemUpdate(ObitInfoElem *me, gint32 type,
  * \param data The new data array.
  * \return the new object.
  */
-void ObitInfoElemSave(ObitInfoElem *me, gconstpointer data)
+void ObitInfoElemSave(ObitInfoElem *me, const gconstpointer data)
 {
     olong i, j, off;
     const gchar *ddata, **c2data, * **c3data;
@@ -269,7 +269,7 @@ void ObitInfoElemSave(ObitInfoElem *me, gconstpointer data)
  * \return the new object.
  */
 void ObitInfoElemResize(ObitInfoElem *me, ObitInfoType type,
-                        gint32 *dim)
+                        const gint32 *dim)
 {
     gint32 i, size;
     gchar *name;
@@ -305,7 +305,7 @@ void ObitInfoElemResize(ObitInfoElem *me, ObitInfoType type,
  * \param dim  Dimension of the array.
  * \return the size in bytes.
  */
-olong ObitInfoElemSize(ObitInfoType type, gint32 *dim)
+olong ObitInfoElemSize(ObitInfoType type, const gint32 *dim)
 {
     gint32 i, size, number;
 
@@ -403,7 +403,7 @@ olong ObitInfoElemSize(ObitInfoType type, gint32 *dim)
  * \param in    ObitInfoElem
  * \param file  FILE* to write to
  */
-void  ObitInfoElemPrint(ObitInfoElem *me, FILE *file)
+void  ObitInfoElemPrint(const ObitInfoElem *me, FILE *file)
 {
     /* Should match order of enum obitInfoType in ObitTypes.h */
     gchar *infoType[] = {"byte", "short", "int", "oint", "long",
