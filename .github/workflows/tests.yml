@@ -64,7 +64,6 @@ jobs:
           brew update
           brew install cfitsio
           brew install fftw
-          brew install glib
           brew install gsl
           brew install swig
           brew install xmlrpc-c
@@ -77,6 +76,8 @@ jobs:
       - name: Build and Install Obit
         run: |
           pip install -e .
+        env:
+          CC: gcc-13
 
       - name: Run tests
         run: |
