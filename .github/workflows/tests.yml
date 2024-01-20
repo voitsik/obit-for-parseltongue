@@ -48,3 +48,36 @@ jobs:
       - name: Run tests
         run: |
           python -m pytest --verbose tests/
+
+  test_macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install cfitsio
+          brew install fftw
+          brew install glib
+          brew install gsl
+          brew install swig
+          brew install xmlrpc-c
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pkgconfig pytest
+
+      - name: Build and Install Obit
+        run: |
+          pip install -e .
+
+      - name: Run tests
+        run: |
+          python -m pytest --verbose tests/
