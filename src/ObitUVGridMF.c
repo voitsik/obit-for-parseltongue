@@ -671,7 +671,7 @@ void ObitUVGridMFReadUV(ObitUVGrid *inn, ObitUV *UVin, ObitErr *err)
     // } /* end using CPU */
 
     /* Close data */
-cleanup:
+// cleanup:
     retCode = ObitUVClose(UVin, err);
 
     if (err->error) Obit_traceback_msg(err, routine, in->name);

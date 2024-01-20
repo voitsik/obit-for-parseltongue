@@ -32,7 +32,7 @@ ObitFileExistFP ObitFileExist;
 /** Function pointer to file size */
 ObitFileSizeFP ObitFileSize;
 /** Function pointer to file name */
-ObitFileNameFP ObitFileName;
+// ObitFileNameFP ObitFileName;
 /** Function pointer to Rename */
 ObitFileRenameFP ObitFileRename;
 /** Function pointer to Zap */

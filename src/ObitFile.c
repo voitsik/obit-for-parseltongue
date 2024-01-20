@@ -60,13 +60,13 @@ static ObitFileClassInfo myClassInfo = {FALSE};
 
 /*---------------Private function prototypes----------------*/
 /** Private: Initialize newly instantiated object. */
-void  ObitFileInit  (gpointer in);
+void  ObitFileInit(gpointer in);
 
 /** Private: Deallocate members. */
-void  ObitFileClear (gpointer in);
+void  ObitFileClear(gpointer in);
 
 /** Private: Set Class function pointers. */
-static void ObitFileClassInfoDefFn (gpointer inClass);
+static void ObitFileClassInfoDefFn(gpointer inClass);
 
 /*----------------------Public functions---------------------------*/
 /**
@@ -74,27 +74,27 @@ static void ObitFileClassInfoDefFn (gpointer inClass);
  * Initializes class if needed on first call.
  * \return the new object.
  */
-ObitFile* newObitFile (gchar* name)
+ObitFile *newObitFile(const gchar *name)
 {
-  ObitFile* out;
+    ObitFile *out;
 
-  /* Class initialization if needed */
-  if (!myClassInfo.initialized) ObitFileClassInit();
+    /* Class initialization if needed */
+    if (!myClassInfo.initialized) ObitFileClassInit();
 
-  /* allocate/init structure */
-  out = g_malloc0(sizeof(ObitFile));
+    /* allocate/init structure */
+    out = g_malloc0(sizeof(ObitFile));
 
-  /* initialize values */
-  if (name!=NULL) out->name = g_strdup(name);
-  else out->name = g_strdup("Noname");
+    /* initialize values */
+    if (name != NULL) out->name = g_strdup(name);
+    else out->name = g_strdup("Noname");
 
- /* set classInfo */
-  out->ClassInfo = (gpointer)&myClassInfo;
+    /* set classInfo */
+    out->ClassInfo = (gpointer)&myClassInfo;
 
-  /* initialize other stuff */
-  ObitFileInit((gpointer)out);
+    /* initialize other stuff */
+    ObitFileInit((gpointer)out);
 
-  return out;
+    return out;
 } /* end newObitFile */
 
 /**
@@ -102,12 +102,12 @@ ObitFile* newObitFile (gchar* name)
  * Initializes class if needed on first call.
  * \return pointer to the class structure.
  */
-gconstpointer ObitFileGetClass (void)
+gconstpointer ObitFileGetClass(void)
 {
-  /* Class initialization if needed */
-  if (!myClassInfo.initialized) ObitFileClassInit();
+    /* Class initialization if needed */
+    if (!myClassInfo.initialized) ObitFileClassInit();
 
-  return (gconstpointer)&myClassInfo;
+    return (gconstpointer)&myClassInfo;
 } /* end ObitGetIOClass */
 
 /**
@@ -116,39 +116,44 @@ gconstpointer ObitFileGetClass (void)
  * \param err ObitErr for reporting errors.
  * \return NULL as value of pointer to in, on failure returns in.
  */
-ObitFile* ObitFileZap (ObitFile *in, ObitErr *err)
+ObitFile *ObitFileZap(ObitFile *in, ObitErr *err)
 {
-  olong status;
-  gchar *routine = "ObitFileZap";
+    olong status;
+    gchar *routine = "ObitFileZap";
 
-  /* error checks */
-  g_assert (ObitErrIsA(err));
-  if (err->error) return in;
-  if (in->fileName==NULL) return in;
-  errno = 0;  /* reset any system error */
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
- /* Close if still open */
-  if ((in->status==OBIT_Modified) || (in->status==OBIT_Active)) {
-    ObitFileClose (in, err);
-    if (err->error) /* add traceback on error */
-      Obit_traceback_val (err, routine, in->name, in);
-  }
+    if (err->error) return in;
 
-  /* Make sure it exists */
-  if (!ObitFileExist(in->fileName, err)) return in;
+    if (in->fileName == NULL) return in;
 
-  /* Zap file */
-  status = remove (in->fileName);
-  if (status) {             /* it went wrong */
-    Obit_log_error(err, OBIT_Error, 
-		   "ERROR deleting file %s", in->name);
-    ObitFileErrMsg(err); /* Existing system error? */
+    errno = 0;  /* reset any system error */
+
+    /* Close if still open */
+    if ((in->status == OBIT_Modified) || (in->status == OBIT_Active)) {
+        ObitFileClose(in, err);
+
+        if (err->error) /* add traceback on error */
+            Obit_traceback_val(err, routine, in->name, in);
+    }
+
+    /* Make sure it exists */
+    if (!ObitFileExist(in->fileName, err)) return in;
+
+    /* Zap file */
+    status = remove(in->fileName);
+
+    if (status) {             /* it went wrong */
+        Obit_log_error(err, OBIT_Error,
+                       "ERROR deleting file %s", in->name);
+        ObitFileErrMsg(err); /* Existing system error? */
+        return in;
+    }
+
+    /* delete the rest of the structure */
+    in = ObitFileUnref(in);
     return in;
-  }
-  
-  /* delete the rest of the structure */
-  in = ObitFileUnref(in); 
-  return in;
 } /* end ObitFileZap */
 
 /**
@@ -156,28 +161,31 @@ ObitFile* ObitFileZap (ObitFile *in, ObitErr *err)
  * \param fileName Name of file to delete
  * \param err      ObitErr for reporting errors.
  */
-void ObitFileZapFile (gchar *fileName, ObitErr *err)
+void ObitFileZapFile(gchar *fileName, ObitErr *err)
 {
-  olong status;
-  /*gchar *routine = "ObitFileZap";*/
+    olong status;
+    /*gchar *routine = "ObitFileZap";*/
 
-  /* error checks */
-  if (err->error) return;
-  if (fileName==NULL) return;
-  errno = 0;  /* reset any system error */
+    /* error checks */
+    if (err->error) return;
 
-  /* Make sure it exists */
-  if (!ObitFileExist(fileName, err)) return ;
+    if (fileName == NULL) return;
 
-  /* Zap file */
-  status = remove (fileName);
-  if (status) {             /* it went wrong */
-    Obit_log_error(err, OBIT_Error, 
-		   "ERROR deleting file %s", fileName);
-    ObitFileErrMsg(err); /* Existing system error? */
-    return;
-  }
-  
+    errno = 0;  /* reset any system error */
+
+    /* Make sure it exists */
+    if (!ObitFileExist(fileName, err)) return ;
+
+    /* Zap file */
+    status = remove(fileName);
+
+    if (status) {             /* it went wrong */
+        Obit_log_error(err, OBIT_Error,
+                       "ERROR deleting file %s", fileName);
+        ObitFileErrMsg(err); /* Existing system error? */
+        return;
+    }
+
 } /* end ObitFileZapFile */
 
 /**
@@ -186,35 +194,38 @@ void ObitFileZapFile (gchar *fileName, ObitErr *err)
  * \param newName New name for file
  * \param err     ObitErr for reporting errors.
  */
-void ObitFileRename (gchar *oldName, gchar *newName, ObitErr *err)
+void ObitFileRename(gchar *oldName, gchar *newName, ObitErr *err)
 {
-  olong status;
-  gchar *routine = "ObitFileRename";
+    olong status;
+    gchar *routine = "ObitFileRename";
 
-  /* error checks */
-  if (err->error) return;
-  g_assert (oldName!=NULL);
-  g_assert (newName!=NULL);
-  errno = 0;  /* reset any system error */
+    /* error checks */
+    if (err->error) return;
 
-  /* Make sure it exists */
-  if (!ObitFileExist(oldName, err)){
-    Obit_log_error(err, OBIT_Error, 
-		   "%s: File %s does not exist",
-		   routine, oldName);
-    return;
-  }
+    g_assert(oldName != NULL);
+    g_assert(newName != NULL);
+    errno = 0;  /* reset any system error */
 
-  /* rename file */
-  status = rename (oldName, newName);
-    if (status) {             /* it went wrong */
-      Obit_log_error(err, OBIT_Error, 
-		     "ERROR renaming file %s to %s", oldName, newName);
-      ObitFileErrMsg(err);     /* system error message*/
-      return;
+    /* Make sure it exists */
+    if (!ObitFileExist(oldName, err)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s: File %s does not exist",
+                       routine, oldName);
+        return;
     }
+
+    /* rename file */
+    status = rename(oldName, newName);
+
+    if (status) {             /* it went wrong */
+        Obit_log_error(err, OBIT_Error,
+                       "ERROR renaming file %s to %s", oldName, newName);
+        ObitFileErrMsg(err);     /* system error message*/
+        return;
+    }
+
     errno = 0; /* In case */
- 
+
 } /* end ObitFileRename */
 
 /**
@@ -227,45 +238,51 @@ void ObitFileRename (gchar *oldName, gchar *newName, ObitErr *err)
  * \param err Obit error stack object.
  * \return pointer to the new object.
  */
-ObitFile* ObitFileCopy  (ObitFile *in, ObitFile *out, ObitErr *err)
+ObitFile *ObitFileCopy(ObitFile *in, ObitFile *out, ObitErr *err)
 {
-  const ObitClassInfo *ParentClass;
-  gboolean oldExist;
-  gchar *outName;
+    const ObitClassInfo *ParentClass;
+    gboolean oldExist;
+    gchar *outName;
 
-  /* error checks */
-  if (err->error) return out;
-  g_assert (ObitIsA(in, &myClassInfo));
-  if (out) g_assert (ObitIsA(out, &myClassInfo));
-  errno = 0;  /* reset any system error */
+    /* error checks */
+    if (err->error) return out;
+
+    g_assert(ObitIsA(in, &myClassInfo));
+
+    if (out) g_assert(ObitIsA(out, &myClassInfo));
+
+    errno = 0;  /* reset any system error */
 
 
-  /* Create if it doesn't exist */
-  oldExist = out!=NULL;
-  if (!oldExist) {
-    /* derive object name */
-    outName = g_strconcat ("Copy: ",in->name,NULL);
-    out = newObitFile(outName);
-    g_free(outName);
-  }
+    /* Create if it doesn't exist */
+    oldExist = out != NULL;
 
-  /* deep copy any base class members */
-  ParentClass = myClassInfo.ParentClass;
-  g_assert ((ParentClass!=NULL) && (ParentClass->ObitCopy!=NULL));
-  ParentClass->ObitCopy (in, out, err);
+    if (!oldExist) {
+        /* derive object name */
+        outName = g_strconcat("Copy: ", in->name, NULL);
+        out = newObitFile(outName);
+        g_free(outName);
+    }
 
-  /*  copy this class */
-  out->access    = OBIT_IO_None; /* Not currently active */
-  out->type      = in->type;
-  out->exist     = in->exist;
-  out->blockSize = in->blockSize;
-  out->filePos   = in->filePos;
-  out->status    = in->status;
-  out->myFile    = in->myFile;
-  if (out->fileName) g_free(out->fileName);
-  out->fileName  = g_strdup(in->fileName);
+    /* deep copy any base class members */
+    ParentClass = myClassInfo.ParentClass;
+    g_assert((ParentClass != NULL) && (ParentClass->ObitCopy != NULL));
+    ParentClass->ObitCopy(in, out, err);
 
-  return out;
+    /*  copy this class */
+    out->access    = OBIT_IO_None; /* Not currently active */
+    out->type      = in->type;
+    out->exist     = in->exist;
+    out->blockSize = in->blockSize;
+    out->filePos   = in->filePos;
+    out->status    = in->status;
+    out->myFile    = in->myFile;
+
+    if (out->fileName) g_free(out->fileName);
+
+    out->fileName  = g_strdup(in->fileName);
+
+    return out;
 } /* end ObitFileCopy */
 
 /**
@@ -274,26 +291,27 @@ ObitFile* ObitFileCopy  (ObitFile *in, ObitFile *out, ObitErr *err)
  * \param err       ObitErr for reporting errors.
  * \return TRUE if exists, else FALSE.
  */
-gboolean ObitFileExist (gchar *fileName, ObitErr *err)
+gboolean ObitFileExist(gchar *fileName, ObitErr *err)
 {
-  struct stat stbuf;
-  olong status;  
-  gboolean exist;
+    struct stat stbuf;
+    olong status;
+    gboolean exist;
 
-  /* error checks */
-  if (err->error) return FALSE;
-  g_assert (fileName!=NULL);
-  errno = 0;  /* reset any system error */
-  ObitTrimTrail (fileName);  /* remove trailling blanks */
+    /* error checks */
+    if (err->error) return FALSE;
 
-  /* does it exist ? */
-  status = stat(fileName, &stbuf);
-  exist = (status==0);
+    g_assert(fileName != NULL);
+    errno = 0;  /* reset any system error */
+    ObitTrimTrail(fileName);   /* remove trailling blanks */
 
-  /* Clear status as nonexistance of a file is considered an error */
-  if (!exist) errno = 0;
+    /* does it exist ? */
+    status = stat(fileName, &stbuf);
+    exist = (status == 0);
 
-  return exist;
+    /* Clear status as nonexistance of a file is considered an error */
+    if (!exist) errno = 0;
+
+    return exist;
 } /* end ObitFileExist */
 
 /**
@@ -302,21 +320,22 @@ gboolean ObitFileExist (gchar *fileName, ObitErr *err)
  * \param err       ObitErr for reporting errors.
  * \return File size in bytes
  */
-ObitFilePos ObitFileSize (gchar *fileName, ObitErr *err)
+ObitFilePos ObitFileSize(gchar *fileName, ObitErr *err)
 {
-  ObitFilePos out;
-  struct stat stbuf;
+    ObitFilePos out;
+    struct stat stbuf;
 
-  /* error checks */
-  if (err->error) return FALSE;
-  g_assert (fileName!=NULL);
-  errno = 0;  /* reset any system error */
+    /* error checks */
+    if (err->error) return FALSE;
 
-  /* Get file info */
-  stat(fileName, &stbuf);
-  out = stbuf.st_size;
+    g_assert(fileName != NULL);
+    errno = 0;  /* reset any system error */
 
-  return out;
+    /* Get file info */
+    stat(fileName, &stbuf);
+    out = stbuf.st_size;
+
+    return out;
 } /* end ObitFileSize */
 
 /**
@@ -324,24 +343,25 @@ ObitFilePos ObitFileSize (gchar *fileName, ObitErr *err)
  * \param fileName  Name of file
  * \return File size in bytes, g_free when done
  */
-gchar* ObitFileName (gchar *fileName)
-{
-  gchar *out = NULL;
-  olong i, last;  
-
-  /* error checks */
-  g_assert (fileName!=NULL);
-
-  /* Find last occurance of directory seperator */
-  last = -1;
-  for (i=0; i<strlen(fileName); i++) 
-    if (fileName[i]==G_DIR_SEPARATOR) last = i;
-
-  /* Extract name */
-  out = g_strdup(&fileName[last+1]);
-
-  return out;
-} /* end ObitFileName */
+// gchar *ObitFileName(gchar *fileName)
+// {
+//     gchar *out = NULL;
+//     olong i, last;
+//
+//     /* error checks */
+//     g_assert(fileName != NULL);
+//
+//     /* Find last occurance of directory seperator */
+//     last = -1;
+//
+//     for (i = 0; i < strlen(fileName); i++)
+//         if (fileName[i] == G_DIR_SEPARATOR) last = i;
+//
+//     /* Extract name */
+//     out = g_strdup(&fileName[last + 1]);
+//
+//     return out;
+// } /* end ObitFileName */
 
 /**
  * Initialize structures and open file.
@@ -354,115 +374,142 @@ gchar* ObitFileName (gchar *fileName)
  * \param err       ObitErr for reporting errors.
  * \return return code, OBIT_IO_OK => OK
  */
-ObitIOCode 
-ObitFileOpen (ObitFile *in, gchar *fileName, ObitIOAccess access,  
-	      ObitIOType type, olong blockSize, ObitErr *err)
+ObitIOCode
+ObitFileOpen(ObitFile *in, gchar *fileName, ObitIOAccess access,
+             ObitIOType type, olong blockSize, ObitErr *err)
 {
-  ObitIOCode status, retCode = OBIT_IO_SpecErr;
-  gchar ft[5] = {"a"};
-  struct stat stbuf;
-  mode_t mode;
-  olong next, temp;
-  
-  /* error checks */
-  if (err->error) return retCode;
-  g_assert (ObitIsA(in, &myClassInfo));
-  g_assert (fileName!=NULL);
-  errno = 0;  /* reset any system error */
+    ObitIOCode status, retCode = OBIT_IO_SpecErr;
+    gchar ft[5] = {"a"};
+    struct stat stbuf;
+    mode_t mode;
+    olong next, temp;
 
-  ObitTrimTrail (fileName);  /* remove trailling blanks */
-  /* Save call arguments */
-  in->access    = access;
-  in->type      = type;
-  in->blockSize = blockSize;
-  if (in->fileName) g_free(in->fileName);
-  in->fileName  = g_strdup(fileName);
+    /* error checks */
+    if (err->error) return retCode;
 
-  /* If currently open, flush (if needed) and  close first */
-  if ((in->status==OBIT_Modified) || (in->status==OBIT_Active)) {
-    retCode = ObitFileClose (in, err);
-    if (err->error) /* add traceback on error */
-      Obit_traceback_val (err, "ObitFileOpen", in->name, retCode);
-  }
+    g_assert(ObitIsA(in, &myClassInfo));
+    g_assert(fileName != NULL);
+    errno = 0;  /* reset any system error */
 
-  in->status = OBIT_ErrorExist; /* in case something goes wrong */
+    ObitTrimTrail(fileName);   /* remove trailling blanks */
+    /* Save call arguments */
+    in->access    = access;
+    in->type      = type;
+    in->blockSize = blockSize;
 
-  /* open file by access type */
-  /*------------------------ Read Only --- --------------------------*/
-  if ((access == OBIT_IO_ReadOnly) || (access == OBIT_IO_ReadCal) ) {
-    in->exist = TRUE;  /* it better */
-    ft[0] = 'r'; ft[1]=0; ft[2]=0;
-    if (type==OBIT_IO_Binary) ft[1]='b';
-    in->myFile = fopen (in->fileName, ft);
-    if (in->myFile==NULL) {
-      Obit_log_error(err, OBIT_Error,
-		     "ERROR opening file %s", in->fileName);
-      ObitFileErrMsg(err);     /* system error message*/
-      return OBIT_IO_OpenErr;
-    }
-    
-    /*------------------------ Read/Write ---------------------------------*/
-  } else if (access == OBIT_IO_ReadWrite) {
-    /* does it exist ? */
-    temp = stat(in->fileName, &stbuf);
-    in->exist = (temp==0);
-    ft[0] = 'r'; ft[1]='+'; ft[2]=0; ft[3]=0;
-    if (type==OBIT_IO_Text) ft[0]='a'; /* Append for text files */
-    if (!in->exist) ft[0] = 'w'; 
-    if (type==OBIT_IO_Binary) ft[2]='b';
-    in->myFile = fopen (in->fileName, ft);
-    if (in->myFile==NULL) {
-      Obit_log_error(err, OBIT_Error,
-		     "ERROR opening file %s", in->fileName);
-      ObitFileErrMsg(err);     /* system error message*/
-      return OBIT_IO_OpenErr;
-    }
- 
-    /* Set wide open permissions */
-    mode = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH;
-    chmod (in->fileName, mode);
+    if (in->fileName) g_free(in->fileName);
 
-    /*------------------------ Write Only ---------------------------------*/
-  } else if (access == OBIT_IO_WriteOnly) {
-    /* does it exist ? */
-    temp = stat(in->fileName, &stbuf);
-    in->exist = (temp==0);
-    /* Clear status as nonexistance of a file is considered an error */
-    if (!in->exist) errno = 0;
-    ft[0] = 'w'; ft[1]='+'; ft[2]=0; ft[3]=0;
-    next = 2;
-    if (type==OBIT_IO_Binary) ft[next++]='b';
-    if (in->exist) ft[0]='r'; 
-    in->myFile = fopen (in->fileName, ft);
-    if (in->myFile==NULL) {
-      Obit_log_error(err, OBIT_Error,
-		     "ERROR opening file %s", in->fileName);
-      ObitFileErrMsg(err);     /* system error message*/
-      return OBIT_IO_OpenErr;
+    in->fileName  = g_strdup(fileName);
+
+    /* If currently open, flush (if needed) and  close first */
+    if ((in->status == OBIT_Modified) || (in->status == OBIT_Active)) {
+        retCode = ObitFileClose(in, err);
+
+        if (err->error) /* add traceback on error */
+            Obit_traceback_val(err, "ObitFileOpen", in->name, retCode);
     }
 
-    /* Set wide open permissions */
-    mode = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH;
-    chmod (in->fileName, mode);
-    /* unknown */      
-  } else {
-    /* should never get here */
-    g_assert_not_reached(); 
-  }
+    in->status = OBIT_ErrorExist; /* in case something goes wrong */
 
-  /* position at the beginning of the file */
-  in->filePos = 0;
-  status = fseeko (in->myFile, in->filePos, SEEK_SET);
-  if (status) {             /* it went wrong */
-    Obit_log_error(err, OBIT_Error, 
-		   "ERROR Positioning file %s", in->name);
-    ObitFileErrMsg(err);     /* system error message*/
-    return OBIT_IO_OpenErr;
-  }
+    /* open file by access type */
+    /*------------------------ Read Only --- --------------------------*/
+    if ((access == OBIT_IO_ReadOnly) || (access == OBIT_IO_ReadCal)) {
+        in->exist = TRUE;  /* it better */
+        ft[0] = 'r';
+        ft[1] = 0;
+        ft[2] = 0;
 
-  in->status = OBIT_Active;  /* seems to be OK */
-  errno = 0; /* clear error code */
-  return OBIT_IO_OK;
+        if (type == OBIT_IO_Binary) ft[1] = 'b';
+
+        in->myFile = fopen(in->fileName, ft);
+
+        if (in->myFile == NULL) {
+            Obit_log_error(err, OBIT_Error,
+                           "ERROR opening file %s", in->fileName);
+            ObitFileErrMsg(err);     /* system error message*/
+            return OBIT_IO_OpenErr;
+        }
+
+        /*------------------------ Read/Write ---------------------------------*/
+    } else if (access == OBIT_IO_ReadWrite) {
+        /* does it exist ? */
+        temp = stat(in->fileName, &stbuf);
+        in->exist = (temp == 0);
+        ft[0] = 'r';
+        ft[1] = '+';
+        ft[2] = 0;
+        ft[3] = 0;
+
+        if (type == OBIT_IO_Text) ft[0] = 'a'; /* Append for text files */
+
+        if (!in->exist) ft[0] = 'w';
+
+        if (type == OBIT_IO_Binary) ft[2] = 'b';
+
+        in->myFile = fopen(in->fileName, ft);
+
+        if (in->myFile == NULL) {
+            Obit_log_error(err, OBIT_Error,
+                           "ERROR opening file %s", in->fileName);
+            ObitFileErrMsg(err);     /* system error message*/
+            return OBIT_IO_OpenErr;
+        }
+
+        /* Set wide open permissions */
+        mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+        chmod(in->fileName, mode);
+
+        /*------------------------ Write Only ---------------------------------*/
+    } else if (access == OBIT_IO_WriteOnly) {
+        /* does it exist ? */
+        temp = stat(in->fileName, &stbuf);
+        in->exist = (temp == 0);
+
+        /* Clear status as nonexistance of a file is considered an error */
+        if (!in->exist) errno = 0;
+
+        ft[0] = 'w';
+        ft[1] = '+';
+        ft[2] = 0;
+        ft[3] = 0;
+        next = 2;
+
+        if (type == OBIT_IO_Binary) ft[next++] = 'b';
+
+        if (in->exist) ft[0] = 'r';
+
+        in->myFile = fopen(in->fileName, ft);
+
+        if (in->myFile == NULL) {
+            Obit_log_error(err, OBIT_Error,
+                           "ERROR opening file %s", in->fileName);
+            ObitFileErrMsg(err);     /* system error message*/
+            return OBIT_IO_OpenErr;
+        }
+
+        /* Set wide open permissions */
+        mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+        chmod(in->fileName, mode);
+        /* unknown */
+    } else {
+        /* should never get here */
+        g_assert_not_reached();
+    }
+
+    /* position at the beginning of the file */
+    in->filePos = 0;
+    status = fseeko(in->myFile, in->filePos, SEEK_SET);
+
+    if (status) {             /* it went wrong */
+        Obit_log_error(err, OBIT_Error,
+                       "ERROR Positioning file %s", in->name);
+        ObitFileErrMsg(err);     /* system error message*/
+        return OBIT_IO_OpenErr;
+    }
+
+    in->status = OBIT_Active;  /* seems to be OK */
+    errno = 0; /* clear error code */
+    return OBIT_IO_OK;
 } /* end ObitFileOpen */
 
 /**
@@ -471,48 +518,52 @@ ObitFileOpen (ObitFile *in, gchar *fileName, ObitIOAccess access,
  * \param err ObitErr for reporting errors.
  * \return error code, 0=> OK
  */
-ObitIOCode ObitFileClose (ObitFile *in, ObitErr *err)
+ObitIOCode ObitFileClose(ObitFile *in, ObitErr *err)
 {
-  ObitIOCode  status;
-  gboolean   flush;
+    ObitIOCode  status;
+    gboolean   flush;
 
-  /* error checks */
-  /* attempt close even if error exists */
-  g_assert (ObitIsA(in, &myClassInfo));
+    /* error checks */
+    /* attempt close even if error exists */
+    g_assert(ObitIsA(in, &myClassInfo));
 
-  /* don't bother if it's not open (shutdown even if in error) */
-  if ((in->status!=OBIT_Modified) && (in->status!=OBIT_Active) 
-      && (in->status!=OBIT_ErrorExist)) 
-    return OBIT_IO_OK;
+    /* don't bother if it's not open (shutdown even if in error) */
+    if ((in->status != OBIT_Modified) && (in->status != OBIT_Active)
+            && (in->status != OBIT_ErrorExist))
+        return OBIT_IO_OK;
 
-  /* Don't bother if myFile NULL*/
-  if (in->myFile==NULL) return OBIT_IO_OK;
+    /* Don't bother if myFile NULL*/
+    if (in->myFile == NULL) return OBIT_IO_OK;
 
-  /* if writing flush buffer */
-  flush = (in->status==OBIT_Modified);
-  if (flush) {
-    status = fflush (in->myFile);
-    if (status) {             /* it went wrong */
-      Obit_log_error(err, OBIT_Error, 
-		     "ERROR Flushing file %s", in->name);
-      ObitFileErrMsg(err);     /* system error message*/
-      return OBIT_IO_ReadErr;
+    /* if writing flush buffer */
+    flush = (in->status == OBIT_Modified);
+
+    if (flush) {
+        status = fflush(in->myFile);
+
+        if (status) {             /* it went wrong */
+            Obit_log_error(err, OBIT_Error,
+                           "ERROR Flushing file %s", in->name);
+            ObitFileErrMsg(err);     /* system error message*/
+            return OBIT_IO_ReadErr;
+        }
     }
-  }
-  /* close file */
-  status = fclose(in->myFile);
-  if (status) {             /* it went wrong */
-    Obit_log_error(err, OBIT_Error, 
-		   "ERROR Flushing file %s", in->name);
-    ObitFileErrMsg(err);     /* system error message*/
-    return OBIT_IO_ReadErr;
-  }
 
-  /* mark file structure */
-  in->myFile = NULL;
-  in->status = OBIT_Inactive;
+    /* close file */
+    status = fclose(in->myFile);
 
-  return OBIT_IO_OK;
+    if (status) {             /* it went wrong */
+        Obit_log_error(err, OBIT_Error,
+                       "ERROR Flushing file %s", in->name);
+        ObitFileErrMsg(err);     /* system error message*/
+        return OBIT_IO_ReadErr;
+    }
+
+    /* mark file structure */
+    in->myFile = NULL;
+    in->status = OBIT_Inactive;
+
+    return OBIT_IO_OK;
 } /* end ObitFileClose */
 
 /** Position file
@@ -521,29 +572,31 @@ ObitIOCode ObitFileClose (ObitFile *in, ObitErr *err)
  * \param err     ObitErr for reporting errors.
  * \return error code, 0=> OK
  */
-ObitIOCode ObitFileSetPos (ObitFile *in, ObitFilePos filePos, ObitErr *err)
+ObitIOCode ObitFileSetPos(ObitFile *in, ObitFilePos filePos, ObitErr *err)
 {
-  ObitIOCode status, retCode = OBIT_IO_SpecErr;
-  gchar *routine = "ObitFileSetPos";
+    ObitIOCode status, retCode = OBIT_IO_SpecErr;
+    gchar *routine = "ObitFileSetPos";
 
-  /* error checks */
-  if (err->error) return retCode;
-  g_assert (ObitIsA(in, &myClassInfo));
-  errno = 0;  /* reset any system error */
+    /* error checks */
+    if (err->error) return retCode;
 
-  /* position the file if needbe */
-  if (in->filePos != filePos) {
-    in->filePos = filePos;
-    status = fseeko (in->myFile, in->filePos, SEEK_SET);
-    if (status) {             /* it went wrong */
-      Obit_log_error(err, OBIT_Error, 
-		     "%s: ERROR Positioning file %s", routine, in->name);
-      ObitFileErrMsg(err);     /* system error message*/
-      return OBIT_IO_OpenErr;
+    g_assert(ObitIsA(in, &myClassInfo));
+    errno = 0;  /* reset any system error */
+
+    /* position the file if needbe */
+    if (in->filePos != filePos) {
+        in->filePos = filePos;
+        status = fseeko(in->myFile, in->filePos, SEEK_SET);
+
+        if (status) {             /* it went wrong */
+            Obit_log_error(err, OBIT_Error,
+                           "%s: ERROR Positioning file %s", routine, in->name);
+            ObitFileErrMsg(err);     /* system error message*/
+            return OBIT_IO_OpenErr;
+        }
     }
-  }
 
-  return OBIT_IO_OK;
+    return OBIT_IO_OK;
 } /* end ObitFileSetPos */
 
 /**
@@ -553,29 +606,31 @@ ObitIOCode ObitFileSetPos (ObitFile *in, ObitFilePos filePos, ObitErr *err)
  * \param err ObitErr for reporting errors.
  * \return error code, 0=> OK
  */
-ObitIOCode ObitFileEnd (ObitFile *in, ObitErr *err)
+ObitIOCode ObitFileEnd(ObitFile *in, ObitErr *err)
 {
-  ObitIOCode status, retCode = OBIT_IO_SpecErr;
+    ObitIOCode status, retCode = OBIT_IO_SpecErr;
 
-  /* error checks */
-  if (err->error) return retCode;
-  g_assert (ObitIsA(in, &myClassInfo));
-  errno = 0;  /* reset any system error */
+    /* error checks */
+    if (err->error) return retCode;
 
-  /* position at the end of the file */
-  in->filePos = 0;
-  status = fseeko (in->myFile, in->filePos, SEEK_END);
-  if (status) {             /* it went wrong */
-    Obit_log_error(err, OBIT_Error, 
-		   "ERROR Positioning file %s", in->name);
-    ObitFileErrMsg(err);     /* system error message*/
-    return OBIT_IO_OpenErr;
-  }
+    g_assert(ObitIsA(in, &myClassInfo));
+    errno = 0;  /* reset any system error */
 
-  /* reset file position - the SEEK_END confuses ftello */
-  in->filePos = -1L;
+    /* position at the end of the file */
+    in->filePos = 0;
+    status = fseeko(in->myFile, in->filePos, SEEK_END);
 
-  return OBIT_IO_OK;
+    if (status) {             /* it went wrong */
+        Obit_log_error(err, OBIT_Error,
+                       "ERROR Positioning file %s", in->name);
+        ObitFileErrMsg(err);     /* system error message*/
+        return OBIT_IO_OpenErr;
+    }
+
+    /* reset file position - the SEEK_END confuses ftello */
+    in->filePos = -1L;
+
+    return OBIT_IO_OK;
 } /* end ObitFileEnd */
 
 /**
@@ -588,72 +643,81 @@ ObitIOCode ObitFileEnd (ObitFile *in, ObitErr *err)
  * \param err     ObitErr for reporting errors.
  * \return return code, 0=> OK
  */
-ObitIOCode 
-ObitFileRead (ObitFile *in, ObitFilePos filePos, olong size, gchar *buffer, 
-	      ObitErr *err)
+ObitIOCode
+ObitFileRead(ObitFile *in, ObitFilePos filePos, olong size, gchar *buffer,
+             ObitErr *err)
 {
-  ObitIOCode status, retCode = OBIT_IO_SpecErr;
-  size_t nRead;
-  gchar *routine = "ObitFileRead";
-  /* olong tellpos; DEBUG  AIPS SUCKS BIG TIME */
+    ObitIOCode status, retCode = OBIT_IO_SpecErr;
+    size_t nRead;
+    gchar *routine = "ObitFileRead";
+    /* olong tellpos; DEBUG  AIPS SUCKS BIG TIME */
 
-  /* error checks */
-  if (err->error) return retCode;
-  g_assert (ObitIsA(in, &myClassInfo));
-  g_assert (buffer != NULL);
-  /* A previous error condition? */
-  if (in->status == OBIT_ErrorExist) return retCode;
-  errno = 0;  /* reset any system error */
+    /* error checks */
+    if (err->error) return retCode;
 
-  /* If last operation was a write, flush */
-  if (in->status == OBIT_Modified) {
-    retCode = ObitFileFlush (in, err);
-    if (err->error) Obit_traceback_val (err, routine, in->name, retCode);
-    in->status = OBIT_Active;
-  }
+    g_assert(ObitIsA(in, &myClassInfo));
+    g_assert(buffer != NULL);
 
-  /* Position file if needbe */
-  if ((filePos>=0) && (in->filePos != filePos)) {
-    in->filePos = filePos;
-    /* DEBUG 
+    /* A previous error condition? */
+    if (in->status == OBIT_ErrorExist) return retCode;
+
+    errno = 0;  /* reset any system error */
+
+    /* If last operation was a write, flush */
+    if (in->status == OBIT_Modified) {
+        retCode = ObitFileFlush(in, err);
+
+        if (err->error) Obit_traceback_val(err, routine, in->name, retCode);
+
+        in->status = OBIT_Active;
+    }
+
+    /* Position file if needbe */
+    if ((filePos >= 0) && (in->filePos != filePos)) {
+        in->filePos = filePos;
+        /* DEBUG
+           tellpos = ftell(in->myFile);
+           fprintf (stdout, "%s read fseek %d was %d positioned %d \n",
+           in->fileName, (olong)filePos, (olong)in->filePos, tellpos);
+           END DEBUG */
+        status = fseeko(in->myFile, in->filePos, SEEK_SET);
+
+        if (status) {             /* it went wrong */
+            Obit_log_error(err, OBIT_Error,
+                           "ERROR Positioning file %s", in->name);
+            ObitFileErrMsg(err);     /* system error message*/
+            return OBIT_IO_ReadErr;
+        }
+    } /* end of position file */
+
+    /* Do read */
+    /* DEBUG
        tellpos = ftell(in->myFile);
-       fprintf (stdout, "%s read fseek %d was %d positioned %d \n",
-       in->fileName, (olong)filePos, (olong)in->filePos, tellpos);
+       fprintf (stdout, "%s read %d at %d positioned  %d\n",
+       in->fileName, size, (olong)in->filePos, tellpos);
        END DEBUG */
-    status = fseeko (in->myFile, in->filePos, SEEK_SET);
-    if (status) {             /* it went wrong */
-      Obit_log_error(err, OBIT_Error, 
-		     "ERROR Positioning file %s", in->name);
-      ObitFileErrMsg(err);     /* system error message*/
-      return OBIT_IO_ReadErr;
-    }
-  } /* end of position file */
+    retCode = OBIT_IO_OK;
+    nRead = fread(buffer, size, 1, in->myFile);
 
-  /* Do read */
-  /* DEBUG 
-     tellpos = ftell(in->myFile);
-     fprintf (stdout, "%s read %d at %d positioned  %d\n",
-     in->fileName, size, (olong)in->filePos, tellpos);
-     END DEBUG */
-  retCode = OBIT_IO_OK;
-  nRead = fread (buffer, size, 1, in->myFile);
-  if (nRead!=1) {		/* it went wrong */
-     /* set type of error */
-    retCode = OBIT_IO_ReadErr;
-    if (feof(in->myFile)) retCode = OBIT_IO_EOF;
-    if (retCode!=OBIT_IO_EOF) { /* EOF not an error */
-      in->status = OBIT_ErrorExist;
-      Obit_log_error(err, OBIT_Error, 
-		     "ERROR reading file %s", in->name);
-      ObitFileErrMsg(err);     /* system error message*/
-      return retCode;
-    }
-  }
+    if (nRead != 1) {     /* it went wrong */
+        /* set type of error */
+        retCode = OBIT_IO_ReadErr;
 
-  /* update position */
-  if (in->filePos>=0) in->filePos += size;
-  
-  return retCode;
+        if (feof(in->myFile)) retCode = OBIT_IO_EOF;
+
+        if (retCode != OBIT_IO_EOF) { /* EOF not an error */
+            in->status = OBIT_ErrorExist;
+            Obit_log_error(err, OBIT_Error,
+                           "ERROR reading file %s", in->name);
+            ObitFileErrMsg(err);     /* system error message*/
+            return retCode;
+        }
+    }
+
+    /* update position */
+    if (in->filePos >= 0) in->filePos += size;
+
+    return retCode;
 } /* end ObitFileRead */
 
 /**
@@ -665,67 +729,75 @@ ObitFileRead (ObitFile *in, ObitFilePos filePos, olong size, gchar *buffer,
  * \param err     ObitErr for reporting errors.
  * \return return code, OBIT_IO_OK => OK
  */
-ObitIOCode 
-ObitFileReadLine (ObitFile *in, gchar *line, olong lineMax, ObitErr *err)
+ObitIOCode
+ObitFileReadLine(ObitFile *in, gchar *line, olong lineMax, ObitErr *err)
 {
-  ObitIOCode retCode = OBIT_IO_SpecErr;
-  gchar *OK;
-  gchar *routine = "ObitFileReadLine";
+    ObitIOCode retCode = OBIT_IO_SpecErr;
+    gchar *OK;
+    gchar *routine = "ObitFileReadLine";
 
-  /* error checks */
-  if (err->error) return retCode;
-  g_assert (ObitIsA(in, &myClassInfo));
-  g_assert (line != NULL);
-  /* A previous error condition? */
-  if (in->status == OBIT_ErrorExist) return retCode;
-  errno = 0;  /* reset any system error */
+    /* error checks */
+    if (err->error) return retCode;
 
-  /* This must be opened as a text file */
-  if (in->type!=OBIT_IO_Text) {
-      Obit_log_error(err, OBIT_Error, 
-		     "%s ERROR NOT text file %s", routine, in->name);
-      return retCode;
-  }
+    g_assert(ObitIsA(in, &myClassInfo));
+    g_assert(line != NULL);
 
-  /* This must be allowed to read */
-  if ((in->access!=OBIT_IO_ReadOnly) && (in->access!=OBIT_IO_ReadWrite)) {
-      Obit_log_error(err, OBIT_Error, 
-		     "%s ERROR NO read access for %s", routine, in->name);
-      return retCode;
-  }
+    /* A previous error condition? */
+    if (in->status == OBIT_ErrorExist) return retCode;
 
-  /* If last operation was a write, flush */
-  if (in->status == OBIT_Modified) {
-    retCode = ObitFileFlush (in, err);
-    if (err->error) /* add traceback on error */
-      Obit_traceback_val (err, routine, in->name, retCode);
-    in->status = OBIT_Active;
-  }
+    errno = 0;  /* reset any system error */
 
-  /* Do read */
-  retCode = OBIT_IO_OK;
-  OK = fgets (line, lineMax, in->myFile);
-  if (!OK) {			/* it went wrong */
-    /* set type of error */
-    retCode = OBIT_IO_ReadErr;
-    if (feof(in->myFile)) retCode = OBIT_IO_EOF;
-    if (retCode!=OBIT_IO_EOF) { /* EOF not an error */
-      in->status = OBIT_ErrorExist;
-      Obit_log_error(err, OBIT_Error, "ERROR reading file %s", in->name);
-      ObitFileErrMsg(err);     /* system error message*/
-      return retCode;
+    /* This must be opened as a text file */
+    if (in->type != OBIT_IO_Text) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s ERROR NOT text file %s", routine, in->name);
+        return retCode;
     }
-  }
 
-  /* update position */
-  in->filePos = ftello(in->myFile);
-  
-  return retCode;
+    /* This must be allowed to read */
+    if ((in->access != OBIT_IO_ReadOnly) && (in->access != OBIT_IO_ReadWrite)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s ERROR NO read access for %s", routine, in->name);
+        return retCode;
+    }
+
+    /* If last operation was a write, flush */
+    if (in->status == OBIT_Modified) {
+        retCode = ObitFileFlush(in, err);
+
+        if (err->error) /* add traceback on error */
+            Obit_traceback_val(err, routine, in->name, retCode);
+
+        in->status = OBIT_Active;
+    }
+
+    /* Do read */
+    retCode = OBIT_IO_OK;
+    OK = fgets(line, lineMax, in->myFile);
+
+    if (!OK) {            /* it went wrong */
+        /* set type of error */
+        retCode = OBIT_IO_ReadErr;
+
+        if (feof(in->myFile)) retCode = OBIT_IO_EOF;
+
+        if (retCode != OBIT_IO_EOF) { /* EOF not an error */
+            in->status = OBIT_ErrorExist;
+            Obit_log_error(err, OBIT_Error, "ERROR reading file %s", in->name);
+            ObitFileErrMsg(err);     /* system error message*/
+            return retCode;
+        }
+    }
+
+    /* update position */
+    in->filePos = ftello(in->myFile);
+
+    return retCode;
 } /* end ObitFileReadLine */
 
 /**
  * Read segment of XML from file.
- * Returns up to next / * > segment 
+ * Returns up to next / * > segment
  * \param in      Pointer to object to be read.
  * \param line    pointer to memory to accept the text
  *                may be newline terminated.
@@ -733,97 +805,111 @@ ObitFileReadLine (ObitFile *in, gchar *line, olong lineMax, ObitErr *err)
  * \param err     ObitErr for reporting errors.
  * \return return code, OBIT_IO_OK => OK
  */
-ObitIOCode 
-ObitFileReadXML (ObitFile *in, gchar *line, olong lineMax, ObitErr *err)
+ObitIOCode
+ObitFileReadXML(ObitFile *in, gchar *line, olong lineMax, ObitErr *err)
 {
-  ObitIOCode retCode = OBIT_IO_SpecErr;
-  ObitFilePos filePos, endPos;
-  olong i, j, size, bloc, start, end, max;
-  gchar *tstr, *estr, *slash="/", *endb=">";
-  gchar *routine = "ObitFileReadXML";
+    ObitIOCode retCode = OBIT_IO_SpecErr;
+    ObitFilePos filePos, endPos;
+    olong i, j, size, bloc, start, end, max;
+    gchar *tstr, *estr, *slash = "/", *endb = ">";
+    gchar *routine = "ObitFileReadXML";
 
-  /* error checks */
-  if (err->error) return retCode;
-  g_assert (ObitIsA(in, &myClassInfo));
-  g_assert (line != NULL);
-  /* A previous error condition? */
-  if (in->status == OBIT_ErrorExist) return retCode;
-  errno = 0;  /* reset any system error */
+    /* error checks */
+    if (err->error) return retCode;
 
-  /* This must be opened as a text file */
-  if (in->type!=OBIT_IO_Text) {
-      Obit_log_error(err, OBIT_Error, 
-		     "%s ERROR NOT text file %s", routine, in->name);
-      return retCode;
-  }
+    g_assert(ObitIsA(in, &myClassInfo));
+    g_assert(line != NULL);
 
-  /* This must be allowed to read */
-  if ((in->access!=OBIT_IO_ReadOnly) && (in->access!=OBIT_IO_ReadWrite)) {
-      Obit_log_error(err, OBIT_Error, 
-		     "%s ERROR NO read access for %s", routine, in->name);
-      return retCode;
-  }
+    /* A previous error condition? */
+    if (in->status == OBIT_ErrorExist) return retCode;
 
-  /* Init buffer if needed */
-  if ((in->XMLbufferSize<=0) || (in->XMLbuffer==NULL)) {
-    in->XMLbufferSize = XMLBUFFERSIZE;
-    in->XMLbuffer     = g_malloc(in->XMLbufferSize);
-    in->XMLcurrent    = XMLBUFFERSIZE + 1;
-    in->XMLmax        = XMLBUFFERSIZE;
-    in->XMLdone       = FALSE;
-  }
+    errno = 0;  /* reset any system error */
 
-  /* Need to read?  Current past first half of buffer */
-  if (!in->XMLdone && (2*in->XMLcurrent>in->XMLbufferSize)) {
-    /* All or half of buffer? */
-    if (in->XMLcurrent>=in->XMLbufferSize) { /* all */
-      size = in->XMLbufferSize;
-      bloc = 0;
-      in->XMLcurrent = 0;
-    } else { /* half - first shuffle bytes */
-      size = in->XMLbufferSize/2;
-      bloc = size;
-      memcpy (in->XMLbuffer, &in->XMLbuffer[bloc], size);
-      in->XMLcurrent -= size;
+    /* This must be opened as a text file */
+    if (in->type != OBIT_IO_Text) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s ERROR NOT text file %s", routine, in->name);
+        return retCode;
     }
-    filePos = in->filePos;
-    retCode = ObitFileRead (in, filePos, size, &in->XMLbuffer[bloc], err);
-    if (err->error) Obit_traceback_val (err, routine, in->name, retCode);
-    /* If EOF set max valid character */
-    if (retCode==OBIT_IO_EOF) {
-      endPos = ftello(in->myFile);
-      in->XMLmax  = bloc + endPos - filePos;
-      in->XMLdone = TRUE;
-      retCode = OBIT_IO_OK;
-    } else in->XMLmax  = XMLBUFFERSIZE;
-  } else retCode = OBIT_IO_OK;
 
-  /* Are we done? */
-  if (in->XMLdone && (in->XMLcurrent>=in->XMLmax)) return OBIT_IO_EOF;
+    /* This must be allowed to read */
+    if ((in->access != OBIT_IO_ReadOnly) && (in->access != OBIT_IO_ReadWrite)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s ERROR NO read access for %s", routine, in->name);
+        return retCode;
+    }
 
-  /* look for '/' followed by '>' */
-  max = in->XMLmax - in->XMLcurrent;
-  tstr = g_strstr_len (&in->XMLbuffer[in->XMLcurrent], max, slash);
-  if (tstr==NULL) return OBIT_IO_EOF; /* treat as EOF */
-  max   = &in->XMLbuffer[in->XMLmax] - tstr;
-  estr  = g_strstr_len (tstr, max, endb); 
-  if (estr==NULL) return OBIT_IO_EOF; /* treat as EOF */
-  estr++;  /* move to after '>' */
-  /* swallow newline if one */
-  if (estr[0]=='\n') estr++;
+    /* Init buffer if needed */
+    if ((in->XMLbufferSize <= 0) || (in->XMLbuffer == NULL)) {
+        in->XMLbufferSize = XMLBUFFERSIZE;
+        in->XMLbuffer     = g_malloc(in->XMLbufferSize);
+        in->XMLcurrent    = XMLBUFFERSIZE + 1;
+        in->XMLmax        = XMLBUFFERSIZE;
+        in->XMLdone       = FALSE;
+    }
 
-  /* Copy */
-  start = in->XMLcurrent;
-  end   = estr - in->XMLbuffer;
-  j = 0;
-  for (i=start; i<end; i++) {
-    line[j++] = in->XMLbuffer[i];
-    if (j>=(lineMax+0)) break;
-  }
-  line[j++] = 0;
-  in->XMLcurrent = end;  /* Next */
+    /* Need to read?  Current past first half of buffer */
+    if (!in->XMLdone && (2 * in->XMLcurrent > in->XMLbufferSize)) {
+        /* All or half of buffer? */
+        if (in->XMLcurrent >= in->XMLbufferSize) { /* all */
+            size = in->XMLbufferSize;
+            bloc = 0;
+            in->XMLcurrent = 0;
+        } else { /* half - first shuffle bytes */
+            size = in->XMLbufferSize / 2;
+            bloc = size;
+            memcpy(in->XMLbuffer, &in->XMLbuffer[bloc], size);
+            in->XMLcurrent -= size;
+        }
 
-  return retCode;
+        filePos = in->filePos;
+        retCode = ObitFileRead(in, filePos, size, &in->XMLbuffer[bloc], err);
+
+        if (err->error) Obit_traceback_val(err, routine, in->name, retCode);
+
+        /* If EOF set max valid character */
+        if (retCode == OBIT_IO_EOF) {
+            endPos = ftello(in->myFile);
+            in->XMLmax  = bloc + endPos - filePos;
+            in->XMLdone = TRUE;
+            retCode = OBIT_IO_OK;
+        } else in->XMLmax  = XMLBUFFERSIZE;
+    } else retCode = OBIT_IO_OK;
+
+    /* Are we done? */
+    if (in->XMLdone && (in->XMLcurrent >= in->XMLmax)) return OBIT_IO_EOF;
+
+    /* look for '/' followed by '>' */
+    max = in->XMLmax - in->XMLcurrent;
+    tstr = g_strstr_len(&in->XMLbuffer[in->XMLcurrent], max, slash);
+
+    if (tstr == NULL) return OBIT_IO_EOF; /* treat as EOF */
+
+    max   = &in->XMLbuffer[in->XMLmax] - tstr;
+    estr  = g_strstr_len(tstr, max, endb);
+
+    if (estr == NULL) return OBIT_IO_EOF; /* treat as EOF */
+
+    estr++;  /* move to after '>' */
+
+    /* swallow newline if one */
+    if (estr[0] == '\n') estr++;
+
+    /* Copy */
+    start = in->XMLcurrent;
+    end   = estr - in->XMLbuffer;
+    j = 0;
+
+    for (i = start; i < end; i++) {
+        line[j++] = in->XMLbuffer[i];
+
+        if (j >= (lineMax + 0)) break;
+    }
+
+    line[j++] = 0;
+    in->XMLcurrent = end;  /* Next */
+
+    return retCode;
 } /* end ObitFileReadXML */
 
 /**
@@ -836,136 +922,151 @@ ObitFileReadXML (ObitFile *in, gchar *line, olong lineMax, ObitErr *err)
  * \param err    ObitErr for reporting errors.
  * \return return code, 0=> OK
  */
-ObitIOCode 
-ObitFileWrite (ObitFile *in, ObitFilePos filePos, olong size, gchar *buffer, 
-	       ObitErr *err)
+ObitIOCode
+ObitFileWrite(ObitFile *in, ObitFilePos filePos, olong size, gchar *buffer,
+              ObitErr *err)
 {
-  ObitIOCode status, retCode = OBIT_IO_SpecErr;
-  size_t nWrit;
-  /*glong tellpos;  DEBUG  */
-  gchar *routine = "ObitFileWrite";
-  
-  if (size<=0) return OBIT_IO_OK; /* Nothing to do? */
+    ObitIOCode status, retCode = OBIT_IO_SpecErr;
+    size_t nWrit;
+    /*glong tellpos;  DEBUG  */
+    gchar *routine = "ObitFileWrite";
 
-  /* error checks */
-  if (err->error) return retCode;
-  g_assert (ObitIsA(in, &myClassInfo));
-  g_assert (buffer != NULL);
-  /* A previous error condition? */
-  if (in->status== OBIT_ErrorExist) return retCode;
-  errno = 0;  /* reset any system error */
+    if (size <= 0) return OBIT_IO_OK; /* Nothing to do? */
 
-  /* Trap request to write to end of file positioned at the end */
-  if ((filePos<0) && (in->filePos<0)) {
-    filePos = ObitFileSize(in->fileName, err);
-    if (err->error) Obit_traceback_val (err, routine, in->name,  retCode);
-  }
-  
-  /* Position file if needbe */
-  if ((filePos>=0) && (in->filePos != filePos)) {
-    /* DEBUG 
-       tellpos = ftell(in->myFile);
-       fprintf (stdout, "%s write fseek %d was %d positioned %d \n",
-       in->fileName, (olong)filePos, (olong)in->filePos, tellpos);
-       END DEBUG */
-    in->filePos = filePos;
-    status = fseeko (in->myFile, in->filePos, SEEK_SET);
-    if (status) {             /* it went wrong */
-      Obit_log_error(err, OBIT_Error, 
-		     "ERROR Positioning file %s", in->name);
-      ObitFileErrMsg(err);     /* system error message*/
-      return OBIT_IO_WriteErr;
+    /* error checks */
+    if (err->error) return retCode;
+
+    g_assert(ObitIsA(in, &myClassInfo));
+    g_assert(buffer != NULL);
+
+    /* A previous error condition? */
+    if (in->status == OBIT_ErrorExist) return retCode;
+
+    errno = 0;  /* reset any system error */
+
+    /* Trap request to write to end of file positioned at the end */
+    if ((filePos < 0) && (in->filePos < 0)) {
+        filePos = ObitFileSize(in->fileName, err);
+
+        if (err->error) Obit_traceback_val(err, routine, in->name,  retCode);
     }
-  } /* end of position file */
-  
-  /* Do write */
-  nWrit = fwrite (buffer, size, 1, in->myFile);
-  if (nWrit!=1) {		/* it went wrong */
-    Obit_log_error(err, OBIT_Error, 
-		   "ERROR writing file %s", in->name);
-    ObitFileErrMsg(err);     /* system error message*/
 
-    /* set type of error */
-    retCode = OBIT_IO_WriteErr;
-    if (feof(in->myFile)) retCode = OBIT_IO_EOF;
-    in->status = OBIT_ErrorExist;
-    return retCode;
-  }
+    /* Position file if needbe */
+    if ((filePos >= 0) && (in->filePos != filePos)) {
+        /* DEBUG
+           tellpos = ftell(in->myFile);
+           fprintf (stdout, "%s write fseek %d was %d positioned %d \n",
+           in->fileName, (olong)filePos, (olong)in->filePos, tellpos);
+           END DEBUG */
+        in->filePos = filePos;
+        status = fseeko(in->myFile, in->filePos, SEEK_SET);
 
-  /* DEBUG 
-     status = fflush (in->myFile);
-     tellpos = ftell(in->myFile);
-     fprintf (stdout, "%s write %d at %d positioned  %d\n",
-     in->fileName, size, (olong)in->filePos, tellpos);
-     END DEBUG */
+        if (status) {             /* it went wrong */
+            Obit_log_error(err, OBIT_Error,
+                           "ERROR Positioning file %s", in->name);
+            ObitFileErrMsg(err);     /* system error message*/
+            return OBIT_IO_WriteErr;
+        }
+    } /* end of position file */
 
-  /* update position / status */
-  if (in->filePos>=0) in->filePos += size;
-  in->status = OBIT_Modified;
+    /* Do write */
+    nWrit = fwrite(buffer, size, 1, in->myFile);
 
-  return OBIT_IO_OK;
+    if (nWrit != 1) {     /* it went wrong */
+        Obit_log_error(err, OBIT_Error,
+                       "ERROR writing file %s", in->name);
+        ObitFileErrMsg(err);     /* system error message*/
+
+        /* set type of error */
+        retCode = OBIT_IO_WriteErr;
+
+        if (feof(in->myFile)) retCode = OBIT_IO_EOF;
+
+        in->status = OBIT_ErrorExist;
+        return retCode;
+    }
+
+    /* DEBUG
+       status = fflush (in->myFile);
+       tellpos = ftell(in->myFile);
+       fprintf (stdout, "%s write %d at %d positioned  %d\n",
+       in->fileName, size, (olong)in->filePos, tellpos);
+       END DEBUG */
+
+    /* update position / status */
+    if (in->filePos >= 0) in->filePos += size;
+
+    in->status = OBIT_Modified;
+
+    return OBIT_IO_OK;
 } /* end ObitFileWrite */
 
 /**
  * Write line of text to file.
  * \param in      Pointer to object to be written
- * \param line    pointer to memory to text to be written, 
+ * \param line    pointer to memory to text to be written,
  *                should be newline terminated.
  * \param err     ObitErr for reporting errors.
  * \return return code, OBIT_IO_OK => OK
  */
-ObitIOCode 
-ObitFileWriteLine (ObitFile *in, gchar *line, ObitErr *err)
+ObitIOCode
+ObitFileWriteLine(ObitFile *in, gchar *line, ObitErr *err)
 {
-  ObitIOCode retCode = OBIT_IO_SpecErr;
-  olong OK;
-  gchar *routine = "ObitFileWriteLine";
-  
-  /* error checks */
-  if (err->error) return retCode;
-  g_assert (ObitIsA(in, &myClassInfo));
-  g_assert (line != NULL);
-  /* A previous error condition? */
-  if (in->status== OBIT_ErrorExist) return retCode;
-  errno = 0;  /* reset any system error */
- 
- /* This must be opened as a text file */
-  if (in->type!=OBIT_IO_Text) {
-      Obit_log_error(err, OBIT_Error, 
-		     "%s ERROR NOT text file %s", routine, in->name);
-      return retCode;
-  }
+    ObitIOCode retCode = OBIT_IO_SpecErr;
+    olong OK;
+    gchar *routine = "ObitFileWriteLine";
 
-  /* This must be allowed to write */
-  if ((in->access!=OBIT_IO_WriteOnly) && (in->access!=OBIT_IO_ReadWrite)) {
-      Obit_log_error(err, OBIT_Error, 
-		     "%s ERROR NO write access for %s", routine, in->name);
-      return retCode;
-  }
+    /* error checks */
+    if (err->error) return retCode;
 
-  /* Do write */
-  OK = fputs (line, in->myFile);
-  if (OK<0) {			/* it went wrong */
-    Obit_log_error(err, OBIT_Error, 
-		   "ERROR writing file %s", in->name);
-    ObitFileErrMsg(err);     /* system error message*/
- 
-    /* set type of error */
-    retCode = OBIT_IO_WriteErr;
-    if (feof(in->myFile)) retCode = OBIT_IO_EOF;
-    in->status = OBIT_ErrorExist;
-    return retCode;
-  }
+    g_assert(ObitIsA(in, &myClassInfo));
+    g_assert(line != NULL);
 
-  /* update position / status */
-  in->filePos = ftello(in->myFile);
-  in->status = OBIT_Modified;
+    /* A previous error condition? */
+    if (in->status == OBIT_ErrorExist) return retCode;
 
-  return OBIT_IO_OK;
+    errno = 0;  /* reset any system error */
+
+    /* This must be opened as a text file */
+    if (in->type != OBIT_IO_Text) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s ERROR NOT text file %s", routine, in->name);
+        return retCode;
+    }
+
+    /* This must be allowed to write */
+    if ((in->access != OBIT_IO_WriteOnly) && (in->access != OBIT_IO_ReadWrite)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s ERROR NO write access for %s", routine, in->name);
+        return retCode;
+    }
+
+    /* Do write */
+    OK = fputs(line, in->myFile);
+
+    if (OK < 0) {         /* it went wrong */
+        Obit_log_error(err, OBIT_Error,
+                       "ERROR writing file %s", in->name);
+        ObitFileErrMsg(err);     /* system error message*/
+
+        /* set type of error */
+        retCode = OBIT_IO_WriteErr;
+
+        if (feof(in->myFile)) retCode = OBIT_IO_EOF;
+
+        in->status = OBIT_ErrorExist;
+        return retCode;
+    }
+
+    /* update position / status */
+    in->filePos = ftello(in->myFile);
+    in->status = OBIT_Modified;
+
+    return OBIT_IO_OK;
 } /* end ObitFileWriteLine */
 
 /**
- * Fill the file from the current position to padTo using the 
+ * Fill the file from the current position to padTo using the
  * contents of buffer.
  * This is mostly useful for AIPS files for which ancient
  * concepts of file blocking are enforced.
@@ -977,54 +1078,61 @@ ObitFileWriteLine (ObitFile *in, gchar *line, ObitErr *err)
  * \return return code, 0=> OK
  */
 ObitIOCode
-ObitFilePad (ObitFile *in, ObitFilePos padTo, gchar *buffer, olong bsize, 
-	     ObitErr *err)
+ObitFilePad(ObitFile *in, ObitFilePos padTo, gchar *buffer, olong bsize,
+            ObitErr *err)
 {
-  ObitIOCode retCode = OBIT_IO_SpecErr;
-  size_t size, nWrit;
-  /* olong tellpos; DEBUG  */
+    ObitIOCode retCode = OBIT_IO_SpecErr;
+    size_t size, nWrit;
+    /* olong tellpos; DEBUG  */
 
-  /* error checks */
-  if (err->error) return retCode;
-  g_assert (ObitIsA(in, &myClassInfo));
-  g_assert (buffer != NULL);
-  /* A previous error condition? */
-  if (in->status== OBIT_ErrorExist) return retCode;
-  errno = 0;  /* reset any system error */
+    /* error checks */
+    if (err->error) return retCode;
 
-  /* DEBUG
-     tellpos = ftell(in->myFile);
-     fprintf (stdout, "%s Pad to %d was %d positioned %d \n",
-     in->fileName, (olong)padTo, (olong)in->filePos, tellpos);
-     END DEBUG */
+    g_assert(ObitIsA(in, &myClassInfo));
+    g_assert(buffer != NULL);
 
-  /* Is anything needed? */
-  if (padTo < in->filePos) return OBIT_IO_OK;
+    /* A previous error condition? */
+    if (in->status == OBIT_ErrorExist) return retCode;
 
-  /* pad it */
-  size = bsize;
-  while (in->filePos < padTo) { /* pad 'em */
-    size = MIN (size, (padTo - in->filePos));
+    errno = 0;  /* reset any system error */
 
-    /* write */
-    nWrit = fwrite (buffer, size, 1, in->myFile);
-    /* status = fflush (in->myFile); DEBUG */
-    if (nWrit!=1) {		/* it went wrong */
-      Obit_log_error(err, OBIT_Error, 
-		     "ERROR writing file %s", in->name);
-      ObitFileErrMsg(err);     /* system error message*/
-      
-      /* set type of error */
-      retCode = OBIT_IO_WriteErr;
-      if (feof(in->myFile)) retCode = OBIT_IO_EOF;
-      in->status = OBIT_ErrorExist;
-      return retCode;
-    }
+    /* DEBUG
+       tellpos = ftell(in->myFile);
+       fprintf (stdout, "%s Pad to %d was %d positioned %d \n",
+       in->fileName, (olong)padTo, (olong)in->filePos, tellpos);
+       END DEBUG */
 
-    if (in->filePos>=0) in->filePos += size;  /* update file position */
-  } /* end loop padding */
+    /* Is anything needed? */
+    if (padTo < in->filePos) return OBIT_IO_OK;
 
-  return OBIT_IO_OK;
+    /* pad it */
+    size = bsize;
+
+    while (in->filePos < padTo) { /* pad 'em */
+        size = MIN(size, (padTo - in->filePos));
+
+        /* write */
+        nWrit = fwrite(buffer, size, 1, in->myFile);
+
+        /* status = fflush (in->myFile); DEBUG */
+        if (nWrit != 1) {   /* it went wrong */
+            Obit_log_error(err, OBIT_Error,
+                           "ERROR writing file %s", in->name);
+            ObitFileErrMsg(err);     /* system error message*/
+
+            /* set type of error */
+            retCode = OBIT_IO_WriteErr;
+
+            if (feof(in->myFile)) retCode = OBIT_IO_EOF;
+
+            in->status = OBIT_ErrorExist;
+            return retCode;
+        }
+
+        if (in->filePos >= 0) in->filePos += size; /* update file position */
+    } /* end loop padding */
+
+    return OBIT_IO_OK;
 } /* end ObitFilePad */
 
 /**
@@ -1038,105 +1146,124 @@ ObitFilePad (ObitFile *in, ObitFilePos padTo, gchar *buffer, olong bsize,
  * \return return code, 0=> OK
  */
 ObitIOCode
-ObitFilePadFile (ObitFile *in, olong blksize, ObitErr *err)
+ObitFilePadFile(ObitFile *in, olong blksize, ObitErr *err)
 {
-  ObitIOCode retCode = OBIT_IO_SpecErr;
-  gchar *tmpBuff=NULL;
-  size_t size, nBlocks, nWrit;
-  ObitFilePos wantPos;
-  struct stat stbuf;
-  olong status, need;
-  /* olong tellpos; DEBUG  */
+    ObitIOCode retCode = OBIT_IO_SpecErr;
+    gchar *tmpBuff = NULL;
+    size_t size, nBlocks, nWrit;
+    ObitFilePos wantPos;
+    struct stat stbuf;
+    olong status, need;
+    /* olong tellpos; DEBUG  */
 
-  /* error checks */
-  g_assert (ObitErrIsA(err));
-  if (err->error) return retCode;
-  g_assert (ObitIsA(in, &myClassInfo));
-  g_assert (blksize > 0);
-  /* A previous error condition? */
-  if (in->status == OBIT_ErrorExist) return retCode;
-  /* Better have write enabled */
-  if (in->access==OBIT_IO_ReadOnly) {
-    Obit_log_error(err, OBIT_Error, 
-		   "Attempt to pad ReadOnly file for %s", in->name);
-    return retCode;
-  }
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
-  /* DEBUG
-     tellpos = ftell(in->myFile);
-     fprintf (stdout, "%s PadFile was %d positioned %d \n",
-     in->fileName, (olong)in->filePos, tellpos);
-     END DEBUG */
+    if (err->error) return retCode;
 
-  /* get file info */
-  status = stat(in->fileName, &stbuf);
-  if (status!=0) {
-    Obit_log_error(err, OBIT_Error, 
-		   "ERROR stating file for %s", in->name);
-    ObitFileErrMsg(err);     /* system error message*/
-    return OBIT_IO_OpenErr;
-  }
+    g_assert(ObitIsA(in, &myClassInfo));
+    g_assert(blksize > 0);
 
-  /* is padding needed? Total number of blocks needed */
-  nBlocks = 1 + ((stbuf.st_size-1)/blksize);
-  size = nBlocks * blksize;
-  if (size <= stbuf.st_size) return OBIT_IO_OK;
+    /* A previous error condition? */
+    if (in->status == OBIT_ErrorExist) return retCode;
 
-  /* how much padding needed? */
-  need = size - stbuf.st_size - 1;
-  tmpBuff = g_malloc0(need);
+    /* Better have write enabled */
+    if (in->access == OBIT_IO_ReadOnly) {
+        Obit_log_error(err, OBIT_Error,
+                       "Attempt to pad ReadOnly file for %s", in->name);
+        return retCode;
+    }
 
-  /* DEBUG
-     tellpos = ftell(in->myFile);
-     fprintf (stdout, "%s PadFile was %d positioned %d size  %d\n",
-     in->fileName, (olong)in->filePos, tellpos, (olong)stbuf.st_size);
-     END DEBUG */
+    /* DEBUG
+       tellpos = ftell(in->myFile);
+       fprintf (stdout, "%s PadFile was %d positioned %d \n",
+       in->fileName, (olong)in->filePos, tellpos);
+       END DEBUG */
 
-  /* pad it */
-  size = need;
-  wantPos = stbuf.st_size+1;
-  /* position */
-  status = fseeko (in->myFile, wantPos, SEEK_SET);
-  if (status) {             /* it went wrong */
-    Obit_log_error(err, OBIT_Error, 
-		   "ERROR Positioning file %s", in->name);
-    ObitFileErrMsg(err);     /* system error message*/
-    if (tmpBuff) {g_free(tmpBuff);} tmpBuff = NULL;
-    return OBIT_IO_OpenErr;
-  }
+    /* get file info */
+    status = stat(in->fileName, &stbuf);
 
-  /* DEBUG 
-     tellpos = ftell(in->myFile);
-     fprintf (stdout, "%s PadFile middle %d positioned %d size %d  %d\n",
-     in->fileName, (olong)wantPos, tellpos, (olong)size, (olong)stbuf.st_size);
-     END DEBUG */
-  /* write */
-  nWrit = fwrite (tmpBuff, size, 1, in->myFile);
-  if (nWrit!=1) {      /* it went wrong */
-    Obit_log_error(err, OBIT_Error, 
-		   "ERROR padding file for %s", in->name);
-    ObitFileErrMsg(err);     /* system error message*/
-    
-    /* set type of error */
-    retCode = OBIT_IO_WriteErr;
-    if (feof(in->myFile)) retCode = OBIT_IO_EOF;
-    in->status = OBIT_ErrorExist;
-    if (tmpBuff) {g_free(tmpBuff);} tmpBuff = NULL;
-    return retCode;
-  }
-  
-  /* DEBUG
-     status = fflush (in->myFile);
-     status = stat(in->fileName, &stbuf);
-     tellpos = ftell(in->myFile);
-     fprintf (stdout, "%s PadFile after positioned %d size  %d\n",
-     in->fileName, tellpos, (olong)stbuf.st_size);
-     END DEBUG */
+    if (status != 0) {
+        Obit_log_error(err, OBIT_Error,
+                       "ERROR stating file for %s", in->name);
+        ObitFileErrMsg(err);     /* system error message*/
+        return OBIT_IO_OpenErr;
+    }
 
-  if (in->filePos>=0) in->filePos += size;  /* update file position */
-  if (tmpBuff) {g_free(tmpBuff);} tmpBuff = NULL;
+    /* is padding needed? Total number of blocks needed */
+    nBlocks = 1 + ((stbuf.st_size - 1) / blksize);
+    size = nBlocks * blksize;
 
-  return OBIT_IO_OK;
+    if (size <= stbuf.st_size) return OBIT_IO_OK;
+
+    /* how much padding needed? */
+    need = size - stbuf.st_size - 1;
+    tmpBuff = g_malloc0(need);
+
+    /* DEBUG
+       tellpos = ftell(in->myFile);
+       fprintf (stdout, "%s PadFile was %d positioned %d size  %d\n",
+       in->fileName, (olong)in->filePos, tellpos, (olong)stbuf.st_size);
+       END DEBUG */
+
+    /* pad it */
+    size = need;
+    wantPos = stbuf.st_size + 1;
+    /* position */
+    status = fseeko(in->myFile, wantPos, SEEK_SET);
+
+    if (status) {             /* it went wrong */
+        Obit_log_error(err, OBIT_Error,
+                       "ERROR Positioning file %s", in->name);
+        ObitFileErrMsg(err);     /* system error message*/
+
+        if (tmpBuff) {g_free(tmpBuff);}
+
+        tmpBuff = NULL;
+        return OBIT_IO_OpenErr;
+    }
+
+    /* DEBUG
+       tellpos = ftell(in->myFile);
+       fprintf (stdout, "%s PadFile middle %d positioned %d size %d  %d\n",
+       in->fileName, (olong)wantPos, tellpos, (olong)size, (olong)stbuf.st_size);
+       END DEBUG */
+    /* write */
+    nWrit = fwrite(tmpBuff, size, 1, in->myFile);
+
+    if (nWrit != 1) {    /* it went wrong */
+        Obit_log_error(err, OBIT_Error,
+                       "ERROR padding file for %s", in->name);
+        ObitFileErrMsg(err);     /* system error message*/
+
+        /* set type of error */
+        retCode = OBIT_IO_WriteErr;
+
+        if (feof(in->myFile)) retCode = OBIT_IO_EOF;
+
+        in->status = OBIT_ErrorExist;
+
+        if (tmpBuff) {g_free(tmpBuff);}
+
+        tmpBuff = NULL;
+        return retCode;
+    }
+
+    /* DEBUG
+       status = fflush (in->myFile);
+       status = stat(in->fileName, &stbuf);
+       tellpos = ftell(in->myFile);
+       fprintf (stdout, "%s PadFile after positioned %d size  %d\n",
+       in->fileName, tellpos, (olong)stbuf.st_size);
+       END DEBUG */
+
+    if (in->filePos >= 0) in->filePos += size; /* update file position */
+
+    if (tmpBuff) {g_free(tmpBuff);}
+
+    tmpBuff = NULL;
+
+    return OBIT_IO_OK;
 } /* end ObitFilePadFile */
 
 /**
@@ -1146,128 +1273,131 @@ ObitFilePadFile (ObitFile *in, olong blksize, ObitErr *err)
  * \param err ObitErr for reporting errors.
  * \return return code, 0=> OK
  */
-ObitIOCode ObitFileFlush (ObitFile *in,  ObitErr *err)
+ObitIOCode ObitFileFlush(ObitFile *in,  ObitErr *err)
 {
-  ObitIOCode status, retCode = OBIT_IO_SpecErr;
+    ObitIOCode status, retCode = OBIT_IO_SpecErr;
 
-  /* error checks */
-  if (err->error) return retCode;
-  g_assert (ObitIsA(in, &myClassInfo));
-  errno = 0;  /* reset any system error */
+    /* error checks */
+    if (err->error) return retCode;
 
-  /* A previous error condition? */
-  if (in->status== OBIT_ErrorExist) return retCode;
+    g_assert(ObitIsA(in, &myClassInfo));
+    errno = 0;  /* reset any system error */
 
-  /* Do Flush */
-  status = fflush (in->myFile);
-  if (status) {             /* it went wrong */
-    Obit_log_error(err, OBIT_Error, 
-		   "ERROR Flushing file %s", in->name);
-    ObitFileErrMsg(err);     /* system error message*/
-    return OBIT_IO_ReadErr;
-  }
+    /* A previous error condition? */
+    if (in->status == OBIT_ErrorExist) return retCode;
 
-  in->status = OBIT_Active;  
-  return OBIT_IO_OK;
+    /* Do Flush */
+    status = fflush(in->myFile);
+
+    if (status) {             /* it went wrong */
+        Obit_log_error(err, OBIT_Error,
+                       "ERROR Flushing file %s", in->name);
+        ObitFileErrMsg(err);     /* system error message*/
+        return OBIT_IO_ReadErr;
+    }
+
+    in->status = OBIT_Active;
+    return OBIT_IO_OK;
 } /* end ObitFileFlush */
 
 /**
  * Adds error message to err if (errno.h) errno non zero
- * Note: set errno (in <errno.h> to zero before a system call 
+ * Note: set errno (in <errno.h> to zero before a system call
  * that might set it.
  * errno is reset to 0.
  * \param err ObitErr for reporting errors.
  * \return True if error
  */
-gboolean ObitFileErrMsg (ObitErr *err)
+gboolean ObitFileErrMsg(ObitErr *err)
 {
-  gchar *errMsg;
-  olong temp;
+    gchar *errMsg;
+    olong temp;
 
-  /* error checks */
-  temp = errno;
-  if (temp==0) return FALSE;  /* Error? */
+    /* error checks */
+    temp = errno;
 
-  errMsg = strerror(errno);
+    if (temp == 0) return FALSE; /* Error? */
 
-  Obit_log_error(err, OBIT_Error, errMsg); /* Set message */
+    errMsg = strerror(errno);
 
-  errno = 0;  /* reset errno */
+    Obit_log_error(err, OBIT_Error, errMsg); /* Set message */
 
-  return TRUE;
+    errno = 0;  /* reset errno */
+
+    return TRUE;
 } /* end ObitFileErrMsg */
 
 /**
  * Initialize global ClassInfo Structure.
  */
-void ObitFileClassInit (void)
+void ObitFileClassInit(void)
 {
-  if (myClassInfo.initialized) return;  /* only once */
-  
-  /* Set name and parent for this class */
-  myClassInfo.ClassName   = g_strdup(myClassName);
-  myClassInfo.ParentClass = ObitParentGetClass();
+    if (myClassInfo.initialized) return;  /* only once */
 
-  /* Set function pointers */
-  ObitFileClassInfoDefFn ((gpointer)&myClassInfo);
- 
-  myClassInfo.initialized = TRUE; /* Now initialized */
- 
+    /* Set name and parent for this class */
+    myClassInfo.ClassName   = g_strdup(myClassName);
+    myClassInfo.ParentClass = ObitParentGetClass();
+
+    /* Set function pointers */
+    ObitFileClassInfoDefFn((gpointer)&myClassInfo);
+
+    myClassInfo.initialized = TRUE; /* Now initialized */
+
 } /* end ObitFileClassInit */
 
 /**
  * Initialize global ClassInfo Function pointers.
  */
-static void ObitFileClassInfoDefFn (gpointer inClass)
+static void ObitFileClassInfoDefFn(gpointer inClass)
 {
-  ObitFileClassInfo *theClass = (ObitFileClassInfo*)inClass;
-  ObitClassInfo *ParentClass = (ObitClassInfo*)myClassInfo.ParentClass;
+    ObitFileClassInfo *theClass = (ObitFileClassInfo *)inClass;
+    ObitClassInfo *ParentClass = (ObitClassInfo *)myClassInfo.ParentClass;
 
-  if (theClass->initialized) return;  /* only once */
+    if (theClass->initialized) return;  /* only once */
 
-  /* Check type of inClass */
-  g_assert (ObitInfoIsA(inClass, (ObitClassInfo*)&myClassInfo));
+    /* Check type of inClass */
+    g_assert(ObitInfoIsA(inClass, (ObitClassInfo *)&myClassInfo));
 
-  /* Initialize (recursively) parent class first */
-  if ((ParentClass!=NULL) && 
-      (ParentClass->ObitClassInfoDefFn!=NULL))
-    ParentClass->ObitClassInfoDefFn(theClass);
+    /* Initialize (recursively) parent class first */
+    if ((ParentClass != NULL) &&
+            (ParentClass->ObitClassInfoDefFn != NULL))
+        ParentClass->ObitClassInfoDefFn(theClass);
 
-  /* function pointers defined or overloaded this class */
-  theClass->ObitClassInit = (ObitClassInitFP)ObitFileClassInit;
-  theClass->newObit       = (newObitFP)newObitFile;
-  theClass->ObitClassInfoDefFn = (ObitClassInfoDefFnFP)ObitFileClassInfoDefFn;
-  theClass->ObitGetClass  = (ObitGetClassFP)ObitFileGetClass;
-  theClass->ObitCopy      = (ObitCopyFP)ObitFileCopy;
-  theClass->ObitClone     = NULL;
-  theClass->ObitClear     = (ObitClearFP)ObitFileClear;
-  theClass->ObitInit      = (ObitInitFP)ObitFileInit;
-  theClass->ObitFileZap   = (ObitFileZapFP)ObitFileZap;
-  theClass->ObitFileZapFile= (ObitFileZapFileFP)ObitFileZapFile;
-  theClass->ObitFileRename= (ObitFileRenameFP)ObitFileRename;
-  theClass->ObitCopy      = (ObitCopyFP)ObitFileCopy;
-  theClass->ObitClone     = NULL;
-  theClass->ObitClear     = (ObitClearFP)ObitFileClear;
-  theClass->ObitInit      = (ObitInitFP)ObitFileInit;
-  theClass->ObitFileExist = (ObitFileExistFP)ObitFileExist;
-  theClass->ObitFileSize  = (ObitFileSizeFP)ObitFileSize;
-  theClass->ObitFileName  = (ObitFileNameFP)ObitFileName;
-  theClass->ObitFileOpen  = (ObitFileOpenFP)ObitFileOpen;
-  theClass->ObitFileClose = (ObitFileCloseFP)ObitFileClose;
-  theClass->ObitFileSetPos= (ObitFileSetPosFP)ObitFileSetPos;
-  theClass->ObitFileEnd   = (ObitFileEndFP)ObitFileEnd;
-  theClass->ObitFileRead  = (ObitFileReadFP)ObitFileRead;
-  theClass->ObitFileReadLine  = 
-    (ObitFileReadLineFP)ObitFileReadLine;
-  theClass->ObitFileReadXML  = 
-    (ObitFileReadXMLFP)ObitFileReadXML;
-  theClass->ObitFileWrite = (ObitFileWriteFP)ObitFileWrite;
-  theClass->ObitFileWriteLine = 
-    (ObitFileWriteLineFP)ObitFileWriteLine;
-  theClass->ObitFilePad   = (ObitFilePadFP)ObitFilePad;
-  theClass->ObitFilePadFile = 
-    (ObitFilePadFileFP)ObitFilePadFile;
-  theClass->ObitFileFlush = (ObitFileFlushFP)ObitFileFlush;
+    /* function pointers defined or overloaded this class */
+    theClass->ObitClassInit = (ObitClassInitFP)ObitFileClassInit;
+    theClass->newObit       = (newObitFP)newObitFile;
+    theClass->ObitClassInfoDefFn = (ObitClassInfoDefFnFP)ObitFileClassInfoDefFn;
+    theClass->ObitGetClass  = (ObitGetClassFP)ObitFileGetClass;
+    theClass->ObitCopy      = (ObitCopyFP)ObitFileCopy;
+    theClass->ObitClone     = NULL;
+    theClass->ObitClear     = (ObitClearFP)ObitFileClear;
+    theClass->ObitInit      = (ObitInitFP)ObitFileInit;
+    theClass->ObitFileZap   = (ObitFileZapFP)ObitFileZap;
+    theClass->ObitFileZapFile = (ObitFileZapFileFP)ObitFileZapFile;
+    theClass->ObitFileRename = (ObitFileRenameFP)ObitFileRename;
+    theClass->ObitCopy      = (ObitCopyFP)ObitFileCopy;
+    theClass->ObitClone     = NULL;
+    theClass->ObitClear     = (ObitClearFP)ObitFileClear;
+    theClass->ObitInit      = (ObitInitFP)ObitFileInit;
+    theClass->ObitFileExist = (ObitFileExistFP)ObitFileExist;
+    theClass->ObitFileSize  = (ObitFileSizeFP)ObitFileSize;
+    // theClass->ObitFileName  = (ObitFileNameFP)ObitFileName;
+    theClass->ObitFileOpen  = (ObitFileOpenFP)ObitFileOpen;
+    theClass->ObitFileClose = (ObitFileCloseFP)ObitFileClose;
+    theClass->ObitFileSetPos = (ObitFileSetPosFP)ObitFileSetPos;
+    theClass->ObitFileEnd   = (ObitFileEndFP)ObitFileEnd;
+    theClass->ObitFileRead  = (ObitFileReadFP)ObitFileRead;
+    theClass->ObitFileReadLine  =
+        (ObitFileReadLineFP)ObitFileReadLine;
+    theClass->ObitFileReadXML  =
+        (ObitFileReadXMLFP)ObitFileReadXML;
+    theClass->ObitFileWrite = (ObitFileWriteFP)ObitFileWrite;
+    theClass->ObitFileWriteLine =
+        (ObitFileWriteLineFP)ObitFileWriteLine;
+    theClass->ObitFilePad   = (ObitFilePadFP)ObitFilePad;
+    theClass->ObitFilePadFile =
+        (ObitFilePadFileFP)ObitFilePadFile;
+    theClass->ObitFileFlush = (ObitFileFlushFP)ObitFileFlush;
 
 } /* end ObitFileClassDefFn */
 
@@ -1275,37 +1405,38 @@ static void ObitFileClassInfoDefFn (gpointer inClass)
 
 /**
  * Creates empty member objects, initialize reference count.
- * Does (recursive) initialization of base class members before 
+ * Does (recursive) initialization of base class members before
  * this class.
  * \param inn Pointer to the object to initialize.
  */
-void ObitFileInit  (gpointer inn)
+void ObitFileInit(gpointer inn)
 {
-  ObitClassInfo *ParentClass;
-  ObitFile *in = inn;
+    ObitClassInfo *ParentClass;
+    ObitFile *in = inn;
 
-  /* error checks */
-  g_assert (in != NULL);
-  
-  /* recursively initialize parent class members */
-  ParentClass = (ObitClassInfo*)(myClassInfo.ParentClass);
-  if ((ParentClass!=NULL) && ( ParentClass->ObitInit!=NULL)) 
-    ParentClass->ObitInit (inn);
+    /* error checks */
+    g_assert(in != NULL);
 
-  /* set members in this class */
-  in->thread    = newObitThread();
-  in->access    = OBIT_IO_None;
-  in->type      = OBIT_IO_Binary;
-  in->status    = OBIT_Inactive;
-  in->exist     = FALSE;
-  in->blockSize = 0;
-  in->filePos   = 0;
-  in->fileName  = NULL;
-  in->XMLbuffer = NULL;
-  in->XMLbufferSize = -1;
-  in->XMLcurrent    = 0;
-  in->XMLmax        = 0;
-  in->XMLdone       = TRUE;
+    /* recursively initialize parent class members */
+    ParentClass = (ObitClassInfo *)(myClassInfo.ParentClass);
+
+    if ((ParentClass != NULL) && (ParentClass->ObitInit != NULL))
+        ParentClass->ObitInit(inn);
+
+    /* set members in this class */
+    in->thread    = newObitThread();
+    in->access    = OBIT_IO_None;
+    in->type      = OBIT_IO_Binary;
+    in->status    = OBIT_Inactive;
+    in->exist     = FALSE;
+    in->blockSize = 0;
+    in->filePos   = 0;
+    in->fileName  = NULL;
+    in->XMLbuffer = NULL;
+    in->XMLbufferSize = -1;
+    in->XMLcurrent    = 0;
+    in->XMLmax        = 0;
+    in->XMLdone       = TRUE;
 } /* end ObitFileInit */
 
 /**
@@ -1313,33 +1444,42 @@ void ObitFileInit  (gpointer inn)
  * Does (recursive) deallocation of parent class members.
  * \param  inn Pointer to the object to deallocate.
  */
-void ObitFileClear (gpointer inn)
+void ObitFileClear(gpointer inn)
 {
-  ObitClassInfo *ParentClass;
-  ObitFile *in = inn;
-  ObitErr *err;
+    ObitClassInfo *ParentClass;
+    ObitFile *in = inn;
+    ObitErr *err;
 
-  /* error checks */
-  g_assert (ObitIsA(in, &myClassInfo));
+    /* error checks */
+    g_assert(ObitIsA(in, &myClassInfo));
 
-  /* close I/O if still active */
-  if ((in->status==OBIT_Active) || (in->status==OBIT_Modified)) {
-    err = newObitErr();
-    ObitFileClose (in, err); 
-    if (err->error) ObitErrLog(err);
-    err = ObitErrUnref(err);
-  }
+    /* close I/O if still active */
+    if ((in->status == OBIT_Active) || (in->status == OBIT_Modified)) {
+        err = newObitErr();
+        ObitFileClose(in, err);
 
-  /* free this class members */
-  if (in->thread) in->thread  = ObitThreadUnref(in->thread);
-  if (in->fileName)  {g_free(in->fileName);}  in->fileName  = NULL;
-  if (in->XMLbuffer) {g_free(in->XMLbuffer);} in->XMLbuffer = NULL;
-  
-  /* unlink parent class members */
-  ParentClass = (ObitClassInfo*)(myClassInfo.ParentClass);
-  /* delete parent class members */
-  if ((ParentClass!=NULL) && ( ParentClass->ObitClear!=NULL)) 
-    ParentClass->ObitClear (inn);
+        if (err->error) ObitErrLog(err);
+
+        err = ObitErrUnref(err);
+    }
+
+    /* free this class members */
+    if (in->thread) in->thread  = ObitThreadUnref(in->thread);
+
+    if (in->fileName)  {g_free(in->fileName);}
+
+    in->fileName  = NULL;
+
+    if (in->XMLbuffer) {g_free(in->XMLbuffer);}
+
+    in->XMLbuffer = NULL;
+
+    /* unlink parent class members */
+    ParentClass = (ObitClassInfo *)(myClassInfo.ParentClass);
+
+    /* delete parent class members */
+    if ((ParentClass != NULL) && (ParentClass->ObitClear != NULL))
+        ParentClass->ObitClear(inn);
 
 } /* end ObitFileClear */
 

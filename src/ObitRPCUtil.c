@@ -85,7 +85,7 @@ void ObitRPCUtilFileSend (ObitFile *file, ObitRPC *client,
   g_free(fileName);
 
   /* Get just basic file name without path */
-  fileName = ObitFileName(file->fileName);
+  fileName = g_path_get_basename(file->fileName);
 
   /* Other info */
   chunkSize = file->blockSize;

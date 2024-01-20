@@ -400,7 +400,7 @@ ObitUVImager* ObitUVImagerCreate2 (gchar* name, ObitUV *uvdata,
 void ObitUVImagerWeight (ObitUVImager *in, ObitErr *err)
 {
   /* List of control parameters on uvwork */
-  gchar *controlList[] = 
+  const gchar *controlList[] =
     {"do3D", "FOV", "doFull", "NField", "xCells", "yCells", "nx", "ny", 
      "RAShift", "DecShift", "Sources",  "Beam",
      "Catalog", "CatDisk", "OutlierDist", "OutlierFlux", "OutlierSI", "OutlierSize",
@@ -462,7 +462,7 @@ void ObitUVImagerImage (ObitUVImager *in, olong *field, gboolean doWeight,
   ObitImage *theBeam=NULL;
   gboolean *forceBeam=NULL, needBeam, doall, found, doGridGPU=FALSE;
   ObitUVImagerClassInfo *imgClass = (ObitUVImagerClassInfo*)in->ClassInfo;
-  gchar        *dataParms[] = {  /* Imaging info */
+  const gchar *dataParms[] = {  /* Imaging info */
     "xShift", "yShift", "chDone",
     NULL
   };

@@ -3524,7 +3524,7 @@ ObitImageUtilOTFBeam (ObitImage *pntImage, ObitImage *outImage,
   RAPnt   = pntImage->myDesc->obsra;
   DecPnt  = pntImage->myDesc->obsdec;
   equinox = pntImage->myDesc->equinox ;
-  if ((abs(RAPnt)<1.0e-5) && (abs(DecPnt)<1.0e-5)) {
+  if ((fabs(RAPnt)<1.0e-5) && (fabs(DecPnt)<1.0e-5)) {
     /* if zeroes - use reference position */
     RAPnt  = pntImage->myDesc->crval[pntImage->myDesc->jlocr];
     DecPnt = pntImage->myDesc->crval[pntImage->myDesc->jlocd];
@@ -3573,11 +3573,11 @@ ObitImageUtilOTFBeam (ObitImage *pntImage, ObitImage *outImage,
   }
 
   /* Precess pointing position if needed */
-  if ((abs(equinox-1950.0)<0.01) && 
-      (abs(outImage->myDesc->equinox-2000.0)<0.01))
+  if ((fabs(equinox-1950.0)<0.01) &&
+      (fabs(outImage->myDesc->equinox-2000.0)<0.01))
     ObitSkyGeomBtoJ (&RAPnt, &DecPnt);
-  else if ((abs(equinox-2000.0)<0.01) && 
-      (abs(outImage->myDesc->equinox-1950.0)<0.01))
+  else if ((fabs(equinox-2000.0)<0.01) &&
+      (fabs(outImage->myDesc->equinox-1950.0)<0.01))
     ObitSkyGeomJtoB (&RAPnt, &DecPnt);
   RAPnt  *= DG2RAD;
   DecPnt *= DG2RAD;

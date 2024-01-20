@@ -1630,7 +1630,7 @@ void ObitImageMFFitSpec2 (ObitImageMF *in, ObitImageMF *out, ObitErr *err)
   union ObitInfoListEquiv InfoReal; 
   ObitInfoType type;
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1}, PBdim[MAXINFOELEMDIM], ASdim[MAXINFOELEMDIM];
-  gchar *fitParms[] = {"refFreq","maxChi2","doError","doPBCor","doBrokePow","calFract",
+  const gchar *fitParms[] = {"refFreq","maxChi2","doError","doPBCor","doBrokePow","calFract",
 		       "PBmin","antSize","corAlpha","minWt", "minFlux", "Weights",
 		       NULL};
   gchar  *today=NULL, *SPECLOGF = "SPECLOGF";
@@ -1936,7 +1936,7 @@ void ObitImageMFEffFqCorr (ObitImageMF *in, ObitImageMF *in2, ObitErr *err)
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
   gint32 PBdim[MAXINFOELEMDIM], ASdim[MAXINFOELEMDIM], CFdim[MAXINFOELEMDIM];
   gchar hiCard[73], *TF[2]={"False","True"};
-  gchar *PBParms[] = {"doPBCor","calFract","PBmin","antSize","doTab",
+  const gchar *PBParms[] = {"doPBCor","calFract","PBmin","antSize","doTab",
 		      NULL};
   gchar *routine = "ObitImageMFEffFqCor";
 

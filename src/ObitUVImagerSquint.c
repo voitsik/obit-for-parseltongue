@@ -292,7 +292,7 @@ void ObitUVImagerSquintWeight (ObitUVImager *in, ObitErr *err)
   gboolean Tr=TRUE;
   gchar *Stokes="HALF", IStokes[5];
   /* List of control parameters on uvwork */
-  gchar *controlList[] = 
+  const gchar *controlList[] =
     {"FOV", "doFull", "NField", "xCells", "yCells", "nx", "ny", 
      "RAShift", "DecShift", "Sources", 
      "Catalog", "CatDisk", "OutlierDist", "OutlierFlux", "OutlierSI", "OutlierSize",
