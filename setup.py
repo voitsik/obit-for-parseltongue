@@ -151,8 +151,6 @@ class CustomBuildExt(build_ext):
 
 
 setup(
-    name="obit",
-    packages=["obit"],
     ext_modules=[OBIT_EXT],
     libraries=[OBIT_LIB],
     cmdclass={

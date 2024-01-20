@@ -1,6 +1,47 @@
+[project]
+name = "obit"
+version = "0.2.0"
+description = "Obit for ParselTongue"
+readme = "README.md"
+keywords = [
+  "AIPS",
+  "astronomy",
+  "astrophysics",
+  "Obit",
+]
+license = {text = "GPL-2.0"}
+maintainers = [
+  {name = "Petr Voitsik"}
+]
+authors = [
+    {name = "Bill Cotton"}
+]
+requires-python = ">= 3.8"
+classifiers = [
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+  "Programming Language :: C",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Astronomy",
+]
+[project.urls]
+repository = "https://github.com/voitsik/obit-for-parseltongue"
+
 [build-system]
-requires = ["setuptools >= 40.9.0", "wheel", "pkgconfig"]
 build-backend = "setuptools.build_meta"
+requires = [
+  "pkgconfig",
+  "setuptools>=61",
+]
+
+[tool.setuptools]
+packages = ["obit"]
 
 [tool.isort]
 profile = "black"
