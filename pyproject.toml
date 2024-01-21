@@ -42,6 +42,7 @@ requires = [
 
 [tool.setuptools]
 packages = ["obit"]
+include-package-data = false
 
 [tool.isort]
 profile = "black"
