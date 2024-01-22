@@ -293,7 +293,7 @@ void ObitIOUVFITSZap (ObitIOUVFITS *in, ObitErr *err)
   /* Destroy using cfitsio */
   if (in->FileName[0]=='!') strncpy (tempStr, (gchar*)&in->FileName[1], 200);
   else strncpy (tempStr, in->FileName, 200);
-  fits_open_file(&(in->myFptr), (char*)tempStr, READWRITE, &status);
+  fits_open_file(&(in->myFptr), tempStr, READWRITE, &status);
   fits_delete_file(in->myFptr, &status);
   if (status!=0) {
     Obit_log_error(err, OBIT_Error, 
@@ -415,12 +415,12 @@ ObitIOCode ObitIOUVFITSOpen (ObitIOUVFITS *in, ObitIOAccess access,
        readonly so first try opening readwrite even if requested ReadOnly.
        If that fails try readonly. */
     /* Test open readwrite */
-    fits_open_file(&(in->myFptr), (char*)tempStr, READWRITE, &status);
+    fits_open_file(&(in->myFptr), tempStr, READWRITE, &status);
     if ((status==FILE_NOT_OPENED) || (status==READONLY_FILE)) {
       /* Failed - try readonly */
       status = 0;
       fits_clear_errmsg();   /* Clear cfitsio error stack */
-      if (fits_open_file(&(in->myFptr), (char*)tempStr, READONLY, &status) ) {
+      if (fits_open_file(&(in->myFptr), tempStr, READONLY, &status) ) {
 	Obit_log_error(err, OBIT_Error, 
 		       "ERROR %d opening input FITS file %s", status, in->FileName);
 	Obit_cfitsio_error(err); /* copy cfitsio error stack */
@@ -450,7 +450,7 @@ ObitIOCode ObitIOUVFITSOpen (ObitIOUVFITS *in, ObitIOAccess access,
     ObitTrimTrail(tempStr);  /* Trim any trailing blanks */
 
     /* Initialize output file */
-    if ( fits_open_file(&(in->myFptr), (char*)tempStr, READWRITE, &status) ) {
+    if ( fits_open_file(&(in->myFptr), tempStr, READWRITE, &status) ) {
       Obit_log_error(err, OBIT_Error, 
 		     "ERROR %d opening output FITS file %s", 
 		     status, in->FileName);
@@ -470,12 +470,12 @@ ObitIOCode ObitIOUVFITSOpen (ObitIOUVFITS *in, ObitIOAccess access,
     ObitTrimTrail(tempStr);  /* Trim any trailing blanks */
 
     /* Open read/write to see if it's there */
-    fits_open_file(&(in->myFptr), (char*)tempStr, READWRITE, &status);
+    fits_open_file(&(in->myFptr), tempStr, READWRITE, &status);
 
     if (status==FILE_NOT_OPENED) { /* Not there - initialize output file */
       status = 0;
       fits_clear_errmsg();   /* Clear error stack */
-      if (fits_create_file(&(in->myFptr), (char*)in->FileName, &status) ) {
+      if (fits_create_file(&(in->myFptr), in->FileName, &status) ) {
 	Obit_log_error(err, OBIT_Error, 
 		       "ERROR %d opening output FITS file %s", 
 		       status, in->FileName);
@@ -1522,10 +1522,10 @@ ObitIOCode ObitIOUVFITSReadDescriptor (ObitIOUVFITS *in, ObitErr *err)
       fits_movabs_hdu (in->myFptr, i, &hdutype, &status);
       if (hdutype==BINARY_TBL) { /* If it's a table enter it in the list */
 	/* table name */
-	fits_read_key_str (in->myFptr, "EXTNAME", (char*)cdata, (char*)commnt, &status);
+	fits_read_key_str (in->myFptr, "EXTNAME", cdata, commnt, &status);
 	/* version number default to 0 */
 	extver = 0;
-	fits_read_key_lng (in->myFptr, "EXTVER", &extver, (char*)commnt, &xstatus);
+	fits_read_key_lng (in->myFptr, "EXTVER", &extver, commnt, &xstatus);
 	if (status==0) { /* Add to TableList unless it's the uv data */
 	  if (strcmp (cdata, "AIPS UV")) {
 	    temp = (olong)extver;
@@ -1561,7 +1561,7 @@ ObitIOCode ObitIOUVFITSReadDescriptor (ObitIOUVFITS *in, ObitErr *err)
   for (i=1; i<=desc->nrparm; i++) {
     /* Read column info */
     fits_get_bcolparms (in->myFptr, i, 
-			(char*)cdata, (char*)tunit, (char*)typechar, &repeat, &scale, &zero,
+			cdata, tunit, typechar, &repeat, &scale, &zero,
 			NULL, NULL, &status);
     /* Get column label */
     if (status==0) {
@@ -1600,7 +1600,7 @@ ObitIOCode ObitIOUVFITSReadDescriptor (ObitIOUVFITS *in, ObitErr *err)
 
   /* Be sure last column is "VISIBILITIES" */
   fits_get_bcolparms (in->myFptr, viscol,
-		      (char*)cdata, NULL, (char*)typechar, &repeat, &scale, &zero,
+		      cdata, NULL, typechar, &repeat, &scale, &zero,
 		      NULL, NULL, &status);
   /* fix string bug in cfitsio */
   ObitIOUVFITSFixBug(cdata, cdata, FLEN_CARD);
@@ -1623,11 +1623,11 @@ ObitIOCode ObitIOUVFITSReadDescriptor (ObitIOUVFITS *in, ObitErr *err)
   /* Data array definition */
 
   /* Axis labels */
-  for (i=0; i<UV_MAXDIM; i++) strncpy (desc->ctype[i], "        ", UVLEN_KEYWORD-1);
+  for (i=0; i<UV_MAXDIM; i++) strncpy (desc->ctype[i], "        ", UVLEN_KEYWORD);
   for (i=0; i<desc->naxis; i++) {
     g_snprintf (keyword, FLEN_KEYWORD, "%dCTYP%d", i+1, viscol);
-    fits_read_key_str (in->myFptr, (char*)keyword, (char*)cdata, (char*)commnt, &status);
-    if (status==0) strncpy (desc->ctype[i], cdata, UVLEN_KEYWORD-1);
+    fits_read_key_str (in->myFptr, keyword, cdata, commnt, &status);
+    if (status==0) {strncpy (desc->ctype[i], cdata, UVLEN_KEYWORD-1); desc->ctype[i][UVLEN_KEYWORD-1] = 0;}
   }
 
   /* Axis increments */
@@ -1635,8 +1635,7 @@ ObitIOCode ObitIOUVFITSReadDescriptor (ObitIOUVFITS *in, ObitErr *err)
   for (i=0; i<desc->naxis; i++) {
     g_snprintf (keyword, FLEN_KEYWORD, "%dCDLT%d", i+1, viscol);
     ftemp = 0.0;
-    fits_read_key_flt (in->myFptr, (char*)keyword, &ftemp, (char*)commnt, 
-		       &status);
+    fits_read_key_flt (in->myFptr, keyword, &ftemp, commnt, &status);
     if (status==KEY_NO_EXIST) status = 0;
     desc->cdelt[i] = (ofloat)ftemp;
   }
@@ -1646,8 +1645,7 @@ ObitIOCode ObitIOUVFITSReadDescriptor (ObitIOUVFITS *in, ObitErr *err)
   for (i=0; i<desc->naxis; i++) {
     g_snprintf (keyword, FLEN_KEYWORD, "%dCRPX%d", i+1, viscol);
     ftemp = 0.0;
-    fits_read_key_flt (in->myFptr, (char*)keyword, &ftemp, (char*)commnt, 
-		       &status);
+    fits_read_key_flt (in->myFptr, keyword, &ftemp, commnt, &status);
     if (status==KEY_NO_EXIST) status = 0;
     desc->crpix[i] = (ofloat)ftemp;
   }
@@ -1657,8 +1655,7 @@ ObitIOCode ObitIOUVFITSReadDescriptor (ObitIOUVFITS *in, ObitErr *err)
   for (i=0; i<desc->naxis; i++) {
     g_snprintf (keyword, FLEN_KEYWORD, "%dCROT%d", i+1, viscol);
     ftemp = 0.0;
-    fits_read_key_flt (in->myFptr, (char*)keyword, &ftemp, (char*)commnt, 
-		       &status);
+    fits_read_key_flt (in->myFptr, keyword, &ftemp, commnt, &status);
     if (status==KEY_NO_EXIST) status = 0;
     desc->crota[i] = (ofloat)ftemp;
   }
@@ -1668,8 +1665,7 @@ ObitIOCode ObitIOUVFITSReadDescriptor (ObitIOUVFITS *in, ObitErr *err)
   for (i=0; i<desc->naxis; i++) {
     g_snprintf (keyword, FLEN_KEYWORD, "%dCRVL%d", i+1, viscol);
     dtemp = 0.0;
-    fits_read_key_dbl (in->myFptr, (char*)keyword, &dtemp, (char*)commnt, 
-		       &status);
+    fits_read_key_dbl (in->myFptr, keyword, &dtemp, commnt, &status);
     if (status==KEY_NO_EXIST) status = 0;
     desc->crval[i] = (odouble)dtemp;
  }
@@ -1677,97 +1673,98 @@ ObitIOCode ObitIOUVFITSReadDescriptor (ObitIOUVFITS *in, ObitErr *err)
   /* descriptive information */
   /* Read keyword values, use default where possible */
   ftemp = 0.0;
-  fits_read_key_flt (in->myFptr, "EPOCH", &ftemp, (char*)commnt, &status);
+  fits_read_key_flt (in->myFptr, "EPOCH", &ftemp, commnt, &status);
   if (status==KEY_NO_EXIST) status = 0;
   desc->epoch = ftemp;
 
   ftemp = 0.0;
-  fits_read_key_flt (in->myFptr, "EQUINOX", &ftemp, (char*)commnt, &status);
+  fits_read_key_flt (in->myFptr, "EQUINOX", &ftemp, commnt, &status);
   if (status==KEY_NO_EXIST) status = 0;
   desc->equinox = ftemp;
   if ((desc->equinox==0.0) && (desc->epoch>0.0)) desc->equinox = desc->epoch;
   if ((desc->epoch==0.0) && (desc->equinox>0.0)) desc->epoch = desc->equinox;
   
-  strncpy (desc->teles, "        ", UVLEN_VALUE-1);
-  fits_read_key_str (in->myFptr, "TELESCOP", (char*)cdata, (char*)commnt, &status);
-  if (status==0) strncpy (desc->teles, cdata, UVLEN_VALUE-1);
+  strncpy (desc->teles, "        ", UVLEN_VALUE);
+  fits_read_key_str (in->myFptr, "TELESCOP", cdata, commnt, &status);
+  if (status==0) {strncpy (desc->teles, cdata, UVLEN_VALUE-1); desc->teles[UVLEN_VALUE-1] = 0;}
   if (status==KEY_NO_EXIST) status = 0;
 
-  strncpy (desc->instrument, "        ", UVLEN_VALUE-1); 
-  fits_read_key_str (in->myFptr, "INSTRUME", (char*)cdata, (char*)commnt, &status);
-  if (status==0) strncpy (desc->instrument, cdata, UVLEN_VALUE-1);
+  strncpy (desc->instrument, "        ", UVLEN_VALUE);
+  fits_read_key_str (in->myFptr, "INSTRUME", cdata, commnt, &status);
+  if (status==0) {strncpy (desc->instrument, cdata, UVLEN_VALUE-1); desc->instrument[UVLEN_VALUE-1] = 0;}
   if (status==KEY_NO_EXIST) status = 0;
 
-  strncpy (desc->observer, "        ", UVLEN_VALUE-1); 
-  fits_read_key_str (in->myFptr, "OBSERVER", (char*)cdata, (char*)commnt, &status);
-  if (status==0) strncpy (desc->observer, cdata, UVLEN_VALUE-1);
+  strncpy (desc->observer, "        ", UVLEN_VALUE);
+  fits_read_key_str (in->myFptr, "OBSERVER", cdata, commnt, &status);
+  if (status==0) {strncpy (desc->observer, cdata, UVLEN_VALUE-1); desc->observer[UVLEN_VALUE-1] = 0;}
   if (status==KEY_NO_EXIST) status = 0;
 
-  strncpy (desc->object, "        ", UVLEN_VALUE-1);
-  fits_read_key_str (in->myFptr, "OBJECT", (char*)cdata, (char*)commnt, &status);
-  if (status==0) strncpy (desc->object, cdata, UVLEN_VALUE-1);
+  strncpy (desc->object, "        ", UVLEN_VALUE);
+  fits_read_key_str (in->myFptr, "OBJECT", cdata, commnt, &status);
+  if (status==0) {strncpy (desc->object, cdata, UVLEN_VALUE-1); desc->object[UVLEN_VALUE-1] = 0;}
   if (status==KEY_NO_EXIST) status = 0;
 
-  strncpy (desc->bunit, "        ", UVLEN_VALUE-1);
-  fits_read_key_str (in->myFptr, "BUNIT", (char*)cdata, (char*)commnt, &status);
-  if (status==0) strncpy (desc->bunit, cdata, UVLEN_VALUE);
+  strncpy (desc->bunit, "        ", UVLEN_VALUE);
+  fits_read_key_str (in->myFptr, "BUNIT", cdata, commnt, &status);
+  if (status==0) {strncpy (desc->bunit, cdata, UVLEN_VALUE-1); desc->bunit[UVLEN_VALUE-1] = 0;}
   if (status==KEY_NO_EXIST) status = 0;
 
-  strncpy (desc->obsdat, "        ", UVLEN_VALUE-1);
-  fits_read_key_str (in->myFptr, "DATE-OBS", (char*)cdata, (char*)commnt, &status);
-  if (status==0)  strncpy (desc->obsdat, cdata, UVLEN_VALUE); 
+  strncpy (desc->obsdat, "        ", UVLEN_VALUE);
+  fits_read_key_str (in->myFptr, "DATE-OBS", cdata, commnt, &status);
+  if (status==0)  {strncpy (desc->obsdat, cdata, UVLEN_VALUE-1); desc->obsdat[UVLEN_VALUE-1] = 0;}
   if (status==KEY_NO_EXIST) status = 0;
 
   today = ObitToday();
   strncpy (desc->date, today, UVLEN_VALUE-1);
+  desc->date[UVLEN_VALUE-1] = 0;
   if (today) g_free(today);
-  fits_read_key_str (in->myFptr, "DATE-MAP", (char*)cdata, (char*)commnt, &status);
+  fits_read_key_str (in->myFptr, "DATE-MAP", cdata, commnt, &status);
   if (status==0)  {strncpy (desc->date, cdata, UVLEN_VALUE-1);  desc->date[UVLEN_VALUE-1] = 0;}
   if (status==KEY_NO_EXIST) status = 0;
 
-  strncpy (desc->origin, "        ", UVLEN_VALUE-1); 
-  fits_read_key_str (in->myFptr, "ORIGIN", (char*)cdata, (char*)commnt, &status);
+  strncpy (desc->origin, "        ", UVLEN_VALUE);
+  fits_read_key_str (in->myFptr, "ORIGIN", cdata, commnt, &status);
   if (status==0)  {strncpy (desc->origin, cdata, UVLEN_VALUE-1); desc->origin[UVLEN_VALUE-1] = 0;}
   if (status==KEY_NO_EXIST) status = 0;
 
   dtemp = 0.0;
-  fits_read_key_dbl (in->myFptr, "OBSRA", &dtemp, (char*)commnt, &status);
+  fits_read_key_dbl (in->myFptr, "OBSRA", &dtemp, commnt, &status);
   if (status==KEY_NO_EXIST) status = 0;
   desc->obsra = (odouble)dtemp;
 
   dtemp = 0.0;
-  fits_read_key_dbl (in->myFptr, "OBSDEC", &dtemp, (char*)commnt, &status);
+  fits_read_key_dbl (in->myFptr, "OBSDEC", &dtemp, commnt, &status);
   if (status==KEY_NO_EXIST) status = 0;
   desc->obsdec = (odouble)dtemp;
 
   dtemp = 0.0;
-  fits_read_key_dbl (in->myFptr, "ALTRVAL", &dtemp, (char*)commnt, &status);
+  fits_read_key_dbl (in->myFptr, "ALTRVAL", &dtemp, commnt, &status);
   if (status==KEY_NO_EXIST) status = 0;
   desc->altRef = (odouble)dtemp;
 
   ftemp = 0.0;
-  fits_read_key_flt (in->myFptr, "ALTRPIX", &ftemp, (char*)commnt, &status);
+  fits_read_key_flt (in->myFptr, "ALTRPIX", &ftemp, commnt, &status);
   if (status==KEY_NO_EXIST) status = 0;
   desc->altCrpix = (ofloat)ftemp;
 
   ltemp = 0;
-  fits_read_key_lng (in->myFptr, "VELREF", &ltemp, (char*)commnt, &status);
+  fits_read_key_lng (in->myFptr, "VELREF", &ltemp, commnt, &status);
   if (status==KEY_NO_EXIST) status = 0;
   desc->VelDef = ltemp / 256;
   desc->VelReference = ltemp - 256*desc->VelDef;
 
   dtemp = 0.0;
-  fits_read_key_dbl (in->myFptr, "RESTFREQ", &dtemp, (char*)commnt, &status);
+  fits_read_key_dbl (in->myFptr, "RESTFREQ", &dtemp, commnt, &status);
   if (status==KEY_NO_EXIST) status = 0;
   desc->restFreq = (odouble)dtemp;
 
   ftemp = 0.0;
-  fits_read_key_flt (in->myFptr, "XSHIFT", &ftemp, (char*)commnt, &status);
+  fits_read_key_flt (in->myFptr, "XSHIFT", &ftemp, commnt, &status);
   if (status==KEY_NO_EXIST) status = 0;
   desc->xshift = (ofloat)ftemp;
 
   ftemp = 0.0;
-  fits_read_key_flt (in->myFptr, "YSHIFT", &ftemp, (char*)commnt, &status);
+  fits_read_key_flt (in->myFptr, "YSHIFT", &ftemp, commnt, &status);
   if (status==KEY_NO_EXIST) status = 0;
   desc->yshift = (ofloat)ftemp;
 
@@ -1899,7 +1896,7 @@ ObitIOUVFITSWriteDescriptor (ObitIOUVFITS *in, ObitErr *err)
     /* Add version number 1 */
     extver = 1;
     strncpy (commnt, "Table version number", FLEN_COMMENT);
-    fits_update_key_lng (in->myFptr, "EXTVER", extver, (char*)commnt, &status);
+    fits_update_key_lng (in->myFptr, "EXTVER", extver, commnt, &status);
 
     /* set visibility dimensionality array as TDIM */
     viscol = (int)(desc->nrparm+1);
@@ -1919,27 +1916,27 @@ ObitIOUVFITSWriteDescriptor (ObitIOUVFITS *in, ObitErr *err)
     if (desc->ilocu>=0) {
       strncpy (commnt, "Scaling for U to time units", FLEN_COMMENT);
       g_snprintf (keyword, FLEN_KEYWORD-1, "TSCAL%d", desc->ilocu+1);
-      fits_update_key_dbl (in->myFptr, (char*)keyword, dtemp, 12, (char*)commnt, 
+      fits_update_key_dbl (in->myFptr, keyword, dtemp, 12, commnt,
 			   &status);
    }
     if (desc->ilocv>=0) {
       strncpy (commnt, "Scaling for V to time units", FLEN_COMMENT);
       g_snprintf (keyword, FLEN_KEYWORD-1, "TSCAL%d", desc->ilocv+1);
-      fits_update_key_dbl (in->myFptr, (char*)keyword, dtemp, 12, (char*)commnt, 
+      fits_update_key_dbl (in->myFptr, keyword, dtemp, 12, commnt,
 			   &status);
    }
     if (desc->ilocw>=0) {
       strncpy (commnt, "Scaling for W to time units", FLEN_COMMENT);
       g_snprintf (keyword, FLEN_KEYWORD-1, "TSCAL%d", desc->ilocw+1);
-      fits_update_key_dbl (in->myFptr,(char*) keyword, dtemp, 12, (char*)commnt, 
+      fits_update_key_dbl (in->myFptr, keyword, dtemp, 12, commnt,
 			   &status);
    }
     /* Offset time to JD */
     if (desc->iloct>=0) {
       strncpy (commnt, "Offset of Date from JD", FLEN_COMMENT);
       g_snprintf (keyword, FLEN_KEYWORD-1, "TZERO%d", desc->iloct+1);
-      fits_update_key_dbl (in->myFptr, (char*)keyword, (double)desc->JDObs, 12, 
-			   (char*)commnt,  &status);
+      fits_update_key_dbl (in->myFptr, keyword, (double)desc->JDObs, 12,
+			   commnt,  &status);
    }
 
   } /* end initialize new table */
@@ -1951,108 +1948,108 @@ ObitIOUVFITSWriteDescriptor (ObitIOUVFITS *in, ObitErr *err)
   for (i=0; i<desc->naxis; i++) {
     g_snprintf (keyword, FLEN_KEYWORD-1, "%dCTYP%d", i+1, viscol);
     strncpy (cdata, desc->ctype[i], 9); cdata[8] = 0;
-    fits_update_key_str (in->myFptr, (char*)keyword, (char*)cdata, (char*)commnt, &status);
+    fits_update_key_str (in->myFptr, keyword, cdata, commnt, &status);
   }
   
   /* Axis increments */
   for (i=0; i<desc->naxis; i++) {
     g_snprintf (keyword, FLEN_KEYWORD-1, "%dCDLT%d", i+1, viscol);
-    fits_update_key_flt (in->myFptr, (char*)keyword, (float)desc->cdelt[i], 6, (char*)commnt, 
+    fits_update_key_flt (in->myFptr, keyword, (float)desc->cdelt[i], 6, commnt,
 			 &status);
   }
   
   /* Axis reference pixel */
   for (i=0; i<desc->naxis; i++) {
     g_snprintf (keyword, FLEN_KEYWORD-1, "%dCRPX%d", i+1, viscol);
-    fits_update_key_flt (in->myFptr, (char*)keyword, (float)desc->crpix[i], 6, (char*)commnt, 
+    fits_update_key_flt (in->myFptr, keyword, (float)desc->crpix[i], 6, commnt,
 			 &status);
   }
   
   /* Axis rotation */
   for (i=0; i<desc->naxis; i++) {
     g_snprintf (keyword, FLEN_KEYWORD-1, "%dCROT%d", i+1, viscol);
-    fits_update_key_flt (in->myFptr, (char*)keyword, (float)desc->crota[i], 6, (char*)commnt, 
+    fits_update_key_flt (in->myFptr, keyword, (float)desc->crota[i], 6, commnt,
 			 &status);
   }
   
   /* Axis coordinate value at reference pixel */
   for (i=0; i<desc->naxis; i++) {
     g_snprintf (keyword, FLEN_KEYWORD-1, "%dCRVL%d", i+1, viscol);
-    fits_update_key_dbl (in->myFptr, (char*)keyword, (double)desc->crval[i], 12, (char*)commnt, 
+    fits_update_key_dbl (in->myFptr, keyword, (double)desc->crval[i], 12, commnt,
 			 &status);
   }
   
   /* descriptive information */
   /* Write keyword values */
   strncpy (commnt, "Name of object", FLEN_COMMENT);
-  fits_update_key_str (in->myFptr, "OBJECT", (char*)desc->object,  (char*)commnt, 
+  fits_update_key_str (in->myFptr, "OBJECT", desc->object,  commnt,
 		       &status);
   strncpy (commnt, "Telescope used", FLEN_COMMENT);
-  fits_update_key_str (in->myFptr, "TELESCOP", (char*)desc->teles,  (char*)commnt, 
+  fits_update_key_str (in->myFptr, "TELESCOP", desc->teles,  commnt,
 		       &status);
   strncpy (commnt, "Instrument used", FLEN_COMMENT);
-  fits_update_key_str (in->myFptr, "INSTRUME", (char*)desc->instrument,  (char*)commnt, 
+  fits_update_key_str (in->myFptr, "INSTRUME", desc->instrument,  commnt,
 		       &status);
   strncpy (commnt, "Observer/project", FLEN_COMMENT);
-  fits_update_key_str (in->myFptr, "OBSERVER", (char*)desc->observer,  (char*)commnt, 
+  fits_update_key_str (in->myFptr, "OBSERVER", desc->observer,  commnt,
 		       &status);
   strncpy (commnt, "Date (yyyy-mm-dd) of observation", FLEN_COMMENT);
-  fits_update_key_str (in->myFptr, "DATE-OBS", (char*)desc->obsdat, (char*)commnt, 
+  fits_update_key_str (in->myFptr, "DATE-OBS", desc->obsdat, commnt,
 		       &status);
   strncpy (commnt, "Date (yyyy-mm-dd) created ", FLEN_COMMENT);
-  fits_update_key_str (in->myFptr, "DATE-MAP", (char*)desc->date, (char*)commnt, 
+  fits_update_key_str (in->myFptr, "DATE-MAP", desc->date, commnt,
 		       &status);
   strncpy (commnt, "Software last writing file", FLEN_COMMENT);
-  fits_update_key_str (in->myFptr, "ORIGIN", (char*)desc->origin, (char*)commnt, 
+  fits_update_key_str (in->myFptr, "ORIGIN", desc->origin, commnt,
 		       &status);
   strncpy (commnt, "Celestial coordiate equinox", FLEN_COMMENT);
-  fits_update_key_flt (in->myFptr, "EPOCH", (float)desc->epoch, 6,  (char*)commnt, 
+  fits_update_key_flt (in->myFptr, "EPOCH", (float)desc->epoch, 6,  commnt,
 		       &status);
 
   strncpy (commnt, "Visibility units", FLEN_COMMENT);
-  fits_update_key_str (in->myFptr, "BUNIT", (char*)desc->bunit, (char*)commnt, &status);
+  fits_update_key_str (in->myFptr, "BUNIT", desc->bunit, commnt, &status);
 
   strncpy (commnt, "Observed Right Ascension", FLEN_COMMENT);
-  fits_update_key_dbl (in->myFptr, "OBSRA", (double)desc->obsra, 12, (char*)commnt, 
+  fits_update_key_dbl (in->myFptr, "OBSRA", (double)desc->obsra, 12, commnt,
 		       &status);
   strncpy (commnt, "Observed declination ", FLEN_COMMENT);
-  fits_update_key_dbl (in->myFptr, "OBSDEC", (double)desc->obsdec, 12, (char*)commnt, 
+  fits_update_key_dbl (in->myFptr, "OBSDEC", (double)desc->obsdec, 12, commnt,
 		       &status);
 
   if (desc->altRef != 0.0 ) {
     strncpy (commnt, "Alternate reference value", FLEN_COMMENT);
-    fits_update_key_dbl (in->myFptr, "ALTRVAL", (double)desc->altRef, 12, (char*)commnt, 
+    fits_update_key_dbl (in->myFptr, "ALTRVAL", (double)desc->altRef, 12, commnt,
 		       &status);
   }
 
   if (desc->altCrpix != 0.0) {
     strncpy (commnt, "Alternate reference pixel", FLEN_COMMENT);
-    fits_update_key_flt (in->myFptr, "ALTRPIX", (float)desc->altCrpix, 6, (char*)commnt, 
+    fits_update_key_flt (in->myFptr, "ALTRPIX", (float)desc->altCrpix, 6, commnt,
 		       &status);
   }
 
   ltemp = (long)(desc->VelReference + 256*desc->VelDef);
   if (ltemp!=0) {
      strncpy (commnt, ">256 radio, 1 LSR, 2 Hel, 3 Obs", FLEN_COMMENT);
-    fits_update_key_lng (in->myFptr, "VELREF", ltemp, (char*)commnt, 
+    fits_update_key_lng (in->myFptr, "VELREF", ltemp, commnt,
 		       &status);
   }
 
   if (desc->restFreq != 0.0) {
     strncpy (commnt, "Line rest frequency (Hz)", FLEN_COMMENT);
-    fits_update_key_dbl (in->myFptr, "RESTFREQ", (double)desc->restFreq, 12, (char*)commnt, 
+    fits_update_key_dbl (in->myFptr, "RESTFREQ", (double)desc->restFreq, 12, commnt,
 		       &status);
   }
 
   if (desc->xshift != 0.0) {
      strncpy (commnt, "Net shift of Phase center in x", FLEN_COMMENT);
-     fits_update_key_flt (in->myFptr, "XSHIFT", (float)desc->xshift, 6, (char*)commnt, 
+     fits_update_key_flt (in->myFptr, "XSHIFT", (float)desc->xshift, 6, commnt,
 			  &status);
   }
 
   if (desc->yshift != 0.0) {
      strncpy (commnt, "Net shift of Phase center in y", FLEN_COMMENT);
-     fits_update_key_flt (in->myFptr, "YSHIFT", (float)desc->yshift, 6, (char*)commnt, 
+     fits_update_key_flt (in->myFptr, "YSHIFT", (float)desc->yshift, 6, commnt,
 			  &status);
   }
 
@@ -2090,23 +2087,23 @@ ObitIOUVFITSWriteDescriptor (ObitIOUVFITS *in, ObitErr *err)
     for (k=0; k<8; k++) if (!g_ascii_isprint(keyName[k])) keyName[k]=' ';
     /* write by type */
     if (keyType==OBIT_double) {
-      fits_update_key_dbl (in->myFptr, (char*)keyName, (double)blob.d, 12, (char*)commnt, 
+      fits_update_key_dbl (in->myFptr, keyName, (double)blob.d, 12, commnt,
 			   &status);
     } else if (keyType==OBIT_float) { 
-      fits_update_key_flt (in->myFptr, (char*)keyName, (float)blob.f, 6, (char*)commnt, 
+      fits_update_key_flt (in->myFptr, keyName, (float)blob.f, 6, commnt,
 			   &status);
     } else if (keyType==OBIT_string) { 
       blob.s[dim[0]] = 0; /* may not be null terminated */
-      fits_update_key_str (in->myFptr, (char*)keyName, (char*)blob.s, (char*)commnt, 
+      fits_update_key_str (in->myFptr, keyName, blob.s, commnt,
 			   &status);
     } else if (keyType==OBIT_oint) { 
-      fits_update_key_lng (in->myFptr, (char*)keyName, (long)blob.o, (char*)commnt, 
+      fits_update_key_lng (in->myFptr, keyName, (long)blob.o, commnt,
 			   &status);
      } else if (keyType==OBIT_long) { 
-      fits_update_key_lng (in->myFptr, (char*)keyName, (long)blob.i, (char*)commnt, 
+      fits_update_key_lng (in->myFptr, keyName, (long)blob.i, commnt,
 			   &status);
    } else if (keyType==OBIT_bool) { 
-      fits_update_key_log (in->myFptr, (char*)keyName, (int)blob.b, (char*)commnt, 
+      fits_update_key_log (in->myFptr, keyName, (int)blob.b, commnt,
 			   &status);
     }
   } /* end loop writing additional keywords */
@@ -2905,7 +2902,7 @@ static void  ObitIOUVFITSSortRead(ObitIOUVFITS *in, olong *lstatus)
   desc->isort[0] = ' '; desc->isort[1] = ' '; desc->isort[2] = 0; 
 
   /* Attempt rational keywords */
-  fits_read_key_str (in->myFptr, "SORTORD", (char*)cdata, (char*)commnt, &status);
+  fits_read_key_str (in->myFptr, "SORTORD", cdata, commnt, &status);
   if (status==0) {
     desc->isort[0]=cdata[0]; 
     desc->isort[1]=cdata[1]; 
@@ -2922,7 +2919,7 @@ HISTORY AIPS   SORT ORDER = 'TB'
   /* how many keywords to look at? */
   fits_get_hdrspace (in->myFptr, &keys, &morekeys, &status);
   for (k=1; k<=keys; k++) {
-    fits_read_record (in->myFptr, k, (char*)card, &status);
+    fits_read_record (in->myFptr, k, card, &status);
     if (status==0) {
       if (!strncmp ("HISTORY AIPS   SORT ORDER", card, 25)) {
 	/* Parse card */
@@ -2958,7 +2955,7 @@ static void  ObitIOUVFITSSortWrite (ObitIOUVFITS *in, ObitErr *err)
  
   /* Rational keyword */
   strncpy (commnt, "Sort Order code (in AIPSish)", FLEN_COMMENT);
-  fits_update_key_str (in->myFptr, "SORTORD", (char*)desc->isort, (char*)commnt, 
+  fits_update_key_str (in->myFptr, "SORTORD", desc->isort, commnt,
 		       &status);
   if (status!=0) { /* error */
     Obit_log_error(err, OBIT_Error, 
@@ -2993,7 +2990,7 @@ void  ObitIOUVKeysOtherRead(ObitIOUVFITS *in, olong *lstatus,
 {
   gchar keywrd[FLEN_KEYWORD], value[FLEN_VALUE], commnt[FLEN_COMMENT+1];
   gchar *first, *last, *aT, dtype, svalue[FLEN_VALUE];
-  int i, j, k, l, keys, morekeys, status=(int)*lstatus;
+  int i, j, k, keys, morekeys, status=(int)*lstatus;
   olong ivalue;
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
   double dvalue;
@@ -3037,7 +3034,7 @@ void  ObitIOUVKeysOtherRead(ObitIOUVFITS *in, olong *lstatus,
   /* how many keywords to look at? */
   fits_get_hdrspace (in->myFptr, &keys, &morekeys, &status);
   for (k=1; k<=keys; k++) {
-    fits_read_keyn (in->myFptr, k, (char*)keywrd, (char*)value, (char*)commnt, &status);
+    fits_read_keyn (in->myFptr, k, keywrd, value, commnt, &status);
     if (status==0) {
       /* Is this on the list? */
       for (j=0; j<number; j++) {
@@ -3049,12 +3046,12 @@ void  ObitIOUVKeysOtherRead(ObitIOUVFITS *in, olong *lstatus,
 
       if (!bad) {
 	/* ask cfitsio what it is */
-	fits_get_keytype (value, (char*)&dtype, &status);
+	fits_get_keytype (value, &dtype, &status);
 	switch (dtype) { 
 	case 'C':  /* Character string */
-	  first = index (value,'\'')+1; /* a string? */
-	  last = rindex(value,'\'')-1;
-	  g_memmove(svalue, first, (last-first+1));
+	  first = strchr (value,'\'')+1; /* a string? */
+	  last = strrchr(value,'\'')-1;
+	  memmove(svalue, first, (last-first+1));
 	  svalue[last-first+1] = 0; /* null terminate */
 	  /* add to InfoList */
 	  dim[0] = strlen(svalue);
@@ -3063,7 +3060,7 @@ void  ObitIOUVKeysOtherRead(ObitIOUVFITS *in, olong *lstatus,
 	  
 	  break;
 	case 'L':  /* logical 'T', 'F' */
-	  aT    = index (value,'T'); /* Logical */
+	  aT = strchr (value,'T'); /* Logical */
 	  bvalue = FALSE;
 	  if (aT!=NULL) bvalue = TRUE;
 	  /* add to InfoList */
@@ -3080,7 +3077,7 @@ void  ObitIOUVKeysOtherRead(ObitIOUVFITS *in, olong *lstatus,
 	  break;
 	case 'F':  /* Float - use double */
 	  /* AIPS uses 'D' for double exponent */
-	  for (l=0; l<strlen(value); l++) if (value[l]=='D') value[l]='e';
+	  for (size_t l=0; l<strlen(value); l++) if (value[l]=='D') value[l]='e';
 	  dvalue = strtod(value, &last);
 	  /* add to InfoList */
 	  dim[0] = 1;
@@ -3166,7 +3163,7 @@ static ObitIOCode WriteAIPSUVHeader (ObitIOUVFITS *in, ObitErr *err)
 
   /* Sort order */
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    SORT ORDER ");
-  ObitFileFITSWriteHisKeyStr (in->myFptr, (char*)keyword, (char*)desc->isort, NULL, err);
+  ObitFileFITSWriteHisKeyStr (in->myFptr, keyword, desc->isort, NULL, err);
 
   /* Loop over random parameters */
   for (i=0; i<desc->nrparm; i++) {
@@ -3175,16 +3172,16 @@ static ObitIOCode WriteAIPSUVHeader (ObitIOUVFITS *in, ObitErr *err)
     strncpy (strtemp, desc->ptype[i], 9); strtemp[8] = 0;
     if ((desc->ilocu==i) || (desc->ilocv==i) || (desc->ilocw==i)) strtemp[3] = '-';
     if (desc->iloct==i) {strncpy (strtemp, "DATE    ", 9); strtemp[8] = 0;}
-    ObitFileFITSWriteHisKeyStr (in->myFptr, (char*)keyword, strtemp, NULL, err);
+    ObitFileFITSWriteHisKeyStr (in->myFptr, keyword, strtemp, NULL, err);
     scale = 1.0 / (MAX (1.0, desc->freq));
     if ((desc->ilocu==i) || (desc->ilocv==i) || (desc->ilocw==i)) {
       g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    PSCAL%d ", i+1);
-      ObitFileFITSWriteHisKeyFlt (in->myFptr, (char*)keyword, scale, NULL, err);
+      ObitFileFITSWriteHisKeyFlt (in->myFptr, keyword, scale, NULL, err);
     }
     if (desc->iloct==i) {
       zero = (float)desc->JDObs;
       g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    PZERO%d ", i+1);
-      ObitFileFITSWriteHisKeyFlt (in->myFptr, (char*)keyword, zero, NULL, err);
+      ObitFileFITSWriteHisKeyFlt (in->myFptr, keyword, zero, NULL, err);
     }
   } /* end loop over random parameters */
 
@@ -3194,63 +3191,63 @@ static ObitIOCode WriteAIPSUVHeader (ObitIOUVFITS *in, ObitErr *err)
   /* Loop over regular axes */
   for (i=0; i<desc->naxis; i++) {
     g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    NAXIS%d ", i+1);
-    ObitFileFITSWriteHisKeyLng (in->myFptr, (char*)keyword, (long)desc->inaxes[i], NULL, err);
+    ObitFileFITSWriteHisKeyLng (in->myFptr, keyword, (long)desc->inaxes[i], NULL, err);
     g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    CTYPE%d ", i+1);
-    ObitFileFITSWriteHisKeyStr (in->myFptr, (char*)keyword, (char*)desc->ctype[i], NULL, err);
+    ObitFileFITSWriteHisKeyStr (in->myFptr, keyword, desc->ctype[i], NULL, err);
     g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    CRVAL%d ", i+1);
-    ObitFileFITSWriteHisKeyDbl (in->myFptr, (char*)keyword, (double)desc->crval[i], NULL, err);
+    ObitFileFITSWriteHisKeyDbl (in->myFptr, keyword, (double)desc->crval[i], NULL, err);
     g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    CDELT%d ", i+1);
-    ObitFileFITSWriteHisKeyFlt (in->myFptr, (char*)keyword, (float)desc->cdelt[i], NULL, err);
+    ObitFileFITSWriteHisKeyFlt (in->myFptr, keyword, (float)desc->cdelt[i], NULL, err);
     g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    CRPIX%d ", i+1);
-    ObitFileFITSWriteHisKeyFlt (in->myFptr, (char*)keyword, (float)desc->crpix[i], NULL, err);
+    ObitFileFITSWriteHisKeyFlt (in->myFptr, keyword, (float)desc->crpix[i], NULL, err);
     g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    CROTA%d ", i+1);
-    ObitFileFITSWriteHisKeyFlt (in->myFptr, (char*)keyword, (float)desc->crota[i], NULL, err);
+    ObitFileFITSWriteHisKeyFlt (in->myFptr, keyword, (float)desc->crota[i], NULL, err);
   } /* end loop over Regular axes */
 
   /* cats and dogs */
 
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    OBJECT  ");
-  ObitFileFITSWriteHisKeyStr (in->myFptr, (char*)keyword, (char*)desc->object, NULL, err);
+  ObitFileFITSWriteHisKeyStr (in->myFptr, keyword, desc->object, NULL, err);
   
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    TELESCOP");
-  ObitFileFITSWriteHisKeyStr (in->myFptr, (char*)keyword, (char*)desc->teles, NULL, err);
+  ObitFileFITSWriteHisKeyStr (in->myFptr, keyword, desc->teles, NULL, err);
   
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    INSTRUME");
-  ObitFileFITSWriteHisKeyStr (in->myFptr, (char*)keyword, (char*)desc->instrument, NULL, err);
+  ObitFileFITSWriteHisKeyStr (in->myFptr, keyword, desc->instrument, NULL, err);
   
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    OBSERVER");
-  ObitFileFITSWriteHisKeyStr (in->myFptr, (char*)keyword, (char*)desc->observer, NULL, err);
+  ObitFileFITSWriteHisKeyStr (in->myFptr, keyword, desc->observer, NULL, err);
   
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    DATE-OBS");
-  ObitFileFITSWriteHisKeyStr (in->myFptr, (char*)keyword, (char*)desc->obsdat, NULL, err);
+  ObitFileFITSWriteHisKeyStr (in->myFptr, keyword, desc->obsdat, NULL, err);
   
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    DATE-MAP");
-  ObitFileFITSWriteHisKeyStr (in->myFptr, (char*)keyword, (char*)desc->date, NULL, err);
+  ObitFileFITSWriteHisKeyStr (in->myFptr, keyword, desc->date, NULL, err);
   
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    BUNIT   ");
-  ObitFileFITSWriteHisKeyStr (in->myFptr, (char*)keyword, (char*)desc->bunit, NULL, err);
+  ObitFileFITSWriteHisKeyStr (in->myFptr, keyword, desc->bunit, NULL, err);
   
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    BSCALE  ");
-  ObitFileFITSWriteHisKeyFlt (in->myFptr, (char*)keyword, (float)1.0, NULL, err);
+  ObitFileFITSWriteHisKeyFlt (in->myFptr, keyword, (float)1.0, NULL, err);
   
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    BZERO   ");
-  ObitFileFITSWriteHisKeyFlt (in->myFptr, (char*)keyword, (float)0.0, NULL, err);
+  ObitFileFITSWriteHisKeyFlt (in->myFptr, keyword, (float)0.0, NULL, err);
   
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    ALTRPIX ");
-  ObitFileFITSWriteHisKeyFlt (in->myFptr, (char*)keyword, (float)desc->altRef, NULL, err);
+  ObitFileFITSWriteHisKeyFlt (in->myFptr, keyword, (float)desc->altRef, NULL, err);
   
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    OBSRA   ");
-  ObitFileFITSWriteHisKeyDbl (in->myFptr, (char*)keyword, (double)desc->obsra, NULL, err);
+  ObitFileFITSWriteHisKeyDbl (in->myFptr, keyword, (double)desc->obsra, NULL, err);
   
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    OBSDEC  ");
-  ObitFileFITSWriteHisKeyDbl (in->myFptr, (char*)keyword, (double)desc->obsdec, NULL, err);
+  ObitFileFITSWriteHisKeyDbl (in->myFptr, keyword, (double)desc->obsdec, NULL, err);
   
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    BLANK   ");
-  ObitFileFITSWriteHisKeyFlt (in->myFptr, (char*)keyword, (float)-1.0, NULL, err);
+  ObitFileFITSWriteHisKeyFlt (in->myFptr, keyword, (float)-1.0, NULL, err);
   
   velref = desc->VelReference + 256*desc->VelDef;
   g_snprintf (keyword, FLEN_KEYWORD-1, "AIPS    VELREF  ");
-  ObitFileFITSWriteHisKeyLng (in->myFptr, (char*)keyword, (long)velref, NULL, err);
+  ObitFileFITSWriteHisKeyLng (in->myFptr, keyword, (long)velref, NULL, err);
   
   /* was there an error? */
   if (err->error) Obit_traceback_val (err, routine, in->name, OBIT_IO_WriteErr);

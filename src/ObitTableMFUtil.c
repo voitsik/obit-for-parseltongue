@@ -430,7 +430,7 @@ void ObitTableMF2VL (ObitTableMF *MFTable, ObitTableVL *VLTable,
     VLrow->CenterY   = MFrow->PixelCenterY;
     VLrow->JDProcess = jd;
     strncpy (VLrow->Field, fieldName, 8);
-    
+
     /* Write row - don't write if bad gain */
     orow = -1;
     if (!badGain) ObitTableVLWriteRow (VLTable, orow, VLrow, err);

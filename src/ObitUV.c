@@ -238,7 +238,7 @@ ObitUV* ObitUVFromFileInfo (gchar *prefix, ObitInfoList *inList,
 {
   ObitUV       *out = NULL;
   ObitInfoType type;
-  olong        Aseq, AIPSuser, disk, cno, i, nvis, nThreads, NPIO, maxNPIO;
+  olong        Aseq, AIPSuser = 0, disk, cno, i, nvis, nThreads, NPIO, maxNPIO;
   ofloat       visPGByte;
   gboolean     exist;
   gchar        *strTemp, inFile[129], stemp[256];
@@ -339,6 +339,10 @@ ObitUV* ObitUVFromFileInfo (gchar *prefix, ObitInfoList *inList,
     ObitInfoListGet(inList, keyword, &type, dim, &Aseq, err);
     if (keyword) {g_free(keyword); keyword = NULL;}
 
+    /* AIPS User no. */
+    ObitInfoListGet(inList, "AIPSuser", &type, dim, &AIPSuser, err);
+    if (err->error) Obit_traceback_val (err, routine, "inList", out);
+
     /* if ASeq==0 want highest existing sequence */
     if (Aseq<=0) {
       Aseq = ObitAIPSDirHiSeq(disk, AIPSuser, Aname, Aclass, Atype, TRUE, err);
@@ -347,10 +351,6 @@ ObitUV* ObitUVFromFileInfo (gchar *prefix, ObitInfoList *inList,
       dim[0] = dim[1] = 1;
       ObitInfoListAlwaysPut(inList, "inSeq", OBIT_oint, dim, &Aseq);
     } 
-
-    /* AIPS User no. */
-    ObitInfoListGet(inList, "AIPSuser", &type, dim, &AIPSuser, err);
-    if (err->error) Obit_traceback_val (err, routine, "inList", out);    
 
     /* Find/assign catalog number */
     if (exist) 

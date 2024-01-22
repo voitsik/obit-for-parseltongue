@@ -1063,7 +1063,7 @@ ObitXMLXML2Blob (ObitXML *xml, ObitInfoList **desc, ObitErr *err)
   gint32 dim[MAXINFOELEMDIM];
   xmlrpc_value *v;
   xmlrpc_type xmlType;
-  size_t usize;
+  size_t usize = 0;
   gchar *routine = "ObitXMLXML2Blob";
  
   /* error checks */

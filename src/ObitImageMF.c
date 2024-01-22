@@ -556,7 +556,8 @@ ObitImageMF* ObitImageMFCopy (ObitImageMF *in, ObitImageMF *out, ObitErr *err)
 
   /* Creation date today */
   today = ObitToday();
-  strncpy (out->myDesc->date, today, IMLEN_VALUE);
+  strncpy (out->myDesc->date, today, IMLEN_VALUE-1);
+  out->myDesc->date[IMLEN_VALUE-1] = 0;
   if (today) g_free(today);
  
   /* use same data buffer on input and output 
@@ -721,7 +722,8 @@ void ObitImageMFClone  (ObitImageMF *in, ObitImageMF *out, ObitErr *err)
 
   /* Creation date today */
   today = ObitToday();
-  strncpy (out->myDesc->date, today, IMLEN_VALUE);
+  strncpy (out->myDesc->date, today, IMLEN_VALUE-1);
+  out->myDesc->date[IMLEN_VALUE-1] = 0;
   if (today) g_free(today);
  
   /* Force to float pixels */
@@ -854,7 +856,7 @@ void ObitImageMFSetSpec (ObitImageMF *in, ObitUV *inData, ofloat maxFBW,
   odouble sum=0.0, sum2=0.0, mxFreq, freqLo, freqHi;
   ObitUVDesc *uvdesc;
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
-  gchar keyword[12];
+  gchar keyword[16];
   gboolean done, lsb;
   olong IFBreak[1001], ChBreak[1001], nBreak=1000;  /* Frequency bin breaks */
   gchar *routine = "ObitImageMFSetSpec";
@@ -1088,7 +1090,7 @@ void ObitImageMFGetSpec (ObitImageMF *in, ObitErr *err)
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
   union ObitInfoListEquiv InfoReal; 
   odouble darr[10];
-  gchar keyword[12];
+  gchar keyword[16];
   olong i, nSpec, nTerm;
   /*gchar *routine = "ObitImageMFSetSpec";*/
   

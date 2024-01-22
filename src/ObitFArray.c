@@ -860,12 +860,12 @@ ofloat ObitFArrayMaxAbs (ObitFArray *in, olong *pos)
   if (!OK) return fblank;
 
   /* Find abs max */
-  maxAVal = fabs(threadArgs[0]->value);
+  maxAVal = fabsf(threadArgs[0]->value);
   maxCell = 0;
   for (i=1; i<nTh; i++) {
-    if ((threadArgs[i]->value!=fblank) && (fabs(threadArgs[i]->value)>maxAVal)) {
+    if ((threadArgs[i]->value!=fblank) && (fabsf(threadArgs[i]->value)>maxAVal)) {
 	maxCell = i;
-	maxAVal = fabs(threadArgs[i]->value);
+	maxAVal = fabsf(threadArgs[i]->value);
       }
     }
   for (i=0; i<in->ndim; i++) pos[i] = threadArgs[maxCell]->pos[i];
@@ -1260,7 +1260,7 @@ ofloat ObitFArrayRMS (ObitFArray* in)
     mean = sum / count;
     arg = (sum2/count) - mean*mean;
     if (arg>0.0) out = sqrt(arg);
-    else out = 0.5 * fabs (mean);
+    else out = 0.5 * fabsf (mean);
     out /= cellFact;
   } else { /* trouble - histogram bad*/
     out = fblank;
@@ -1613,7 +1613,7 @@ ofloat ObitFArrayRMSQuant (ObitFArray* in)
     mean = sum / count;
     arg = (sum2/count) - mean*mean;
     if (arg>0.0) out = sqrt(arg);
-    else out = 0.5 * fabs (mean);
+    else out = 0.5 * fabsf (mean);
     out /= cellFact;
   } else { /* trouble - histogram bad*/
     out = fblank;
@@ -3238,7 +3238,7 @@ void ObitFArray2DSymInv (ObitFArray* in, olong *ierr)
   for (j= 1; j<=n; j++) { /* loop 10 */
     for (k= 1; k<=n; k++) { /* loop 5 */
       /* not symmetric */
-      if (abs (a[(k-1)*n+(j-1)]-a[(j-1)*n+(k-1)]) > abs (a[(k-1)*n+(j-1)])*1.0e-4) {
+      if (fabsf (a[(k-1)*n+(j-1)]-a[(j-1)*n+(k-1)]) > fabsf (a[(k-1)*n+(j-1)])*1.0e-4) {
 	*ierr = 4;
 	return;
       } 
@@ -3250,7 +3250,7 @@ void ObitFArray2DSymInv (ObitFArray* in, olong *ierr)
   for (m= 1; m<=n; m++) { /* loop 200 */
     big = 0.0;
     for (l= 1; l<=n; l++) { /* loop 20 */
-      ab = abs (a[(l-1)*n+(l-1)]);
+      ab = fabsf (a[(l-1)*n+(l-1)]);
       if ((ab > big)  &&  (r[l-1] != 0)) {
 	big = ab;
 	k = l;

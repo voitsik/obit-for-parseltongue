@@ -148,7 +148,7 @@ ObitImage* ObitImageFromFileInfo (gchar *prefix, ObitInfoList *inList,
 {
   ObitImage    *out = NULL;
   ObitInfoType type;
-  olong        Aseq, AIPSuser, disk, cno, i;
+  olong        Aseq, AIPSuser = 0, disk, cno, i;
   gchar        *strTemp, inFile[129], stemp[256];
   gchar        Aname[13], Aclass[7], *Atype = "MA";
   gint32       dim[MAXINFOELEMDIM] = {1,1,1,1,1};
@@ -249,6 +249,10 @@ ObitImage* ObitImageFromFileInfo (gchar *prefix, ObitInfoList *inList,
     ObitInfoListGet(inList, keyword, &type, dim, &Aseq, err);
     g_free(keyword);
 
+    /* AIPS User no. */
+    ObitInfoListGet(inList, "AIPSuser", &type, dim, &AIPSuser, err);
+    if (err->error) Obit_traceback_val (err, routine, "inList", out);
+
     /* if ASeq==0 want highest existing sequence */
     if (Aseq<=0) {
       Aseq = ObitAIPSDirHiSeq(disk, AIPSuser, Aname, Aclass, Atype, TRUE, err);
@@ -257,10 +261,6 @@ ObitImage* ObitImageFromFileInfo (gchar *prefix, ObitInfoList *inList,
       dim[0] = dim[1] = 1;
       ObitInfoListAlwaysPut(inList, "inSeq", OBIT_oint, dim, &Aseq);
     } 
-
-    /* AIPS User no. */
-    ObitInfoListGet(inList, "AIPSuser", &type, dim, &AIPSuser, err);
-    if (err->error) Obit_traceback_val (err, routine, "inList", out);    
 
     /* Find/assign catalog number */
     if (exist) 
@@ -651,7 +651,8 @@ ObitImage* ObitImageCopy (ObitImage *in, ObitImage *out, ObitErr *err)
 
   /* Creation date today */
   today = ObitToday();
-  strncpy (out->myDesc->date, today, IMLEN_VALUE);
+  strncpy (out->myDesc->date, today, IMLEN_VALUE-1);
+  out->myDesc->date[IMLEN_VALUE-1] = 0;
   if (today) g_free(today);
  
   /* use same data buffer on input and output 
@@ -791,7 +792,8 @@ void ObitImageClone  (ObitImage *in, ObitImage *out, ObitErr *err)
  
   /* Creation date today */
   today = ObitToday();
-  strncpy (out->myDesc->date, today, IMLEN_VALUE);
+  strncpy (out->myDesc->date, today, IMLEN_VALUE-1);
+  out->myDesc->date[IMLEN_VALUE-1] = 0;
   if (today) g_free(today);
  
   /* Force to float pixels */
@@ -889,7 +891,8 @@ void ObitImageClone2  (ObitImage *in1, ObitImage *in2, ObitImage *out,
 
   /* Creation date today */
   today = ObitToday();
-  strncpy (out->myDesc->date, today, IMLEN_VALUE);
+  strncpy (out->myDesc->date, today, IMLEN_VALUE-1);
+  out->myDesc->date[IMLEN_VALUE-1] = 0;
   if (today) g_free(today);
  
   /* Input image size */

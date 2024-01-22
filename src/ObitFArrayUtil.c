@@ -604,7 +604,7 @@ static int cgaussFunc (const gsl_vector *coef, void *params, gsl_vector *f)
   float *y   = ((struct fitData *)params)->y;
   float *val = ((struct fitData *)params)->val;
   float sum = 0.0;
-  long i;
+  size_t i;
   double amp, cenx, ceny, ivar, model, resid;
 
   /* Current parameters */
@@ -641,7 +641,7 @@ static int cgaussJacob (const gsl_vector *coef, void *params, gsl_matrix *J)
   size_t n   = ((struct fitData *)params)->n;
   float *x   = ((struct fitData *)params)->x;
   float *y   = ((struct fitData *)params)->y;
-  long i;
+  size_t i;
   double amp, cenx, ceny, ivar, eterm;
   double part1, part2, part3, part4;
 
@@ -699,7 +699,7 @@ static int oneDgaussFunc (const gsl_vector *coef, void *params, gsl_vector *f)
   float *val   = ((struct fitData *)params)->val;
   long  ngauss = ((struct fitData *)params)->ngauss;
   float sum = 0.0;
-  long i, j, pnum;
+  long j, pnum;
   double amp, cenx, ivar, model, resid, a, b;
 
   /* Current parameters */
@@ -710,7 +710,7 @@ static int oneDgaussFunc (const gsl_vector *coef, void *params, gsl_vector *f)
   /* Loop through data calculating residuals to model */
   if (ngauss<0) ngauss = 1;  /* to be sure */
   sum = 0.0; resid = 0.0;
-  for (i=0; i<n; i++) {
+  for (size_t i=0; i<n; i++) {
     /* Loop over Gaussians */
     pnum = 0; model = 0.0;
     for (j=0; j<ngauss; j++) {
@@ -742,7 +742,7 @@ static int oneDgaussJacob (const gsl_vector *coef, void *params, gsl_matrix *J)
   size_t n   = ((struct fitData *)params)->n;
   float *x   = ((struct fitData *)params)->x;
   long  ngauss = ((struct fitData *)params)->ngauss;
-  long   i, j, pnum, qnum;
+  long   j, pnum, qnum;
   double amp, cenx, ivar, eterm;
   double part1, part2, part3, part4, part5;
   /*double a, b*/
@@ -754,7 +754,7 @@ static int oneDgaussJacob (const gsl_vector *coef, void *params, gsl_matrix *J)
     b     = gsl_vector_get(coef, pnum++);*/
 
   /* Loop through data calculating partial derivatives of residuals */
-  for (i=0; i<n; i++) {
+  for (size_t i=0; i<n; i++) {
     part4 = 1.0;                              /* partial wrt a */
     part5 = x[i];                             /* partial wrt b */
     pnum  = 3 * ngauss;

@@ -788,7 +788,7 @@ void ObitImageMosaicSetFiles  (ObitImageMosaic *in, gboolean doBeam, ObitErr *er
       user = ObitSystemGetAIPSuser();
       /* set class */
       sprintf(strTemp, "%s", in->imClass);
-      strncpy (Aclass, strTemp,    6);  Aclass[6] = 0;
+      strncpy (Aclass, strTemp, 6);  Aclass[6] = 0;
       Aclass[5] = 'F';
       strncpy (Aname,  in->imName, 12); Aname[12] = 0;
       /* allocate */
@@ -2681,7 +2681,7 @@ void ObitImageMosaicCopyCC (ObitImageMosaic *in, ObitUV *inUV, ObitErr *err)
   olong i, CCVer, noParms, ifield, numPar;
   ObitInfoType type;
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
-  gchar keyword[9];
+  gchar keyword[16];
   gchar *routine = "ObitImageMosaicCopyCC";
 
   /* error checks */

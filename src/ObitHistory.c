@@ -757,8 +757,8 @@ ObitIOCode ObitHistoryTimeStamp (ObitHistory *in,
   struct tm *lp;
   time_t clock;
   olong timea[3], datea[3];
-  gchar *version=NULL;
-  gchar *routine = "ObitHistoryTimeStamp";
+  const gchar *version=NULL;
+  const gchar *routine = "ObitHistoryTimeStamp";
 
   /* error checks */
   g_assert (ObitErrIsA(err));

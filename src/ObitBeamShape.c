@@ -483,7 +483,7 @@ static void FindTabBeam (ObitBeamShape *in)
   case 0:     /* P band */
     in->itabRefFreq = 1.0/refFreq[itab]; /* 1/tabulated ref freq */
     in->icellSize   = 3600.0/250.0;     /* 1/Tabulated cell spacing */
-    olong  Pncell   = 300;
+    olong  Pncell   = 299;
     /* 10 Nov2015, P Band 300 entries  cell 250.0/3600, refFreq  = 340.0e6 */
     ofloat Pbeam[]  = {    /* Fitted to beam */
       1.000000, 0.998248, 0.993048, 0.984058, 0.970796, 0.955100, 0.939748, 0.912643, 0.886224,

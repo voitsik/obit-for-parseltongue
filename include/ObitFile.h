@@ -104,21 +104,21 @@ ObitFile *ObitFileZap(ObitFile *in, ObitErr *err);
 typedef ObitFile *(*ObitFileZapFP)(ObitFile *in, ObitErr *err);
 
 /** Public:  destroy file */
-void ObitFileZapFile(gchar *fileName, ObitErr *err);
-typedef void (*ObitFileZapFileFP)(gchar *fileName, ObitErr *err);
+void ObitFileZapFile(const gchar *fileName, ObitErr *err);
+typedef void (*ObitFileZapFileFP)(const gchar *fileName, ObitErr *err);
 
 /** Public:  rename */
-void ObitFileRename(gchar *oldName, gchar *newName, ObitErr *err);
-typedef void (*ObitFileRenameFP)(gchar *oldName, gchar *newName,  ObitErr *err);
+void ObitFileRename(const gchar *oldName, const gchar *newName, ObitErr *err);
+typedef void (*ObitFileRenameFP)(const gchar *oldName, const gchar *newName,  ObitErr *err);
 
 /** Public: Copy  constructor. */
 ObitFile *ObitFileCopy(ObitFile *in, ObitFile *out, ObitErr *err);
 
 /** Public:  Open */
 ObitIOCode
-ObitFileOpen(ObitFile *in, gchar *fileName, ObitIOAccess access,
+ObitFileOpen(ObitFile *in, const gchar *fileName, ObitIOAccess access,
              ObitIOType type, olong blockSize, ObitErr *err);
-typedef ObitIOCode(*ObitFileOpenFP)(ObitFile *in, gchar *fileName,
+typedef ObitIOCode(*ObitFileOpenFP)(ObitFile *in, const gchar *fileName,
                                     ObitIOAccess access,
                                     ObitIOType type, olong blockSize,
                                     ObitErr *err);
@@ -186,12 +186,12 @@ ObitIOCode ObitFileFlush(ObitFile *in, ObitErr *err);
 typedef ObitIOCode(*ObitFileFlushFP)(ObitFile *in, ObitErr *err);
 
 /** Public: Does a given file exist? */
-gboolean ObitFileExist(gchar *fileName, ObitErr *err);
-typedef gboolean(*ObitFileExistFP)(gchar *fileName, ObitErr *err);
+gboolean ObitFileExist(const gchar *fileName, ObitErr *err);
+typedef gboolean(*ObitFileExistFP)(const gchar *fileName, ObitErr *err);
 
 /** Public: What is the current size of a file */
-ObitFilePos ObitFileSize(gchar *fileName, ObitErr *err);
-typedef ObitFilePos(*ObitFileSizeFP)(ObitFile *in, ObitErr *err);
+ObitFilePos ObitFileSize(const gchar *fileName, ObitErr *err);
+typedef ObitFilePos(*ObitFileSizeFP)(const gchar *fileName, ObitErr *err);
 
 // /** Public: What is the name (without path) if a file */
 // gchar *ObitFileName(gchar *fileName);

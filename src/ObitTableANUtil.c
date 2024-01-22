@@ -71,7 +71,7 @@ ObitIOCode ObitTableANGetInfo (ObitTableAN *in, oint *numAnt, odouble *refFreq,
 
   /* Get items from the header */
   if (refFreq!=NULL) *refFreq = in->Freq;
-  if (refDate!=NULL) strncpy (refDate, in->RefDate, 10);
+  if (refDate!=NULL) {strncpy (refDate, in->RefDate, 10); refDate[10] = 0;}
 
   /* Only need to read table if numAnt != NULL */
   if (numAnt != NULL) {
@@ -193,7 +193,7 @@ ObitAntennaList* ObitTableANGetList (ObitTableAN *in, ObitErr *err) {
   /* Check GSTiat0 - calculate and if within 0.01 deg use value from AN table */
   ObitPrecessGST0 (out->JD, &GSTUTC0, &Rate);
   GSTUTC0 *= 15.;    /* to degrees */
-  if (abs(GSTUTC0-in->GSTiat0)>0.01) {
+  if (fabs(GSTUTC0-in->GSTiat0)>0.01) {
     out->GSTIAT0     = GSTUTC0*DG2RAD;      /* Convert to radians */
     out->RotRate     = Rate*360.0*DG2RAD;   /* Convert to radians/day */
  } else {

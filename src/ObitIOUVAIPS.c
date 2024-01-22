@@ -1435,10 +1435,10 @@ ObitIOUVAIPSReadDescriptor (ObitIOUVAIPS *in, ObitErr *err)
       for (j=0; j<ndo; j++) {
 	/* ignore the first in the first block - this is something eles */
 	if (ikey==0) {ip +=6; ikey++; continue;}
-	g_memmove (&keyName[0], (gchar*)&buffer[ip],   4);
-	g_memmove (&keyName[4], (gchar*)&buffer[ip+1], 4); keyName[8] = 0;
+	memmove (&keyName[0], (gchar*)&buffer[ip],   4);
+	memmove (&keyName[4], (gchar*)&buffer[ip+1], 4); keyName[8] = 0;
 	/* Save 8 bytes of data */
-	g_memmove (blob, (gchar*)&buffer[ip+2], 8); blob[8] = 0;
+	memmove (blob, (gchar*)&buffer[ip+2], 8); blob[8] = 0;
 	/* type as ObitInfoType */
 	keyType = OBIT_oint;
 	if (buffer[ip+4]==1) keyType = OBIT_double;
@@ -1606,10 +1606,10 @@ ObitIOCode ObitIOUVAIPSWriteDescriptor (ObitIOUVAIPS *in, ObitErr *err)
 	/* Replace any non printing characters with blanks */
 	for (k=0; k<8; k++) if (!g_ascii_isprint(keyName[k])) keyName[k]=' ';
 	/* Copy to buffer */
-	g_memmove ((gchar*)&buffer[ip],  &keyName[0], 4);
-	g_memmove ((gchar*)&buffer[ip+1],&keyName[4], 4); 
+	memmove ((gchar*)&buffer[ip],  &keyName[0], 4);
+	memmove ((gchar*)&buffer[ip+1],&keyName[4], 4);
 	/* Save 8 bytes of data */
-	g_memmove ((gchar*)&buffer[ip+2], blob, 8); blob[8] = 0;
+	memmove ((gchar*)&buffer[ip+2], blob, 8); blob[8] = 0;
 	/* Convert type to AIPSish */
 	buffer[ip+4] = 4; /* default int */
 	if (keyType==OBIT_double)      buffer[ip+4] = 1;
@@ -1624,7 +1624,7 @@ ObitIOCode ObitIOUVAIPSWriteDescriptor (ObitIOUVAIPS *in, ObitErr *err)
 	  else if (keyType==OBIT_long) { /* May have to convert long->oint */
 	    buffer[ip+4] = 4;
 	    oitemp[0] = (oint)*(olong*)blob;
-	    g_memmove ((gchar*)&buffer[ip+2], oitemp, 8); blob[8] = 0;
+	    memmove ((gchar*)&buffer[ip+2], oitemp, 8); blob[8] = 0;
 	  }
 	else if (keyType==OBIT_bool)   buffer[ip+4] = 5;
 	ip +=5; /* next unit in buffer */

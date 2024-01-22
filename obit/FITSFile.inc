@@ -35,7 +35,7 @@
 
 
 %inline %{
-extern long FITSFileExist(long disk, char *filename, ObitErr *err)
+extern long FITSFileExist(long disk, const char *filename, ObitErr *err)
 {
   gchar *fullname=NULL, *fullname2=NULL;
   gboolean exist;
@@ -60,23 +60,23 @@ extern long FITSFileExist(long disk, char *filename, ObitErr *err)
   return lexist;
 } /* end FITSFileExist */
 
-extern long FITSAddDir(char *dir, ObitErr *err)
+extern long FITSAddDir(const char *dir, ObitErr *err)
 {
-   return (long)ObitFITSAddDir(dir, err);
+    return (long)ObitFITSAddDir(dir, err);
 } /* end FITSAddDirname */
 
-extern void FITSSetDir(char *dir, long disk, ObitErr *err)
+extern void FITSSetDir(const char *dir, long disk, ObitErr *err)
 {
-   ObitFITSSetDir(dir, (olong)disk, err);
+    ObitFITSSetDir(dir, (olong)disk, err);
 } /* end FITSSetDirname */
 
 extern long FITSGetNumDisk(ObitErr *err)
 {
-   return (long)ObitFITSGetNumDisk(err);
+    return (long)ObitFITSGetNumDisk(err);
 } /* end FITSGetNumDisk */
 
 extern char* FITSGetDirname(long disk, ObitErr *err)
 {
-   return (char*)ObitFITSDirname((olong)disk, err);
+    return (char*)ObitFITSDirname((olong)disk, err);
 } /* end FITSSetDirname */
 %}

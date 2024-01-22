@@ -382,7 +382,8 @@ ObitImageWB* ObitImageWBCopy (ObitImageWB *in, ObitImageWB *out, ObitErr *err)
 
   /* Creation date today */
   today = ObitToday();
-  strncpy (out->myDesc->date, today, IMLEN_VALUE);
+  strncpy (out->myDesc->date, today, IMLEN_VALUE-1);
+  out->myDesc->date[IMLEN_VALUE-1] = 0;
   if (today) g_free(today);
  
   /* use same data buffer on input and output 
@@ -517,7 +518,8 @@ void ObitImageWBClone  (ObitImageWB *in, ObitImageWB *out, ObitErr *err)
  
   /* Creation date today */
   today = ObitToday();
-  strncpy (out->myDesc->date, today, IMLEN_VALUE);
+  strncpy (out->myDesc->date, today, IMLEN_VALUE-1);
+  out->myDesc->date[IMLEN_VALUE-1] = 0;
   if (today) g_free(today);
  
   /* Force to float pixels */

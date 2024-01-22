@@ -161,7 +161,7 @@ ObitFile *ObitFileZap(ObitFile *in, ObitErr *err)
  * \param fileName Name of file to delete
  * \param err      ObitErr for reporting errors.
  */
-void ObitFileZapFile(gchar *fileName, ObitErr *err)
+void ObitFileZapFile(const gchar *fileName, ObitErr *err)
 {
     olong status;
     /*gchar *routine = "ObitFileZap";*/
@@ -194,7 +194,7 @@ void ObitFileZapFile(gchar *fileName, ObitErr *err)
  * \param newName New name for file
  * \param err     ObitErr for reporting errors.
  */
-void ObitFileRename(gchar *oldName, gchar *newName, ObitErr *err)
+void ObitFileRename(const gchar *oldName, const gchar *newName, ObitErr *err)
 {
     olong status;
     gchar *routine = "ObitFileRename";
@@ -291,7 +291,7 @@ ObitFile *ObitFileCopy(ObitFile *in, ObitFile *out, ObitErr *err)
  * \param err       ObitErr for reporting errors.
  * \return TRUE if exists, else FALSE.
  */
-gboolean ObitFileExist(gchar *fileName, ObitErr *err)
+gboolean ObitFileExist(const gchar *fileName, ObitErr *err)
 {
     struct stat stbuf;
     olong status;
@@ -302,7 +302,9 @@ gboolean ObitFileExist(gchar *fileName, ObitErr *err)
 
     g_assert(fileName != NULL);
     errno = 0;  /* reset any system error */
-    ObitTrimTrail(fileName);   /* remove trailling blanks */
+
+    // Do not modify input string
+    // ObitTrimTrail(fileName);   /* remove trailling blanks */
 
     /* does it exist ? */
     status = stat(fileName, &stbuf);
@@ -320,7 +322,7 @@ gboolean ObitFileExist(gchar *fileName, ObitErr *err)
  * \param err       ObitErr for reporting errors.
  * \return File size in bytes
  */
-ObitFilePos ObitFileSize(gchar *fileName, ObitErr *err)
+ObitFilePos ObitFileSize(const gchar *fileName, ObitErr *err)
 {
     ObitFilePos out;
     struct stat stbuf;
@@ -375,7 +377,7 @@ ObitFilePos ObitFileSize(gchar *fileName, ObitErr *err)
  * \return return code, OBIT_IO_OK => OK
  */
 ObitIOCode
-ObitFileOpen(ObitFile *in, gchar *fileName, ObitIOAccess access,
+ObitFileOpen(ObitFile *in, const gchar *fileName, ObitIOAccess access,
              ObitIOType type, olong blockSize, ObitErr *err)
 {
     ObitIOCode status, retCode = OBIT_IO_SpecErr;
@@ -391,7 +393,6 @@ ObitFileOpen(ObitFile *in, gchar *fileName, ObitIOAccess access,
     g_assert(fileName != NULL);
     errno = 0;  /* reset any system error */
 
-    ObitTrimTrail(fileName);   /* remove trailling blanks */
     /* Save call arguments */
     in->access    = access;
     in->type      = type;
@@ -400,6 +401,7 @@ ObitFileOpen(ObitFile *in, gchar *fileName, ObitIOAccess access,
     if (in->fileName) g_free(in->fileName);
 
     in->fileName  = g_strdup(fileName);
+    ObitTrimTrail(in->fileName);   /* remove trailling blanks */
 
     /* If currently open, flush (if needed) and  close first */
     if ((in->status == OBIT_Modified) || (in->status == OBIT_Active)) {
@@ -1109,7 +1111,7 @@ ObitFilePad(ObitFile *in, ObitFilePos padTo, gchar *buffer, olong bsize,
     size = bsize;
 
     while (in->filePos < padTo) { /* pad 'em */
-        size = MIN(size, (padTo - in->filePos));
+        size = MIN(size, (size_t)(padTo - in->filePos));
 
         /* write */
         nWrit = fwrite(buffer, size, 1, in->myFile);
@@ -1150,10 +1152,11 @@ ObitFilePadFile(ObitFile *in, olong blksize, ObitErr *err)
 {
     ObitIOCode retCode = OBIT_IO_SpecErr;
     gchar *tmpBuff = NULL;
-    size_t size, nBlocks, nWrit;
-    ObitFilePos wantPos;
+    ssize_t size, nBlocks;  /* signed type is better (safer) for division and multiplication */
+    size_t nWrit;
+    ObitFilePos wantPos, need;
     struct stat stbuf;
-    olong status, need;
+    int status;  /* stat and fseeko return int */
     /* olong tellpos; DEBUG  */
 
     /* error checks */
@@ -1243,9 +1246,8 @@ ObitFilePadFile(ObitFile *in, olong blksize, ObitErr *err)
 
         in->status = OBIT_ErrorExist;
 
-        if (tmpBuff) {g_free(tmpBuff);}
+        if (tmpBuff) {g_free(tmpBuff); tmpBuff = NULL;}
 
-        tmpBuff = NULL;
         return retCode;
     }
 
@@ -1259,9 +1261,7 @@ ObitFilePadFile(ObitFile *in, olong blksize, ObitErr *err)
 
     if (in->filePos >= 0) in->filePos += size; /* update file position */
 
-    if (tmpBuff) {g_free(tmpBuff);}
-
-    tmpBuff = NULL;
+    if (tmpBuff) {g_free(tmpBuff); tmpBuff = NULL;}
 
     return OBIT_IO_OK;
 } /* end ObitFilePadFile */
@@ -1320,7 +1320,7 @@ gboolean ObitFileErrMsg(ObitErr *err)
 
     errMsg = strerror(errno);
 
-    Obit_log_error(err, OBIT_Error, errMsg); /* Set message */
+    Obit_log_error(err, OBIT_Error, "%s", errMsg); /* Set message */
 
     errno = 0;  /* reset errno */
 

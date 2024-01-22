@@ -513,7 +513,7 @@ gboolean ObitErrIsA (ObitErr* in)
   if (in->className == NULL) return FALSE;
 
   /* sanity checks */
-  if ((in->number<0) || (in->number>50000) || 
+  if ((in->number<0) || (in->number>30000) ||
       (in->ReferenceCount<0) || (in->ReferenceCount>1000)  ||
       (in->error>100)) return FALSE;
 

@@ -361,7 +361,7 @@ void ObitUVCalCalibrate (ObitUVCal *in, ofloat time, olong ant1, olong ant2,
 	  /* spectral averaging correction - get delay phase channel-channel phase rotation */
 	  /* arg = 0.5 * atan2 (dgi, dgr); Now total phase */
 	  arg = 0.5 * dgr;
-	  if ((abs (arg) > 1.0e-5) && (me->NSpecA[idndx] > 1)) {
+	  if ((fabsf (arg) > 1.0e-5) && (me->NSpecA[idndx] > 1)) {
 	    dfact = me->NSpecA[idndx] * sin (arg / me->NSpecA[idndx]) / sin (arg);
 	    dfact = fabs (dfact);
 	    gr = gr * dfact;
@@ -1391,7 +1391,7 @@ ObitUVCalCalibrateVLBAInit (ObitUVCal *in, ObitUVCalCalibrateS *out,
 	out->NFFTSize[indx-1] = CQTableRow->FFTSize[jif-1];
 	
 	/* Time interval per bit */
-	if ((abs(CQTableRow->ChanBW[jif-1]) > 0.0) && (CQTableRow->numChan[jif-1] > 0)) {
+	if ((fabs(CQTableRow->ChanBW[jif-1]) > 0.0) && (CQTableRow->numChan[jif-1] > 0)) {
 	  out->DelBit[indx-1] = 1.0 / (2 * CQTableRow->ChanBW[jif-1] * 
 				      CQTableRow->numChan[jif-1]);
 	} else {
@@ -2556,10 +2556,10 @@ ObitUVCalCalibrateSegLoss (olong lFunc, olong nfft, odouble dbits, olong *rc)
      dfact = (fabs (dbits) - ibit) * dslope + doffst;
      
    } else if (lFunc == 1) { /* Uniform: */
-     dfrac = abs (dbits) / (odouble) (nfft);
+     dfrac = fabs (dbits) / (odouble) (nfft);
      dfact = 1.0 - dfrac;
    } 
-   
+
    return dfact;
 } /*  end ObitUVCalCalibrateSegLoss */
 

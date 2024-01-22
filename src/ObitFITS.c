@@ -36,7 +36,7 @@
 
 /*-----------------File Globals ---------------------------*/
 /** Class information structure */
-static ObitFITS ObitFITSInfo = {"ObitFITS",FALSE};
+static ObitFITS ObitFITSInfo = {"ObitFITS", FALSE};
 
 /** Pointer to Class information structure */
 static ObitFITS *myFITSInfo = &ObitFITSInfo;
@@ -51,80 +51,86 @@ static ObitFITS *myFITSInfo = &ObitFITSInfo;
  * \param dir the names of the directories
  *    If NULL then look for environment variables FITS, FITS01, FITS02...
  */
-void ObitFITSClassInit (oint number, gchar* dir[])
+void ObitFITSClassInit(oint number, gchar *dir[])
 {
-  olong i;
-  gchar fitsxx[8], *ev;
-  gchar *da[]={"01","02","03","04","05","06","07","08","09","10",
-	       "11","12","13","14","15","16","17","18","19","20"};
+    olong i;
+    gchar fitsxx[8], *ev;
+    gchar *da[] = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10",
+                   "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"
+                  };
 
-
-  myFITSInfo->NumberDisks = 0;
-  for (i=0; i<MAXFITSDISK; i++) {
-    myFITSInfo->FITSdir[i] = NULL;
-  }
-
-  /* now initialized */
-  myFITSInfo->initialized = TRUE;
-
-  /* Are directories given or should I look for them? */
-  if (dir==NULL) { /* Look in environment */
     myFITSInfo->NumberDisks = 0;
 
-    /* First try $FITS */
-    ev = getenv ("FITS");
-    if (ev) {
-      myFITSInfo->FITSdir[myFITSInfo->NumberDisks] =
-	g_strconcat(ev, "/", NULL);
-      myFITSInfo->NumberDisks++;
+    for (i = 0; i < MAXFITSDISK; i++) {
+        myFITSInfo->FITSdir[i] = NULL;
     }
 
-    /* Look for FITS01, FITS02... */
-    for (i=0; i<MAXFITSDISK; i++) {
-      g_snprintf (fitsxx,7, "FITS%s",da[i]);
-      ev = getenv (fitsxx);
-      if (ev) {
-	myFITSInfo->FITSdir[myFITSInfo->NumberDisks] =
-	  g_strconcat(ev, "/", NULL);
-	myFITSInfo->NumberDisks++;
-      } else {
-	break;
-      }
-    }
-  } else { /* use what are given */
-    
-    /* error checks */
-    g_assert (number<=MAXFITSDISK);
-    
-    if (number<=0) {
-      myFITSInfo->NumberDisks = 0;
-      myFITSInfo->FITSdir[0] = NULL;
-      return;
-    }
-    
-    /* save directory names */
-    myFITSInfo->NumberDisks = number;
-    for (i=0; i<number; i++) 
-      myFITSInfo->FITSdir[i] = g_strconcat(dir[i], "/", NULL);
-  } /* end of initialize data directories */
-    
+    /* now initialized */
+    myFITSInfo->initialized = TRUE;
+
+    /* Are directories given or should I look for them? */
+    if (dir == NULL) { /* Look in environment */
+        myFITSInfo->NumberDisks = 0;
+
+        /* First try $FITS */
+        ev = getenv("FITS");
+
+        if (ev) {
+            myFITSInfo->FITSdir[myFITSInfo->NumberDisks] =
+                g_strconcat(ev, "/", NULL);
+            myFITSInfo->NumberDisks++;
+        }
+
+        /* Look for FITS01, FITS02... */
+        for (i = 0; i < MAXFITSDISK; i++) {
+            g_snprintf(fitsxx, 7, "FITS%s", da[i]);
+            ev = getenv(fitsxx);
+
+            if (ev) {
+                myFITSInfo->FITSdir[myFITSInfo->NumberDisks] =
+                    g_strconcat(ev, "/", NULL);
+                myFITSInfo->NumberDisks++;
+            } else {
+                break;
+            }
+        }
+    } else { /* use what are given */
+
+        /* error checks */
+        g_assert(number <= MAXFITSDISK);
+
+        if (number <= 0) {
+            myFITSInfo->NumberDisks = 0;
+            myFITSInfo->FITSdir[0] = NULL;
+            return;
+        }
+
+        /* save directory names */
+        myFITSInfo->NumberDisks = number;
+
+        for (i = 0; i < number; i++)
+            myFITSInfo->FITSdir[i] = g_strconcat(dir[i], "/", NULL);
+    } /* end of initialize data directories */
+
 } /* end ObitFITSClassInit */
 
 /**
  * Frees directory strings
  */
-void ObitFITSShutdown (void)
+void ObitFITSShutdown(void)
 {
-  olong i;
+    olong i;
 
-  myFITSInfo->NumberDisks = 0;
-  for (i=0; i<MAXFITSDISK; i++) {
-    if (myFITSInfo->FITSdir[i]) g_free(myFITSInfo->FITSdir[i]);
-    myFITSInfo->FITSdir[i] = NULL;
-  }
+    myFITSInfo->NumberDisks = 0;
 
-  /* now uninitialized */
-  myFITSInfo->initialized = FALSE;
+    for (i = 0; i < MAXFITSDISK; i++) {
+        if (myFITSInfo->FITSdir[i]) g_free(myFITSInfo->FITSdir[i]);
+
+        myFITSInfo->FITSdir[i] = NULL;
+    }
+
+    /* now uninitialized */
+    myFITSInfo->initialized = FALSE;
 
 } /*  end ObitFITSShutdown */
 
@@ -133,110 +139,114 @@ void ObitFITSShutdown (void)
  * \param err  Error stack for any error messages.
  * \return number of disks
  */
-olong ObitFITSGetNumDisk (ObitErr *err)
+olong ObitFITSGetNumDisk(ObitErr *err)
 {
-  /* error checks */
-  if (err->error) return 0;
-  return myFITSInfo->NumberDisks;
+    /* error checks */
+    if (err->error) return 0;
+
+    return myFITSInfo->NumberDisks;
 } /* ObitFITSGetNumDisk  */
 
 /**
  * Add a directory to the list of directories for FITS files
- * Limit of MAXFITSDISK (20) total disks 
+ * Limit of MAXFITSDISK (200) total disks
  * #ObitFITSClassInit must have been used to initialize.
  * \param dir   names of the directories with terminal '/'
  * \param err   Error stack for any error messages.
  * \return new 1-rel disk number, -1 on failure
  */
-olong ObitFITSAddDir (gchar* dir, ObitErr *err)
+olong ObitFITSAddDir(const gchar *dir, ObitErr *err)
 {
-  olong out = -1;
+    olong out = -1;
 
-  if (err->error) return out;
-  if (myFITSInfo->NumberDisks>=MAXFITSDISK) {
-    /* too many */
-    Obit_log_error(err, OBIT_Error, "FITS directory list FULL");
+    if (err->error) return out;
+
+    if (myFITSInfo->NumberDisks >= MAXFITSDISK) {
+        /* too many */
+        Obit_log_error(err, OBIT_Error, "FITS directory list FULL");
+        return out;
+    }
+
+    /* add to list */
+    myFITSInfo->FITSdir[myFITSInfo->NumberDisks] = g_strconcat(dir, "/", NULL);
+    out = ++myFITSInfo->NumberDisks;
     return out;
-  }
-
-  /* add to list */
-  myFITSInfo->FITSdir[myFITSInfo->NumberDisks] =
-    g_strconcat(dir, "/", NULL);
-  out = ++myFITSInfo->NumberDisks;
-  return out;
 } /* end ObitFITSAddDir */
 
 /**
  * Replace directory path
- * Limit of MAXFITSDISK (20) total disks 
+ * Limit of MAXFITSDISK (20) total disks
  * #ObitFITSClassInit must have been used to initialize.
- * \param dir   name of the directory 
+ * \param dir   name of the directory
  * \param disk      FITS "disk" number. 1-rel, =0 => ignore directory
  * \param err   Error stack for any error messages.
  * \return new 1-rel disk number, -1 on failure
  */
-void ObitFITSSetDir (gchar* dir, olong disk, ObitErr *err)
+void ObitFITSSetDir(const gchar *dir, olong disk, ObitErr *err)
 {
 
-  if (err->error) return;
-  if (myFITSInfo->NumberDisks<disk) {
-    /* Must already be there */
-    Obit_log_error(err, OBIT_Error, "FITS directory %d not yet defined", disk);
-    return;
-  }
+    if (err->error) return;
 
-  /* add to list */
-  if (myFITSInfo->FITSdir[disk]) g_free(myFITSInfo->FITSdir[disk]);
-  myFITSInfo->FITSdir[disk] = g_strconcat(dir, "/", NULL);
+    if (myFITSInfo->NumberDisks < disk) {
+        /* Must already be there */
+        Obit_log_error(err, OBIT_Error, "FITS directory %d not yet defined", disk);
+        return;
+    }
+
+    /* add to list */
+    if (myFITSInfo->FITSdir[disk]) g_free(myFITSInfo->FITSdir[disk]);
+
+    myFITSInfo->FITSdir[disk] = g_strconcat(dir, "/", NULL);
 } /* end ObitFITSSetDir */
 
 /**
  * Lookup and possibly add a directory.
  * Searches the current list of directories for directory name dir,
- * if it exists, its disk number is returned.  
+ * if it exists, its disk number is returned.
  * Otherwise the directory is added and its number is returned.
- * Note, the maximum number of FITS disks is MAXFITSDISK  new disks up to this 
+ * Note, the maximum number of FITS disks is MAXFITSDISK new disks up to this
  * max can be assigned.
- * \param disk  disk (1-rel) to be changed, must have been assigned at startup
- *              if <=0 then add new disk, up to MAXFITSDISK
  * \param dir   name of the directory to be located or added
- *              if dir="." or "./" then disk = 0 
+ *              if dir="." or "./" then disk = 0
  * \return disk number assigned
  */
-olong ObitFITSFindDir (gchar* dir, ObitErr *err)
+olong ObitFITSFindDir(const gchar *dir, ObitErr *err)
 {
-  olong disk=0;
+    olong disk = 0;
 
-  /* error checks */
-  if (err->error) return disk;
+    /* error checks */
+    if (err->error) return disk;
 
-  if (!myFITSInfo->initialized) { /* FITS directories un initialized */
-    Obit_log_error(err, OBIT_Error, "FITS directories uninitialized");
-    return disk;
-  }
+    if (!myFITSInfo->initialized) { /* FITS directories un initialized */
+        Obit_log_error(err, OBIT_Error, "FITS directories uninitialized");
+        return disk;
+    }
 
-  /* No need to lookup CWD */
-  if ((!strcmp(dir,".")) || (!strcmp(dir,"./"))) return disk;
+    /* No need to lookup CWD */
+    if ((!strcmp(dir, ".")) || (!strcmp(dir, "./"))) return disk;
 
-  /* See if it is currently defined */
-  for (disk=1; disk<=myFITSInfo->NumberDisks; disk++) {
-    if (!strcmp(dir, myFITSInfo->FITSdir[disk-1])) return disk;
-  }
+    /* See if it is currently defined */
+    for (disk = 1; disk <= myFITSInfo->NumberDisks; disk++) {
+        if (!strcmp(dir, myFITSInfo->FITSdir[disk - 1])) return disk;
+    }
 
     /* Nope - add */
-    disk = myFITSInfo->NumberDisks+1;  /* Add directory */
-    if ((disk<1) || (disk>MAXFITSDISK)) /* Disk number out of range? */
-      Obit_log_error(err, OBIT_Error, 
-		     "FITS disk number %d out of range [%d,%d]", 
-		     disk, 1, myFITSInfo->NumberDisks);
+    disk = myFITSInfo->NumberDisks + 1; /* Add directory */
+
+    if ((disk < 1) || (disk > MAXFITSDISK)) /* Disk number out of range? */
+        Obit_log_error(err, OBIT_Error,
+                       "FITS disk number %d out of range [%d,%d]",
+                       disk, 1, myFITSInfo->NumberDisks);
+
     if (err->error) return  disk;
 
-  /* Add directory name */
-  if (myFITSInfo->FITSdir[disk-1]) g_free(myFITSInfo->FITSdir[disk-1]);
-  myFITSInfo->FITSdir[disk-1] =  g_strdup(dir);
-  myFITSInfo->NumberDisks = MAX (myFITSInfo->NumberDisks, disk);
+    /* Add directory name */
+    if (myFITSInfo->FITSdir[disk - 1]) g_free(myFITSInfo->FITSdir[disk - 1]);
 
-  return disk;
+    myFITSInfo->FITSdir[disk - 1] =  g_strdup(dir);
+    myFITSInfo->NumberDisks = MAX(myFITSInfo->NumberDisks, disk);
+
+    return disk;
 } /* end ObitFITSFindDir */
 
 /**
@@ -247,67 +257,78 @@ olong ObitFITSFindDir (gchar* dir, ObitErr *err)
  * \param err       Error stack for any error messages.
  * \return full path name string, should be deallocated when done
  */
-gchar* 
-ObitFITSFilename (olong disk, gchar* fileName, ObitErr *err)
+gchar *
+ObitFITSFilename(olong disk, const gchar *fileName, ObitErr *err)
 {
-  gchar *out;
-  
-  /* error checks */
-  g_assert (ObitErrIsA(err));
-  if (err->error) return NULL;
-  /* if disk <0 just return fileName */
-  if (disk<=0) {
-    out = g_strdup (fileName);
+    gchar *out;
+
+    /* error checks */
+    g_assert(ObitErrIsA(err));
+
+    if (err->error) return NULL;
+
+    /* if disk <0 just return fileName */
+    if (disk <= 0) {
+        out = g_strdup(fileName);
+        ObitTrimTrailNoBlank(out);  /* Trim any trailing blanks */
+        return out;
+    }
+
+    if (!myFITSInfo->initialized) /* FITS directories uninitialized */
+        Obit_log_error(err, OBIT_Error,
+                       "FITS directories uninitialized");
+
+    if ((disk < 0) || (disk > myFITSInfo->NumberDisks)) /* Disk number out of range */
+        Obit_log_error(err, OBIT_Error,
+                       "FITS disk number %d out of range [%d,%d]",
+                       disk, 1, myFITSInfo->NumberDisks);
+
+    if (err->error) return NULL;
+
+
+    /* if fileName begins with '!', put it at the beginning */
+    /* put it all together */
+    if (fileName[0] == '!')
+        out = g_strconcat("!", ObitFITSDirname(disk, err), &fileName[1], NULL);
+    else
+        out = g_strconcat(ObitFITSDirname(disk, err), fileName, NULL);
+
     ObitTrimTrailNoBlank(out);  /* Trim any trailing blanks */
+
     return out;
-  }
-  if (!myFITSInfo->initialized) /* FITS directories uninitialized */
-    Obit_log_error(err, OBIT_Error, 
-		   "FITS directories uninitialized");
-  if ((disk<0) || (disk>myFITSInfo->NumberDisks)) /* Disk number out of range */
-    Obit_log_error(err, OBIT_Error, 
-		   "FITS disk number %d out of range [%d,%d]", 
-		   disk, 1, myFITSInfo->NumberDisks);
-  if (err->error) return NULL;
-
-
-  /* if fileName begins with '!', put it at the beginning */
-  /* put it all together */
-  if (fileName[0]=='!' )
-    out = g_strconcat ("!", ObitFITSDirname(disk, err), &fileName[1], NULL);
-  else
-    out = g_strconcat (ObitFITSDirname(disk, err), fileName, NULL);
-  ObitTrimTrailNoBlank(out);  /* Trim any trailing blanks */
-  
-  return out;
 } /* end ObitFITSFilename */
 
 /**
  * Returns pointer to directory string by FITS disk.
  * \param disk FITS disk number.
  * \param err  Error stack for any error messages.
- * \return directory name string, this is a pointer into a global 
+ * \return directory name string, this is a pointer into a global
  *         class structure and should not be g_freeed.
  */
-gchar* ObitFITSDirname (olong disk, ObitErr *err)
+gchar *ObitFITSDirname(olong disk, ObitErr *err)
 {
 
-  /* error checks */
-  g_assert (ObitErrIsA(err));
-  if (err->error) return NULL;
-  if (!myFITSInfo->initialized) /* FITS directories uninitialized */
-    Obit_log_error(err, OBIT_Error, 
-		   "FITS directories uninitialized");
-  if ((disk<0) || (disk>myFITSInfo->NumberDisks)) /* Disk number out of range */
-    Obit_log_error(err, OBIT_Error, 
-		   "FITS disk number %d out of range [%d,%d]", 
-		   disk, 1, myFITSInfo->NumberDisks);
-  if (myFITSInfo->FITSdir[disk-1]==NULL) /* Directory not defined */
-    Obit_log_error(err, OBIT_Error, 
-		   "FITS directory %d not defined", disk);
-  if (err->error) return NULL;
+    /* error checks */
+    g_assert(ObitErrIsA(err));
 
-  return myFITSInfo->FITSdir[disk-1];
+    if (err->error) return NULL;
+
+    if (!myFITSInfo->initialized) /* FITS directories uninitialized */
+        Obit_log_error(err, OBIT_Error,
+                       "FITS directories uninitialized");
+
+    if ((disk < 0) || (disk > myFITSInfo->NumberDisks)) /* Disk number out of range */
+        Obit_log_error(err, OBIT_Error,
+                       "FITS disk number %d out of range [%d,%d]",
+                       disk, 1, myFITSInfo->NumberDisks);
+
+    if (myFITSInfo->FITSdir[disk - 1] == NULL) /* Directory not defined */
+        Obit_log_error(err, OBIT_Error,
+                       "FITS directory %d not defined", disk);
+
+    if (err->error) return NULL;
+
+    return myFITSInfo->FITSdir[disk - 1];
 } /* ObitFITSDirname  */
 
 
@@ -322,30 +343,32 @@ gchar* ObitFITSDirname (olong disk, ObitErr *err)
  * \param err        Error stack for any error messages.
  */
 /** Public: Assign a scratch file info */
-void ObitFITSAssign(gchar *pgmName, olong pgmNumber, 
-		    olong disk, olong scrNo, ObitInfoList *info, 
-		    ObitErr *err)
+void ObitFITSAssign(gchar *pgmName, olong pgmNumber,
+                    olong disk, olong scrNo, ObitInfoList *info,
+                    ObitErr *err)
 {
-  gchar name[121];
-  gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
-  ObitIOType ft;
+    gchar name[121];
+    gint32 dim[MAXINFOELEMDIM] = {1, 1, 1, 1, 1};
+    ObitIOType ft;
 
-  /* error check */
-  g_assert (ObitErrIsA(err));
-  if (err->error) return;
-  g_assert (ObitInfoListIsA(info));
+    /* error check */
+    g_assert(ObitErrIsA(err));
 
-  /* form name string */
-  g_snprintf (name, 120, "%s%dScr%d", pgmName, pgmNumber, scrNo);
+    if (err->error) return;
 
-  /* write assignment to info */
-  ft = OBIT_IO_FITS;
-  ObitInfoListPut (info, "FileType", OBIT_long, dim, (gpointer)&ft,   err);
-  ObitInfoListPut (info, "Disk",     OBIT_long, dim, (gpointer)&disk, err);
+    g_assert(ObitInfoListIsA(info));
 
-  dim[0] = strlen(name);
-  ObitInfoListPut (info, "FileName", OBIT_string, dim, 
-		   (gpointer)name, err);
+    /* form name string */
+    g_snprintf(name, 120, "%s%dScr%d", pgmName, pgmNumber, scrNo);
+
+    /* write assignment to info */
+    ft = OBIT_IO_FITS;
+    ObitInfoListPut(info, "FileType", OBIT_long, dim, (gpointer)&ft,   err);
+    ObitInfoListPut(info, "Disk",     OBIT_long, dim, (gpointer)&disk, err);
+
+    dim[0] = strlen(name);
+    ObitInfoListPut(info, "FileName", OBIT_string, dim,
+                    (gpointer)name, err);
 
 } /* end ObitFITSAssign */
 
@@ -360,106 +383,120 @@ void ObitFITSAssign(gchar *pgmName, olong pgmNumber,
  */
 void ObitFITSRename(ObitIO *in, ObitInfoList *info, ObitErr *err)
 {
-  gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
-  ObitIOType ft;
-  ObitInfoType type;
-  olong disk;
-  gchar *newName, *oldName, *oldFull, *newFull;
-  ObitHistory *inHist=NULL;
-  gchar hiCard[73];
-  gchar *routine = "ObitFITSRename";
+    gint32 dim[MAXINFOELEMDIM] = {1, 1, 1, 1, 1};
+    ObitIOType ft;
+    ObitInfoType type;
+    olong disk;
+    gchar *newName, *oldName, *oldFull, *newFull;
+    ObitHistory *inHist = NULL;
+    gchar hiCard[73];
+    gchar *routine = "ObitFITSRename";
 
-  /* error check */
-  g_assert (ObitErrIsA(err));
-  if (err->error);
-  g_assert (ObitIOIsA(in));
+    /* error check */
+    g_assert(ObitErrIsA(err));
 
-  /* check that FITS type */
-  if (!ObitInfoListGet(info, "FileType", &type, dim, &ft, err)) {
-    Obit_log_error(err, OBIT_Error, 
-		"%s: entry FileType not in InfoList Object %s",	
-		   routine, in->name);
-    return;
-  }
-  Obit_return_if_fail ((ft == OBIT_IO_FITS), err,"%s: Object NOT FITS %s",
-		       routine, in->name);
-  /* Get file names */
-  if (!ObitInfoListGet(info, "Disk", &type, dim, &disk, err))
-    Obit_traceback_msg (err, routine, in->name);
-    
-  if(!ObitInfoListInfo(info, "newFileName", &type, dim, err)) {
-    Obit_log_error(err, OBIT_Error, 
-		   "%s: entry newFileName not in InfoList Object %s",
-		   routine, in->name);
-    return;
-  }
-  /* Allocate */
-  newName = g_malloc0(dim[0]+1);
-  if (!ObitInfoListGet(info, "newFileName", &type, dim, newName, err)) {
-    Obit_log_error(err, OBIT_Error, 
-		   "%s: entry newFileName not in InfoList Object %s",
-		   routine, in->name);
-    return;
-  }
-  /* Final NULL */
-  newName[dim[0]] = 0;
+    if (err->error) return;
 
-  /* Full path */
-  newFull = ObitFITSFilename (disk, newName, err);  
-     
-  /* Does new filename exist? */
-  if (ObitFileExist (newFull, err) || err->error) {
-    Obit_log_error(err, OBIT_Error, 
-		   "%s:File %s already exists",
-		   routine, newName);
+    g_assert(ObitIOIsA(in));
+
+    /* check that FITS type */
+    if (!ObitInfoListGet(info, "FileType", &type, dim, &ft, err)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s: entry FileType not in InfoList Object %s",
+                       routine, in->name);
+        return;
+    }
+
+    Obit_return_if_fail((ft == OBIT_IO_FITS), err, "%s: Object NOT FITS %s",
+                        routine, in->name);
+
+    /* Get file names */
+    if (!ObitInfoListGet(info, "Disk", &type, dim, &disk, err))
+        Obit_traceback_msg(err, routine, in->name);
+
+    if (!ObitInfoListInfo(info, "newFileName", &type, dim, err)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s: entry newFileName not in InfoList Object %s",
+                       routine, in->name);
+        return;
+    }
+
+    /* Allocate */
+    newName = g_malloc0(dim[0] + 1);
+
+    if (!ObitInfoListGet(info, "newFileName", &type, dim, newName, err)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s: entry newFileName not in InfoList Object %s",
+                       routine, in->name);
+        return;
+    }
+
+    /* Final NULL */
+    newName[dim[0]] = 0;
+
+    /* Full path */
+    newFull = ObitFITSFilename(disk, newName, err);
+
+    /* Does new filename exist? */
+    if (ObitFileExist(newFull, err) || err->error) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s:File %s already exists",
+                       routine, newName);
+        g_free(newName);
+        return;
+    }
+
+    if (!ObitInfoListInfo(info, "FileName", &type, dim, err)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s: entry FileName not in InfoList Object %s",
+                       routine, in->name);
+        return;
+    }
+
+    /* Allocate */
+    oldName = g_malloc0(dim[0] + 1);
+
+    if (!ObitInfoListGet(info, "FileName", &type, dim, oldName, err)) {
+        Obit_log_error(err, OBIT_Error,
+                       "%s: entry FileName not in InfoList Object %s",
+                       routine, in->name);
+        return;
+    }
+
+    /* Final NULL */
+    oldName[dim[0]] = 0;
+
+    /* Full path */
+    oldFull = ObitFITSFilename(disk, oldName, err);
+
+    /* Rename */
+    ObitFileRename(oldFull, newFull, err);
+
+    if (err->error) Obit_traceback_msg(err, routine, in->name);
+
+    /* Save new filename */
+    dim[0] = strlen(newName);
+    dim[1] = 1;
+    ObitInfoListAlwaysPut(info, "FileName", OBIT_string, dim, newName);
+
+    /* Add history entry */
+    inHist = newObitHistoryValue("History", info, err);
+    ObitHistoryOpen(inHist, OBIT_IO_ReadWrite, err);
+    ObitHistoryTimeStamp(inHist, "Obit Rename", err);
+    g_snprintf(hiCard, 72, "Obit / rename from %s", oldName);
+    ObitHistoryWriteRec(inHist, -1, hiCard, err);
+    g_snprintf(hiCard, 72, "Obit /  to %s", newName);
+    ObitHistoryWriteRec(inHist, -1, hiCard, err);
+    ObitHistoryClose(inHist, err);
+
+    if (err->error) Obit_traceback_msg(err, routine, in->name);
+
+    /* Cleanup */
+    inHist = ObitHistoryUnref(inHist);
+    g_free(oldName);
     g_free(newName);
-    return;
-  }
-  if(!ObitInfoListInfo(info, "FileName", &type, dim, err)) {
-    Obit_log_error(err, OBIT_Error, 
-		   "%s: entry FileName not in InfoList Object %s",
-		   routine, in->name);
-    return;
-  }
-  /* Allocate */
-  oldName = g_malloc0(dim[0]+1);
-  if(!ObitInfoListGet(info, "FileName", &type, dim, oldName, err)) {
-    Obit_log_error(err, OBIT_Error, 
-		   "%s: entry FileName not in InfoList Object %s",
-		   routine, in->name);
-    return;
-  }
-  /* Final NULL */
-  oldName[dim[0]] = 0;
-     
-  /* Full path */
-  oldFull = ObitFITSFilename (disk, oldName, err);
-
-  /* Rename */
-  ObitFileRename (oldFull, newFull, err);
-  if (err->error) Obit_traceback_msg (err, routine, in->name);
-
-  /* Save new filename */
-  dim[0] = strlen(newName); dim[1] = 1;
-  ObitInfoListAlwaysPut(info, "FileName", OBIT_string, dim, newName);
-
-  /* Add history entry */
-  inHist = newObitHistoryValue ("History", info, err);
-  ObitHistoryOpen (inHist, OBIT_IO_ReadWrite, err);
-  ObitHistoryTimeStamp (inHist, "Obit Rename", err);
-  g_snprintf ( hiCard, 72, "Obit / rename from %s",oldName);
-  ObitHistoryWriteRec (inHist, -1, hiCard, err);
-  g_snprintf ( hiCard, 72, "Obit /  to %s", newName);
-  ObitHistoryWriteRec (inHist, -1, hiCard, err);
-  ObitHistoryClose (inHist, err);
-  if (err->error) Obit_traceback_msg (err, routine, in->name);
-
-  /* Cleanup */
-  inHist = ObitHistoryUnref(inHist);
-  g_free(oldName);
-  g_free(newName);
-  g_free(newFull);
-  g_free(oldFull);
+    g_free(newFull);
+    g_free(oldFull);
 
 } /* end ObitFITSRename */
 

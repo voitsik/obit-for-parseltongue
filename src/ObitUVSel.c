@@ -341,8 +341,8 @@ void ObitUVSelGetDesc (ObitUVDesc* in, ObitUVSel* sel,
     /* Make sure there are WEIGHT and SCALE random parameters */
     if (out->ilocws<0) {
       out->ilocws = in->nrparm;
-      strncpy (out->ptype[out->nrparm++], "WEIGHT  ", 8);
-      strncpy (out->ptype[out->nrparm++], "SCALE   ", 8);
+      strncpy (out->ptype[out->nrparm++], "WEIGHT  ", UVLEN_KEYWORD);
+      strncpy (out->ptype[out->nrparm++], "SCALE   ", UVLEN_KEYWORD);
     }
   }
 

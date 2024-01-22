@@ -384,7 +384,7 @@ ObitIOCode ObitIOImageFITSOpen (ObitIOImageFITS *in, ObitIOAccess access,
   gint32 dim[IM_MAXDIM];
   long pcount, gcount;
   ObitInfoType type;
-  gchar tempStr[201];
+  gchar tempStr[202];
   ObitImageDesc* desc;
   gchar *routine = "ObitIOImageFITSOpen";
 
@@ -1117,23 +1117,26 @@ ObitIOCode ObitIOImageFITSReadDescriptor (ObitIOImageFITS *in, ObitErr *err)
 
   today = ObitToday();
   strncpy (desc->date, today, IMLEN_VALUE-1);
+  desc->date[IMLEN_VALUE-1] = 0;
   if (today) g_free(today);
   fits_read_key_str (in->myFptr, "DATE-MAP", (char*)cdata[0], (char*)commnt, &status);
-  if (status==0)  {strncpy (desc->date, cdata[0], IMLEN_VALUE); desc->date[IMLEN_VALUE-1] = 0;}
+  if (status==0) {strncpy (desc->date, cdata[0], IMLEN_VALUE-1); desc->date[IMLEN_VALUE-1] = 0;}
   if (status==KEY_NO_EXIST) status = 0;
 
-  strncpy (desc->origin, "        ", IMLEN_VALUE-1); 
+  strncpy (desc->origin, "        ", IMLEN_VALUE);
   fits_read_key_str (in->myFptr, "ORIGIN", (char*)cdata[0], (char*)commnt, &status);
-  if (status==0) { strncpy (desc->origin, cdata[0], IMLEN_VALUE); desc->origin[IMLEN_VALUE-1] = 0;}
+  if (status==0) {strncpy (desc->origin, cdata[0], IMLEN_VALUE-1); desc->origin[IMLEN_VALUE-1] = 0;}
   if (status==KEY_NO_EXIST) status = 0;
 
-  for (i=0; i<IM_MAXDIM; i++) strncpy (desc->ctype[i], "        ", IMLEN_KEYWORD-1);
+  for (i=0; i<IM_MAXDIM; i++) strncpy (desc->ctype[i], "        ", IMLEN_KEYWORD);
   for (i=0; i<IM_MAXDIM; i++) cdum[i] = &cdata[i][0];
   fits_read_keys_str (in->myFptr, "CTYPE", 1, IM_MAXDIM, cdum, &nfound, 
 		      &status);
     if (status==0) {
-      for (i=0; i<nfound; i++) strncpy (desc->ctype[i], cdata[i], IMLEN_KEYWORD-1); 
-      desc->ctype[i][IMLEN_KEYWORD-1] = 0;
+      for (i=0; i<nfound; i++) {
+        strncpy (desc->ctype[i], cdata[i], IMLEN_KEYWORD-1);
+        desc->ctype[i][IMLEN_KEYWORD-1] = 0;
+      }
     }
   if (status==KEY_NO_EXIST) status = 0;
 
@@ -2224,7 +2227,7 @@ void  ObitIOImageKeysOtherRead(ObitIOImageFITS *in, olong *lstatus,
   char keywrd[FLEN_KEYWORD], value[FLEN_VALUE], commnt[FLEN_COMMENT+1];
   char *first, *last, *aT, dtype, svalue[FLEN_VALUE];
   /* char *anF, */
-  olong i, j, l;
+  olong i, j;
   olong ivalue;
   int  k, status=0, keys, morekeys;
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
@@ -2277,11 +2280,11 @@ void  ObitIOImageKeysOtherRead(ObitIOImageFITS *in, olong *lstatus,
       if (!bad) {
 	/* ask cfitsio what it is */
 	fits_get_keytype (value, &dtype, &status);
-	switch (dtype) { 
+	switch (dtype) {
 	case 'C':  /* Character string */
-	  first = index (value,'\'')+1; /* a string? */
-	  last = rindex(value,'\'')-1;
-	  g_memmove(svalue, first, (last-first+1));
+	  first = strchr (value,'\'')+1; /* a string? */
+	  last = strrchr(value,'\'')-1;
+	  memmove(svalue, first, (last-first+1));
 	  svalue[last-first+1] = 0; /* null terminate */
 	  /* add to InfoList */
 	  dim[0] = strlen(svalue);
@@ -2291,7 +2294,7 @@ void  ObitIOImageKeysOtherRead(ObitIOImageFITS *in, olong *lstatus,
 	  break;
 	case 'L':  /* logical 'T', 'F' */
 	  /*anF   = index (value,'F');  Logical */
-	  aT    = index (value,'T'); /* Logical */
+	  aT = strchr (value,'T'); /* Logical */
 	  bvalue = FALSE;
 	  if (aT!=NULL) bvalue = TRUE;
 	  /* add to InfoList */
@@ -2308,7 +2311,7 @@ void  ObitIOImageKeysOtherRead(ObitIOImageFITS *in, olong *lstatus,
 	  break;
 	case 'F':  /* Float - use double */
 	  /* AIPS uses 'D' for double exponent */
-	  for (l=0; l<strlen(value); l++) if (value[l]=='D') value[l]='e';
+	  for (size_t l=0; l<strlen(value); l++) if (value[l]=='D') value[l]='e';
 	  dvalue = strtod(value, &last);
 	  /* add to InfoList */
 	  dim[0] = 1;

@@ -4138,13 +4138,13 @@ void ObitUVEditElev (ObitUV *inUV, ObitUV *outUV, ObitErr *err)
   minElevRad = minElev * DG2RAD;   /* to radians */
   flagTab = 1;
   ObitInfoListGetTest(inUV->info, "flagTab",   &type, dim, &flagTab);  
-  strncpy (Stokes, "    ", 4);
+  strncpy (Stokes, "    ", 5);
   ObitInfoListGetTest(inUV->info, "PFlag",  &type, dim, Stokes); Stokes[4] = 0;
-  strncpy (Reason, "                        ", 24);
+  strncpy (Reason, "                        ", 25);
   ObitInfoListGetTest(inUV->info, "Reason",  &type, dim, Reason); Reason[24] = 0;
   /* Default reason */
   if (!strncmp(Reason, "          ", 10))
-      strncpy (Reason, "Elevation Limit         ", 24);
+      strncpy (Reason, "Elevation Limit         ", 25);
   /* killAll - any Stokes flag => flag all */
   killAll = FALSE;
   ObitInfoListGetTest(inUV->info, "killAll", &type, dim,  &killAll);  
@@ -4405,13 +4405,13 @@ void ObitUVEditShadCross (ObitUV *inUV, ObitUV *outUV, ObitErr *err)
   minCrossLam2 *= minCrossLam2;                              /* Squared */
   flagTab = 1;
   ObitInfoListGetTest(inUV->info, "flagTab",   &type, dim, &flagTab);  
-  strncpy (Stokes, "    ", 4);
+  strncpy (Stokes, "    ", 5);
   ObitInfoListGetTest(inUV->info, "PFlag",  &type, dim, Stokes); Stokes[4] = 0;
-  strncpy (Reason, "                        ", 24);
+  strncpy (Reason, "                        ", 25);
   ObitInfoListGetTest(inUV->info, "Reason",  &type, dim, Reason); Reason[24] = 0;
   /* Default reason */
   if (!strncmp(Reason, "          ", 10))
-      strncpy (Reason, "Shadowing/crosstalk     ", 24);
+      strncpy (Reason, "Shadowing/crosstalk     ", 25);
   /* killAll - any Stokes flag => flag all */
   killAll = FALSE;
   ObitInfoListGetTest(inUV->info, "killAll", &type, dim,  &killAll);  

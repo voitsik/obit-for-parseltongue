@@ -260,7 +260,7 @@ ObitIOCode ObitTableCCUtilGrid (ObitTableCC *in, olong OverSample,
     else itestY = (olong)(ftestY - 0.5);
   
     /* Count bad cells */
-    if ((fabs((ftestX-itestX)>0.1)) || (fabs((ftestY-itestY)>0.1))) {
+    if ((fabs(ftestX-itestX)>0.1) || (fabs(ftestY-itestY)>0.1)) {
       badCnt++;
       /* Warn but keep going */
       if (badCnt<50) {
@@ -495,7 +495,7 @@ ObitIOCode ObitTableCCUtilGridSpect (ObitTableCC *in, olong OverSample, olong it
     else itestY = (olong)(ftestY - 0.5);
   
     /* Count bad cells */
-    if ((fabs((ftestX-itestX)>0.1)) || (fabs((ftestY-itestY)>0.1))) {
+    if ((fabs(ftestX-itestX)>0.1) || (fabs(ftestY-itestY)>0.1)) {
       badCnt++;
       /* Warn but keep going */
       if (badCnt<50) {
@@ -1551,7 +1551,7 @@ ObitFArray* ObitTableCCUtilMergeSelSpec (ObitTableCC *in, olong startComp,
   if (in->myDesc->nrow<=0) {
     retCode = ObitTableCCClose (in, err);
     if ((retCode != OBIT_IO_OK) || (err->error)) goto cleanup;
-    return OBIT_IO_OK;
+    return out;
   }
 
   /* Check range of components */
@@ -2612,15 +2612,15 @@ void ObitTableCCUtilFixTSpec (ObitImage *inImage, olong *inCCVer,
     if ((retCode != OBIT_IO_OK) || (err->error)) 
       Obit_traceback_msg (err, routine, inCCTable->name);
     
-      /* Correct channel fluxes with fitted spectrum */
-      for (i=0; i<nSpec; i++) inCCRow->parms[offset+i] *= sumFlux[i];
+    /* Correct channel fluxes with fitted spectrum */
+    for (i=0; i<nSpec; i++) inCCRow->parms[offset+i] *= sumFlux[i];
       
-      /* Write output */
-      orow = j;
-      retCode = ObitTableCCWriteRow (inCCTable, orow, inCCRow, err);
-      if  (err->error) goto cleanup;
+    /* Write output */
+    orow = j;
+    retCode = ObitTableCCWriteRow (inCCTable, orow, inCCRow, err);
+    if  (err->error) goto cleanup;
   
-    } /* end loop over table */
+  } /* end loop over table */
 
   /* Close/cleanup */
  cleanup:

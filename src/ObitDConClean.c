@@ -2536,7 +2536,7 @@ static void AddCleanFileWindow(ObitDConClean *in, gchar *Cfile, ObitErr *err)
   ObitFile *Cf=NULL;
   ObitIOCode retCode;
   gchar line[201];
-  olong i, h, d, rm, dm, iNumRead, iRad, cnt = 0;
+  olong h, d, rm, dm, iNumRead, iRad, cnt = 0;
   ofloat rs, ds, dx, dy, dist, pixel[2];
   odouble pos[2];
   gboolean negDec, bad=FALSE;
@@ -2572,7 +2572,7 @@ static void AddCleanFileWindow(ObitDConClean *in, gchar *Cfile, ObitErr *err)
     }
     /* Look for negative dec sign */
     negDec = FALSE;
-    for (i=0; i<strlen(line); i++) {
+    for (size_t i=0; i<strlen(line); i++) {
       if (line[i]=='-') {negDec = TRUE; break;}
     }
     if (negDec) pos[1] = -fabs(pos[1]);

@@ -24,8 +24,8 @@
 /*;                         520 Edgemont Road                         */
 /*;                         Charlottesville, VA 22903-2475 USA        */
 /*--------------------------------------------------------------------*/
-#ifndef OBITFITS_H 
-#define OBITFITS_H 
+#ifndef OBITFITS_H
+#define OBITFITS_H
 #include <glib.h>
 #include "ObitImageDesc.h"
 #include "ObitFile.h"
@@ -48,58 +48,58 @@ typedef gint32 FITSint;
 
 /*-------------- enumerations -------------------------------------*/
 /*------------------  Macros    -------------------------------------*/
-/** The maximum number of FITS "disks" */ 
+/** The maximum number of FITS "disks" */
 #define MAXFITSDISK 200
 
 /*--------------Class definitions-------------------------------------*/
-/** ObitFITS Class Structure. */  
+/** ObitFITS Class Structure. */
 typedef struct {
-  /** class name for verification */
-  gchar *className;
-  /** Object reference count. */
-  gboolean initialized; 
-  /** Array of directory strings by "disk" */
-  gchar *FITSdir[MAXFITSDISK];
-  /** Number of actual disks */
-  olong NumberDisks;
+    /** class name for verification */
+    gchar *className;
+    /** Object reference count. */
+    gboolean initialized;
+    /** Array of directory strings by "disk" */
+    gchar *FITSdir[MAXFITSDISK];
+    /** Number of actual disks */
+    olong NumberDisks;
 } ObitFITS;
 
 /*---------------Public functions---------------------------*/
 /** Public: Class initializer. */
-void ObitFITSClassInit (oint number, gchar* dir[]);
+void ObitFITSClassInit(oint number, gchar *dir[]);
 
 /** Public: Constructor. */
-ObitFITS* newObitFITS (void);
+ObitFITS *newObitFITS(void);
 
 /** Public: Shutdown. */
-void ObitFITSShutdown (void);
+void ObitFITSShutdown(void);
 
 /** Public: Add FITS data directory. */
-olong ObitFITSAddDir (gchar* dir, ObitErr *err);
+olong ObitFITSAddDir(const gchar *dir, ObitErr *err);
 
 /** Public: Replace FITS data directory path. */
-void ObitFITSSetDir (gchar* dir, olong disk, ObitErr *err);
+void ObitFITSSetDir(const gchar *dir, olong disk, ObitErr *err);
 
 /** Public: Find/Add directory  */
-olong ObitFITSFindDir (gchar* dir, ObitErr *err);
+olong ObitFITSFindDir(const gchar *dir, ObitErr *err);
 
 /** Public: Generate name of FITS file */
-gchar* 
-ObitFITSFilename (olong disk, gchar* fileName, ObitErr *err);
+gchar *
+ObitFITSFilename(olong disk, const gchar *fileName, ObitErr *err);
 
 /** Public: Get number of FITS disks */
-olong ObitFITSGetNumDisk (ObitErr *err);
+olong ObitFITSGetNumDisk(ObitErr *err);
 
 /** Public: Get directory string */
-gchar* ObitFITSDirname (olong disk, ObitErr *err);
+gchar *ObitFITSDirname(olong disk, ObitErr *err);
 
 /** Public: Assign a scratch file info */
-void ObitFITSAssign(gchar *pgmName, olong pgmNumber, 
-		    olong disk, olong scrNo, ObitInfoList *info, 
-		    ObitErr *err);
+void ObitFITSAssign(gchar *pgmName, olong pgmNumber,
+                    olong disk, olong scrNo, ObitInfoList *info,
+                    ObitErr *err);
 
 /** Public: Rename a FITS file */
-void ObitFITSRename (ObitIO *in, ObitInfoList *info, ObitErr *err);
+void ObitFITSRename(ObitIO *in, ObitInfoList *info, ObitErr *err);
 
-#endif /* OBITFITS_H */ 
+#endif /* OBITFITS_H */
 

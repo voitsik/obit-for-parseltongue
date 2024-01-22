@@ -79,10 +79,10 @@ def PListDir(disk, dir=None):
             dir = "./"
         flist = os.listdir(dir)
         dirlist = "File listing for directory " + dir + "\n"
-    i = 0
-    for f in flist:
-        dirlist = dirlist + string.rjust(str(i), 6) + " " + f + "\n"
-        i = i + 1
+
+    for i, f in enumerate(flist):
+        dirlist = dirlist + "{:>6} {}\n".format(i, f)
+
     # User pager
     pydoc.ttypager(dirlist)
     # end PListDir

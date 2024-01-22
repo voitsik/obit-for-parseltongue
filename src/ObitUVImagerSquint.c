@@ -306,7 +306,7 @@ void ObitUVImagerSquintWeight (ObitUVImager *in, ObitErr *err)
   g_assert (ObitIsA(in, &myClassInfo));
 
   /* Get Stokes being imaged */
-  strncpy (IStokes, "F   ", 4); 
+  strncpy (IStokes, "F   ", 5);
   ObitInfoListGetTest (in->uvdata->info, "Stokes", &type, dim, IStokes);
 
   /* Want RR, LL data */

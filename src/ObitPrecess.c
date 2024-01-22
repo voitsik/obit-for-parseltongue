@@ -183,7 +183,7 @@ void ObitPrecessPrecess(odouble JD, ofloat equin, odouble deldat, olong dir,
   jprenu (dir, JD, equin, TRUE, prnmat);
 
   /* aberation and light bending */
-  diurn = (abs (obspos[2])  >  1.0e-5);
+  diurn = (fabs (obspos[2])  >  1.0e-5);
   rhogeo = 0.0;
   rlst = 0.0;
 

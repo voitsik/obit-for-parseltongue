@@ -780,7 +780,7 @@ ObitIOCode ObitIOTableFITSReadRow (ObitIOTableFITS *in, olong rowno,
     }
 
     /* init '_status' column to 0 */
-    g_memmove (&cdata[offset+desc->byteOffset[desc->nfield-1]], 
+    memmove (&cdata[offset+desc->byteOffset[desc->nfield-1]], 
 	       (gchar*)&izero, sizeof(olong));
 
     offset  += len;       /* offset in data buffer in bytes */
@@ -948,7 +948,7 @@ ObitIOCode ObitIOTableFITSReadRowSelect (ObitIOTableFITS *in, olong rowno,
     }
 
     /* init '_status' column to 0 */
-    g_memmove (&cdata[offset+desc->byteOffset[desc->nfield-1]], 
+    memmove (&cdata[offset+desc->byteOffset[desc->nfield-1]], 
 	       (gchar*)&izero, sizeof(olong));
 
     offset  += len;       /* offset in data buffer in bytes */
@@ -1916,7 +1916,7 @@ void  ObitIOTableKeysOtherRead(ObitIOTableFITS *in, olong *lstatus,
 {
   gchar keywrd[FLEN_KEYWORD], value[FLEN_VALUE], commnt[FLEN_COMMENT+1];
   gchar *first, *last, *aT, dtype, svalue[FLEN_VALUE];
-  int i, j, k, l, keys, morekeys, status = (int)*lstatus;
+  int i, j, k, keys, morekeys, status = (int)*lstatus;
   olong ivalue;
   gint32 dim[MAXINFOELEMDIM] = {1,1,1,1,1};
   double dvalue;
@@ -1971,9 +1971,9 @@ void  ObitIOTableKeysOtherRead(ObitIOTableFITS *in, olong *lstatus,
 	fits_get_keytype (value, &dtype, &status);
 	switch (dtype) { 
 	case 'C':  /* Character string */
-	  first = index (value,'\'')+1; /* a string? */
-	  last = rindex(value,'\'')-1;
-	  g_memmove(svalue, first, (last-first+1));
+	  first = strchr (value,'\'')+1; /* a string? */
+	  last = strrchr(value,'\'')-1;
+	  memmove(svalue, first, (last-first+1));
 	  svalue[last-first+1] = 0; /* null terminate */
 	  /* add to InfoList */
 	  dim[0] = strlen(svalue);
@@ -1982,7 +1982,7 @@ void  ObitIOTableKeysOtherRead(ObitIOTableFITS *in, olong *lstatus,
 	  
 	  break;
 	case 'L':  /* logical 'T', 'F' */
-	  aT    = index (value,'T'); /* Logical */
+	  aT = strchr (value,'T'); /* Logical */
 	  bvalue = FALSE;
 	  if (aT!=NULL) bvalue = TRUE;
 	  /* add to InfoList */
@@ -1999,7 +1999,7 @@ void  ObitIOTableKeysOtherRead(ObitIOTableFITS *in, olong *lstatus,
 	  break;
 	case 'F':  /* Float - use double */
 	  /* AIPS uses 'D' for double exponent */
-	  for (l=0; l<strlen(value); l++) if (value[l]=='D') value[l]='e';
+	  for (size_t l=0; l<strlen(value); l++) if (value[l]=='D') value[l]='e';
 	  dvalue = strtod(value, &last);
 	  /* add to InfoList */
 	  dim[0] = 1;

@@ -481,7 +481,7 @@ ofloat ObitFInterpolatePixel (ObitFInterpolate *in, ofloat *pixel, ObitErr *err)
       indx = planeOff + xStart + i + ((yStart + j) * in->nx);
       /* accumulate */
       if (data[indx] != fblank) {
-	if (abs (den) > 1.0e-5) {
+	if (fabsf (den) > 1.0e-5) {
 	  wt = prod / den;
 	} else {
 	  wt = 0.0;
@@ -513,9 +513,9 @@ ofloat ObitFInterpolatePixel (ObitFInterpolate *in, ofloat *pixel, ObitErr *err)
 	  } 
 	} 
       } /* end loop  L210: */
-      
+
       /* accumulate */
-      if (abs (den) > 1.0e-5) {
+      if (fabsf (den) > 1.0e-5) {
 	wt = prod / den;
       } else {
 	wt = 0.0;
@@ -845,4 +845,3 @@ static void SetConvKernal (ofloat Pixel, olong naxis, olong hwidth,
   }; /* end switch */
   return;
 }  /* end SetConvKernal */
-
