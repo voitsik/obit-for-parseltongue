@@ -103,12 +103,12 @@ typedef struct {
 void ObitFArrayClassInit (void);
 
 /** Public: Default Constructor. */
-ObitFArray* newObitFArray (gchar* name);
+ObitFArray* newObitFArray (const gchar* name);
 
 /** Public: Create/initialize ObitFArray structures */
-ObitFArray* ObitFArrayCreate (gchar* name, olong ndim, olong *naxis);
+ObitFArray* ObitFArrayCreate (const gchar* name, olong ndim, const olong *naxis);
 /** Typedef for definition of class pointer structure */
-typedef void (*ObitFArrayCreateFP) (gchar* name, olong ndim, olong *naxis);
+typedef void (*ObitFArrayCreateFP) (const gchar* name, olong ndim, const olong *naxis);
 
 /** Public: ClassInfo pointer */
 gconstpointer ObitFArrayGetClass (void);
@@ -139,8 +139,8 @@ ObitFArray* ObitFArrayRealloc (ObitFArray* in, olong ndim, olong *naxis);
 typedef void (*ObitFArrayReallocFP) (ObitFArray* in, olong ndim, olong *naxis);
 
 /** Public: return pointer to a specified element */
-ofloat* ObitFArrayIndex (ObitFArray* in, olong *pos);
-typedef ofloat* (*ObitFArrayIndexFP) (ObitFArray* in, olong *pos);
+ofloat* ObitFArrayIndex (ObitFArray* in, const olong *pos);
+typedef ofloat* (*ObitFArrayIndexFP) (ObitFArray* in, const olong *pos);
 
 /** Public: Find Maximum value in an ObitFArray */
 ofloat ObitFArrayMax (ObitFArray* in, olong *pos);

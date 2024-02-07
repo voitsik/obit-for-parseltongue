@@ -47,10 +47,10 @@ typedef struct {
 
 %inline %{
 
-extern ObitFArray* FArrayCreate(char* name, long ndim, long *naxis) {
+extern ObitFArray* FArrayCreate(const char* name, long ndim, const long *naxis) {
    olong i, lnaxis[10];
    for (i=0; i<ndim; i++) lnaxis[i] = (olong)naxis[i];
-   return  ObitFArrayCreate (name,(olong) ndim, (olong*)lnaxis);
+   return  ObitFArrayCreate (name, (olong)ndim, (const olong*)lnaxis);
 }
 
 ObitFArray* FArrayRef (ObitFArray* in) {
@@ -63,27 +63,34 @@ ObitFArray* FArrayUnref (ObitFArray* in) {
   return in;
 } // end FArrayUnref
 
-void CreateFArray(PyObject *self, char* name, long ndim, long *longarr) {
-   void *ptr;
-   int ret, flags=0;
-   ret = SWIG_Python_ConvertPtr(self, &ptr, SWIGTYPE_p_FArray, flags);
-   if (!SWIG_IsOK(ret)) {
-	PyErr_SetString(PyExc_RuntimeError,"CreateFArray: could not recover c struct");
-	return;
-   }
-   if (strcmp(name, "None")) ((FArray*)ptr)->me = FArrayCreate(name, ndim, longarr);
-   else  ((FArray*)ptr)->me = NULL;
-   return;
- }
+void CreateFArray(PyObject *self, const char* name, long ndim, const long *longarr) {
+  void *ptr;
+  int ret, flags=0;
+
+  ret = SWIG_Python_ConvertPtr(self, &ptr, SWIGTYPE_p_FArray, flags);
+
+  if (!SWIG_IsOK(ret)) {
+    PyErr_SetString(PyExc_RuntimeError,"CreateFArray: could not recover c struct");
+    return;
+  }
+  if (strcmp(name, "None"))
+     ((FArray*)ptr)->me = FArrayCreate(name, ndim, longarr);
+  else
+     ((FArray*)ptr)->me = NULL;
+  return;
+}
+
 void DeleteFArray(PyObject *self) {
-   void *ptr;
-   int ret, flags=0;
-   ret = SWIG_Python_ConvertPtr(self, &ptr, SWIGTYPE_p_FArray, flags);
-   if (!SWIG_IsOK(ret)) {
-	PyErr_SetString(PyExc_RuntimeError,"DeleteFArray: could not recover c struct");
-	return;
-   }
-   ((FArray*)ptr)->me = FArrayUnref(((FArray*)ptr)->me);
+  void *ptr;
+  int ret, flags=0;
+
+  ret = SWIG_Python_ConvertPtr(self, &ptr, SWIGTYPE_p_FArray, flags);
+
+  if (!SWIG_IsOK(ret)) {
+    PyErr_SetString(PyExc_RuntimeError,"DeleteFArray: could not recover c struct");
+    return;
+  }
+  ((FArray*)ptr)->me = FArrayUnref(((FArray*)ptr)->me);
 }// end DeleteFArray
 
 ObitFArray* FArray_Get_me(PyObject *self) {
@@ -108,34 +115,35 @@ void FArray_Set_me(PyObject *self, ObitFArray *me) {
    ((FArray*)ptr)->me =  ObitFArrayRef(me);
 }  // end FArray_Set_me
 
-extern float FArrayGetVal(ObitFArray* in, long *pos) {
-   float *off, out[4];
-   long *Iout;
-   olong i, lpos[10];
-   for (i=0; i<in->ndim; i++) lpos[i] = (olong)pos[i];
+extern float FArrayGetVal(ObitFArray* in, const long *pos) {
+  float *off, out[4];
+  long *Iout;
+  olong i, lpos[10];
+
+  for (i=0; i<in->ndim; i++) lpos[i] = (olong)pos[i];
   // check if in bounds
-   off = ObitFArrayIndex (in, lpos);
-   if (off==NULL) {
-	PyErr_SetString(PyExc_RuntimeError,"Position not in array");
-        Iout = (long*)out;
-        *Iout = ~0;
-        return out[0];
-   } else {
-     out[0] = *off;
-   }
-   // return NaN rather than Obit magic value
-   if (out[0]==ObitMagicF()) {  // create a word with all bits on
-        Iout = (long*)out;
-        *Iout = ~0;
-   }
-   return out[0];
+  off = ObitFArrayIndex (in, lpos);
+  if (off==NULL) {
+    PyErr_SetString(PyExc_RuntimeError, "Position not in array");
+    Iout = (long*)out;
+    *Iout = ~0;
+    return out[0];
+  } else {
+    out[0] = *off;
+  }
+  // return NaN rather than Obit magic value
+  if (out[0]==ObitMagicF()) {  // create a word with all bits on
+    Iout = (long*)out;
+    *Iout = ~0;
+  }
+  return out[0];
 }
 
 extern float FArrayGetBlank(void) {
   return ObitMagicF();
 }
 
-extern void FArraySetVal(ObitFArray* in, long *pos, float val) {
+extern void FArraySetVal(ObitFArray* in, const long *pos, float val) {
    float *off;
    olong i, lpos[10];
 
@@ -150,18 +158,11 @@ extern void FArraySetVal(ObitFArray* in, long *pos, float val) {
    *off = val;
 }
 
-
 extern PyObject *FArrayGetBuf (ObitFArray *in) {
-#if PY_MAJOR_VERSION < 3
-    return PyBuffer_FromReadWriteMemory(in->array,
-                                      in->arraySize * sizeof(ofloat));
-#else
-    return PyMemoryView_FromMemory((char *)in->array,
-                                      in->arraySize * sizeof(ofloat), PyBUF_WRITE);
-#endif
+  return PyMemoryView_FromMemory((char *)in->array, in->arraySize * sizeof(ofloat), PyBUF_WRITE);
 }
 
-extern ObitFArray* FArrayCopy  (ObitFArray *in, ObitFArray *out, ObitErr *err) {
+extern ObitFArray* FArrayCopy (ObitFArray *in, ObitFArray *out, ObitErr *err) {
   return ObitFArrayCopy (in, out, err);
 } // end FArrayCopy 
 
@@ -170,8 +171,7 @@ extern ObitFArray* FArrayClone  (ObitFArray *in, ObitFArray *out, ObitErr *err) 
   return out;
 } // end FArrayCopy 
 
-extern ObitFArray* FArraySubArr  (ObitFArray *in, long *blc, long *trc, 
-				  ObitErr *err) {
+extern ObitFArray* FArraySubArr  (ObitFArray *in, long *blc, long *trc, ObitErr *err) {
   olong i, lblc[10], ltrc[10];
 
   for (i=0; i<in->ndim; i++) lblc[i] = (olong)blc[i];
@@ -488,4 +488,3 @@ extern long FArrayIsA (ObitFArray* in) {
 } // end  FArrayIsA 
 
 %}
-

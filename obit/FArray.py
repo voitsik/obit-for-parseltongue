@@ -50,7 +50,6 @@ Naxis   list of axis dimensions (by storage order)
 # -----------------------------------------------------------------------
 
 # Python shadow class to ObitFArray class
-from __future__ import absolute_import, print_function
 
 from . import InfoList, Obit, OErr, _Obit
 
@@ -63,7 +62,8 @@ class FArray(Obit.FArray):
     multidimensional rectangular array of floats.
     Elements are stored in order of the increasing axis order (the reverse of the
     usual c definition).
-    Except as noted, magic value blanking is supported (OBIT_MAGIC) (returned to Python as NaN)
+    Except as noted, magic value blanking is supported (OBIT_MAGIC)
+    (returned to Python as NaN)
 
     Virtual (read only) members (accessed as e.g. array.RMS
 
@@ -81,7 +81,7 @@ class FArray(Obit.FArray):
 
     def __init__(self, name, naxis=[1]):
         ndim = len(naxis)
-        super(FArray, self).__init__()
+        super().__init__()
         lnaxis = [int(naxis[0])]
         if len(naxis) > 1:
             lnaxis.append(int(naxis[1]))
@@ -90,13 +90,12 @@ class FArray(Obit.FArray):
         Obit.CreateFArray(self.this, name, int(ndim), lnaxis)
 
     def __del__(self, DeleteFArray=_Obit.DeleteFArray):
-        if _Obit is not None:
-            DeleteFArray(self.this)
+        DeleteFArray(self.this)
 
     def __setattr__(self, name, value):
         if name == "me":
             # Out with the old
-            if self.this != None:
+            if self.this is not None:
                 Obit.FArrayUnref(Obit.FArray_Get_me(self.this))
             # In with the new
             Obit.FArray_Set_me(self.this, value)
@@ -148,7 +147,7 @@ class FArray(Obit.FArray):
         * in        = nth axis index
         """
         # value, possible blanked
-        if value == None:
+        if value is None:
             v = fblank
         else:
             v = value
@@ -221,8 +220,8 @@ def PSetVal(inFA, pos, val):
     ################################################################
     # Checks
     if not PIsA(inFA):
-        print("Actually ", inFA.__class__)
-        raise TypeError("inFA MUST be a Python Obit FArray")
+        # print("Actually ", inFA.__class__)
+        raise TypeError(f"inFA MUST be a Python Obit FArray, not {inFA.__class__}")
     # make sure pos long
     lpos = []
     for p in pos:
@@ -241,8 +240,8 @@ def PGetBuf(inFA):
     ################################################################
     # Checks
     if not PIsA(inFA):
-        print("Actually ", inFA.__class__)
-        raise TypeError("inFA MUST be a Python Obit FArray")
+        # print("Actually ", inFA.__class__)
+        raise TypeError(f"inFA MUST be a Python Obit FArray, not {inFA.__class__}")
     return Obit.FArrayGetBuf(inFA.me)
     # end PGetBuf(
 
@@ -259,8 +258,8 @@ def PCopy(inFA, err):
     ################################################################
     # Checks
     if not PIsA(inFA):
-        print("Actually ", inFA.__class__)
-        raise TypeError("inFA MUST be a Python Obit FArray")
+        # print("Actually ", inFA.__class__)
+        raise TypeError(f"inFA MUST be a Python Obit FArray, not {inFA.__class__}")
     outFA = FArray("None")
     outFA.me = Obit.FArrayCopy(inFA.me, outFA.me, err.me)
     if err.isErr:
