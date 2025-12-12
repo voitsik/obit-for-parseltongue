@@ -28,7 +28,6 @@ OBIT_LIB = (
         "include_dirs": ["include"],
         "macros": [
             ("OBIT_THREADS_ENABLED", "1"),
-            ("HAVE_SSE", "1"),
             ("FASTOBITMEM", "1"),
         ],
         "cflags": CFLAGS,
