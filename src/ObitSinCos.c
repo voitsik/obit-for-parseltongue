@@ -1,6 +1,6 @@
 /* $Id$ */
 /*--------------------------------------------------------------------*/
-/*;  Copyright (C) 2009-2023                                          */
+/*;  Copyright (C) 2009-2025                                          */
 /*;  Associated Universities, Inc. Washington DC, USA.                */
 /*;                                                                   */
 /*;  This program is free software; you can redistribute it and/or    */
@@ -26,15 +26,9 @@
 /*;                         Charlottesville, VA 22903-2475 USA        */
 /*--------------------------------------------------------------------*/
 /* Utility routine for fast sine/cosine calculation                   */
-#define _GNU_SOURCE
 #include "ObitSinCos.h"
 #include "ObitVecFunc.h"
 #include <math.h>
-
-/* sincosf is not available on MacOS */
-#if defined(__APPLE__)
-#define sincosf __sincosf
-#endif
 
 #define OBITSINCOSNTAB  1024  /* tabulated points per turn */
 #define OBITSINCOSNTAB4 256   /* 1/4 size of table */
@@ -113,9 +107,9 @@ void ObitSinCosVec(olong n, ofloat *angle, ofloat *sin, ofloat *cos)
   olong i, ndo, nleft;
   /** SSE/AVX/AVX512 implementation */
 #if HAVE_AVX512==1
-  CV16SF vvanglet, vvss, vvcc;
+  CV16SF vvanglet, vvss, vvcc;/* these should really be used */
 #endif
-#if HAVE_AVX==1
+#if   HAVE_AVX==1
   CV8SF vanglet, vss, vcc;
 #elif HAVE_SSE==1
   CV4SF vanglet, vss, vcc;
@@ -124,7 +118,7 @@ void ObitSinCosVec(olong n, ofloat *angle, ofloat *sin, ofloat *cos)
   if (n<=0) return;
   /* Trap if only one */
   if (n==1) {
-    sincosf(angle[0], sin, cos);
+    sincos2f(angle[0], sin, cos);
     return;
   }
  /** AVX512 implementation crashes */
@@ -435,4 +429,14 @@ void ObitSinVec(olong n, ofloat *angle, ofloat *sin)
   } /* end loop over vector */
 #endif
 } /* end ObitSinVec */
+
+/** workaround for sincos screwup - the compiler should fold these into sincos */
+void Xsincos2(double x, double* p_sin, double* p_cos) {
+  *p_sin = sin(x);
+  *p_cos = cos(x);
+}
+void Xsincos2f(float x, float* p_sinf, float* p_cosf) {
+  *p_sinf = sinf(x);
+  *p_cosf = cosf(x);
+} /* end sincos2 */
 
