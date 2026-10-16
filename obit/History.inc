@@ -166,8 +166,8 @@ extern PyObject* HistoryReadRec (ObitHistory* in, long recno,  ObitErr *err) {
   ObitIOCode ret;
   gchar hiCard[73];
   ret = ObitHistoryReadRec(in, recno, hiCard, err);
-  if (ret==OBIT_IO_OK) return PyString_FromString(hiCard);
-  return PyString_FromString("");
+  if (ret==OBIT_IO_OK) return PyUnicode_FromString(hiCard);
+  return PyUnicode_FromString("");
 }
 
 extern long HistoryWriteRec (ObitHistory* in, long recno, char hiCard[73],

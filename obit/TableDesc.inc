@@ -147,7 +147,7 @@ extern PyObject *TableDescGetDict(ObitTableDesc* in) {
     return outDict;
   }
 
-  PyDict_SetItemString(outDict, "Table name", PyString_InternFromString(in->TableName));
+  PyDict_SetItemString(outDict, "Table name", PyUnicode_InternFromString(in->TableName));
   PyDict_SetItemString(outDict, "version",PyLong_FromLong((long)in->version));
   PyDict_SetItemString(outDict, "nrow",   PyLong_FromLong((long)in->nrow));
   PyDict_SetItemString(outDict, "lrow",   PyLong_FromLong((long)in->lrow));
@@ -178,17 +178,17 @@ extern PyObject *TableDescGetDict(ObitTableDesc* in) {
   for (i=0; i<in->nfield; i++) {
     ctemp =  g_strdup(in->FieldName[i]);
     TableDescDeeBlank(ctemp);
-    PyList_SetItem(list, i, PyString_InternFromString(ctemp));
+    PyList_SetItem(list, i, PyUnicode_InternFromString(ctemp));
     g_free (ctemp);
   }
   PyDict_SetItemString(outDict, "FieldName", list);
 
   list = PyList_New(in->nfield);
-  for (i=0; i<in->nfield; i++) PyList_SetItem(list, i, PyString_InternFromString(in->FieldUnit[i]));
+  for (i=0; i<in->nfield; i++) PyList_SetItem(list, i, PyUnicode_InternFromString(in->FieldUnit[i]));
   for (i=0; i<in->nfield; i++) {
     ctemp =  g_strdup(in->FieldUnit[i]);
     TableDescDeeBlank(ctemp);
-    PyList_SetItem(list, i, PyString_InternFromString(ctemp));
+    PyList_SetItem(list, i, PyUnicode_InternFromString(ctemp));
     g_free (ctemp);
   }
   PyDict_SetItemString(outDict, "FieldUnit", list);

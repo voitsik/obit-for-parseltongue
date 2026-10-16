@@ -38,10 +38,8 @@
       PyObject *o = PyList_GetItem($input, i);
       if (PyLong_Check(o)) {
          $1[i] = PyLong_AsLong(o);
-      } else if (PyInt_Check(o)) {
-         $1[i] = PyInt_AsLong(o);
       } else {
-         PyErr_SetString(PyExc_TypeError,"list must contain longs or ints");
+         PyErr_SetString(PyExc_TypeError,"list must contain ints");
          free($1);
          return NULL;
       }
@@ -303,7 +301,7 @@
     $1[size] = NULL;  // last pointer NULL
     for (i = 0; i < size; i++) {
       PyObject *o = PyList_GetItem($input, i);
-      if (PyString_Check(o)) {
+      if (PyUnicode_Check(o)) {
         if (!SWIG_IsOK(SWIG_ConvertPtr(o, (void **) &$1[i], $1_descriptor, 0))) {
            PyErr_SetString(PyExc_TypeError, "Type error in argument. Expected _ObitImage_p.");
            return NULL;

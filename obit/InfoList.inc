@@ -66,12 +66,12 @@ typedef struct {
 
   // Check for failure
   if ($1->type==-999) {
-    o = PyString_FromString("Item not Found");
+    o = PyUnicode_FromString("Item not Found");
     PyList_Append($result, o);
     Py_XDECREF(o);
     return NULL;
   }
-  o = PyString_FromString($1->name);
+  o = PyUnicode_FromString($1->name);
   if ((!$result) || ($result == Py_None)) {
     $result = PyList_New(0);
     PyList_Append($result, o);
@@ -128,7 +128,7 @@ typedef struct {
         for (j = 0; j < $1->dim[0]; j++)
           tstring[j] = ((char*)$1->data)[i*$1->dim[0]+j];
         tstring[j] = 0;
-        o = PyString_FromString(tstring);
+        o = PyUnicode_FromString(tstring);
         break;
       case OBIT_bool:
         o = PyLong_FromLong((long)((long*)$1->data)[i]);
@@ -654,19 +654,19 @@ static PyObject* Info2List(ObitInfoType type, gint32 dim[5], void *data)
       tstring	= g_malloc0(count[0]+1);
       if (ndim==1) {  // single dimension - one string
         for (i=0; i<count[0]; i++) {tstring[i]=cdata[ii++];} tstring[i]=0;
-        o = PyString_InternFromString(tstring);
+        o = PyUnicode_InternFromString(tstring);
         PyList_SetItem(outList, 0, o);
       } else { // 2 or more dimensions
         for (j=0; j<count[1]; j++) {  // loop over second dimension
           if (ndim==2) {  // two dimensions
             for (i=0; i<count[0]; i++) {tstring[i]=cdata[ii++];} tstring[i]=0;
-            o = PyString_InternFromString(tstring);
+            o = PyUnicode_InternFromString(tstring);
             PyList_SetItem(outList, j, o);
           } else { // 3 (or more) dimensions
             outList2 = PyList_New(count[2]);
             for (k=0; k<count[2]; k++) {  // loop over third dimension
               for (i=0; i<count[0]; i++) {tstring[i]=cdata[ii++];} tstring[i]=0;
-              o = PyString_InternFromString(tstring);
+              o = PyUnicode_InternFromString(tstring);
               PyList_SetItem(outList2, k, o);
             } // end loop over third dimension
             PyList_SetItem(outList, j, outList2);
@@ -703,7 +703,7 @@ extern PyObject* InfoListGet(ObitInfoList *in, const char *name) {
     dlist = Info2List(type, dim, data);
     o = PyLong_FromLong((long)0);
     PyList_SetItem(outList, 0, o);
-    o = PyString_InternFromString(name);
+    o = PyUnicode_InternFromString(name);
     PyList_SetItem(outList, 1, o);
     o = PyLong_FromLong((long)type);
     PyList_SetItem(outList, 2, o);
@@ -721,7 +721,7 @@ extern PyObject* InfoListGet(ObitInfoList *in, const char *name) {
   //PyErr_SetString(PyExc_TypeError,"Item not found");
   o = PyLong_FromLong((long)999);
   PyList_SetItem(outList, 0, o);
-  o = PyString_InternFromString(name);
+  o = PyUnicode_InternFromString(name);
   PyList_SetItem(outList, 1, o);
   PyList_SetItem(outList, 2, Py_None);
   PyList_SetItem(outList, 3, Py_None);
@@ -751,7 +751,7 @@ extern PyObject* InfoListGetNumber(ObitInfoList *in, long number)
     dlist = Info2List(type, dim, data);
     o = PyLong_FromLong((long)0);
     PyList_SetItem(outList, 0, o);
-    o = PyString_InternFromString(name);
+    o = PyUnicode_InternFromString(name);
     PyList_SetItem(outList, 1, o);	
     o = PyLong_FromLong((long)type);
     PyList_SetItem(outList, 2, o);
@@ -769,7 +769,7 @@ extern PyObject* InfoListGetNumber(ObitInfoList *in, long number)
   PyErr_SetString(PyExc_TypeError,"Item not found");
   o = PyLong_FromLong((long)999);
   PyList_SetItem(outList, 0, o);
-  o = PyString_InternFromString(name);
+  o = PyUnicode_InternFromString(name);
   PyList_SetItem(outList, 1, o);
   PyList_SetItem(outList, 2, Py_None);
   PyList_SetItem(outList, 3, Py_None);

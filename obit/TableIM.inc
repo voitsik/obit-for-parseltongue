@@ -64,8 +64,8 @@ extern PyObject* TableIMGetHeadKeys (ObitTable *inTab) {
   PyDict_SetItemString(outDict, "numPol",  PyLong_FromLong((long)lTab->numPol));
   PyDict_SetItemString(outDict, "numBand",  PyLong_FromLong((long)lTab->numBand));
   PyDict_SetItemString(outDict, "npoly",  PyLong_FromLong((long)lTab->npoly));
-  PyDict_SetItemString(outDict, "RefDate", PyString_InternFromString(lTab->RefDate));
-  PyDict_SetItemString(outDict, "obscode", PyString_InternFromString(lTab->obscode));
+  PyDict_SetItemString(outDict, "RefDate", PyUnicode_InternFromString(lTab->RefDate));
+  PyDict_SetItemString(outDict, "obscode", PyUnicode_InternFromString(lTab->obscode));
   PyDict_SetItemString(outDict, "stk1",  PyFloat_FromDouble((double)lTab->stk1));
   PyDict_SetItemString(outDict, "tabrev",  PyLong_FromLong((long)lTab->tabrev));
   PyDict_SetItemString(outDict, "revision",  PyFloat_FromDouble((double)lTab->revision));

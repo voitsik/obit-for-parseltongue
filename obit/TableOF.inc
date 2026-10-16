@@ -59,8 +59,8 @@ extern PyObject* TableOFGetHeadKeys (ObitTable *inTab) {
   PyObject *outDict=PyDict_New();
   ObitTableOF *lTab = (ObitTableOF*)inTab;
   PyDict_SetItemString(outDict, "revision",  PyLong_FromLong((long)lTab->revision));
-  PyDict_SetItemString(outDict, "obscode", PyString_InternFromString(lTab->obscode));
-  PyDict_SetItemString(outDict, "RefDate", PyString_InternFromString(lTab->RefDate));
+  PyDict_SetItemString(outDict, "obscode", PyUnicode_InternFromString(lTab->obscode));
+  PyDict_SetItemString(outDict, "RefDate", PyUnicode_InternFromString(lTab->RefDate));
 
   return outDict;
 } 

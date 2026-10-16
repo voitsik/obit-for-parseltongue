@@ -411,7 +411,7 @@ extern  PyObject *TableReadRow (ObitTable *in, long rowno, ObitErr *err) {
   if ((ret==OBIT_IO_OK) && (!err->error)) {
   // Convert row to python dict
   /* Table name */
-  o = PyString_InternFromString(desc->TableName);
+  o = PyUnicode_InternFromString(desc->TableName);
   PyDict_SetItemString(outDict, "Table name", o);
   Py_DECREF(o);
   /* number of fields  */
@@ -462,7 +462,7 @@ extern  PyObject *TableReadRow (ObitTable *in, long rowno, ObitErr *err) {
       ctemp = g_malloc0(desc->dim[i][0]+1);
       for (j=0; j<desc->repeat[i]/MAX (1,MAX(desc->dim[i][0],desc->dim[i][1])); j++) {
         for (k=0; k<desc->dim[i][0]; k++) {ctemp[k] = cdata[k];} ctemp[k] = 0;
-        PyList_SetItem(list, j, PyString_InternFromString(ctemp));
+        PyList_SetItem(list, j, PyUnicode_InternFromString(ctemp));
         cdata += desc->dim[i][0];
       }
       g_free (ctemp);

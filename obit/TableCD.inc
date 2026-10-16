@@ -62,7 +62,7 @@ extern PyObject* TableCDGetHeadKeys (ObitTable *inTab) {
   ObitTableCD *lTab = (ObitTableCD*)inTab;
   PyDict_SetItemString(outDict, "nIF",  PyLong_FromLong((long)lTab->nIF));
   PyDict_SetItemString(outDict, "nPol",  PyLong_FromLong((long)lTab->nPol));
-  PyDict_SetItemString(outDict, "RefDate", PyString_InternFromString(lTab->RefDate));
+  PyDict_SetItemString(outDict, "RefDate", PyUnicode_InternFromString(lTab->RefDate));
   PyDict_SetItemString(outDict, "revision",  PyLong_FromLong((long)lTab->revision));
 
   return outDict;

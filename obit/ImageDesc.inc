@@ -182,15 +182,15 @@ extern PyObject *ImageDescGetDict(ObitImageDesc* in) {
   Py_ssize_t doh;
   int i, pos = 0;
 
-  PyDict_SetItemString(outDict, "name",    PyString_InternFromString(in->name));
-  PyDict_SetItemString(outDict, "object",  PyString_InternFromString(in->object));
-  PyDict_SetItemString(outDict, "teles",   PyString_InternFromString(in->teles));
-  PyDict_SetItemString(outDict, "instrume",PyString_InternFromString(in->instrument));
-  PyDict_SetItemString(outDict, "observer",PyString_InternFromString(in->observer));
-  PyDict_SetItemString(outDict, "origin",  PyString_InternFromString(in->origin));
-  PyDict_SetItemString(outDict, "date",    PyString_InternFromString(in->date));
-  PyDict_SetItemString(outDict, "obsdat",  PyString_InternFromString(in->obsdat));
-  PyDict_SetItemString(outDict, "bunit",   PyString_InternFromString(in->bunit));
+  PyDict_SetItemString(outDict, "name",    PyUnicode_InternFromString(in->name));
+  PyDict_SetItemString(outDict, "object",  PyUnicode_InternFromString(in->object));
+  PyDict_SetItemString(outDict, "teles",   PyUnicode_InternFromString(in->teles));
+  PyDict_SetItemString(outDict, "instrume",PyUnicode_InternFromString(in->instrument));
+  PyDict_SetItemString(outDict, "observer",PyUnicode_InternFromString(in->observer));
+  PyDict_SetItemString(outDict, "origin",  PyUnicode_InternFromString(in->origin));
+  PyDict_SetItemString(outDict, "date",    PyUnicode_InternFromString(in->date));
+  PyDict_SetItemString(outDict, "obsdat",  PyUnicode_InternFromString(in->obsdat));
+  PyDict_SetItemString(outDict, "bunit",   PyUnicode_InternFromString(in->bunit));
   PyDict_SetItemString(outDict, "obsra",   PyFloat_FromDouble((double)in->obsra));
   PyDict_SetItemString(outDict, "obsdec",  PyFloat_FromDouble((double)in->obsdec));
   PyDict_SetItemString(outDict, "epoch",   PyFloat_FromDouble((double)in->epoch));
@@ -216,7 +216,7 @@ extern PyObject *ImageDescGetDict(ObitImageDesc* in) {
   PyDict_SetItemString(outDict, "VelReference", PyLong_FromLong((long)in->VelReference));
   PyDict_SetItemString(outDict, "VelDef", PyLong_FromLong((long)in->VelDef));
   list1 = PyList_New(IM_MAXDIM);
-  for (i=0; i<IM_MAXDIM; i++) PyList_SetItem(list1, i, PyString_InternFromString(in->ctype[i]));
+  for (i=0; i<IM_MAXDIM; i++) PyList_SetItem(list1, i, PyUnicode_InternFromString(in->ctype[i]));
   PyDict_SetItemString(outDict, "ctype", list1);
   list2 = PyList_New(IM_MAXDIM);
   for (i=0; i<IM_MAXDIM; i++) PyList_SetItem(list2, i, PyFloat_FromDouble((double)in->crval[i]));

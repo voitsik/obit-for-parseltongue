@@ -60,8 +60,8 @@ extern PyObject* TableSUGetHeadKeys (ObitTable *inTab) {
   PyObject *outDict=PyDict_New();
   ObitTableSU *lTab = (ObitTableSU*)inTab;
   PyDict_SetItemString(outDict, "numIF",  PyLong_FromLong((long)lTab->numIF));
-  PyDict_SetItemString(outDict, "velType", PyString_InternFromString(lTab->velType));
-  PyDict_SetItemString(outDict, "velDef", PyString_InternFromString(lTab->velDef));
+  PyDict_SetItemString(outDict, "velType", PyUnicode_InternFromString(lTab->velType));
+  PyDict_SetItemString(outDict, "velDef", PyUnicode_InternFromString(lTab->velDef));
   PyDict_SetItemString(outDict, "FreqID",  PyLong_FromLong((long)lTab->FreqID));
 
   return outDict;

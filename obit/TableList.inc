@@ -125,7 +125,7 @@ extern PyObject *TableListGetList(ObitTableList* in, ObitErr *err) {
     ObitTableListGetNumber(in, i+1, &tabName, &tabVer, &table, err);
     list = PyList_New(2);
     PyList_SetItem(list, 0, PyLong_FromLong((long)tabVer));
-    PyList_SetItem(list, 1, PyString_InternFromString(tabName));
+    PyList_SetItem(list, 1, PyUnicode_InternFromString(tabName));
     PyList_SetItem(outList, i, list);
     if (tabName) g_free(tabName);
     ObitTableUnref(table);

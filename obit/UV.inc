@@ -139,7 +139,7 @@ extern PyObject* UVInfo (ObitUV *in, ObitErr *err) {
 
   // Get details and save in dict
   if (ObitIOUVAIPSIsA(in->myIO)) {  // AIPS
-    o = PyString_InternFromString("AIPS");
+    o = PyUnicode_InternFromString("AIPS");
     PyDict_SetItemString(outDict, "type", o);
     AIPSIO = (ObitIOUVAIPS*)in->myIO;
     o = PyLong_FromLong((long)AIPSIO->disk);
@@ -149,15 +149,15 @@ extern PyObject* UVInfo (ObitUV *in, ObitErr *err) {
     o = PyLong_FromLong((long)AIPSIO->UserId);
     PyDict_SetItemString(outDict, "user", o);
   } else if (ObitIOUVFITSIsA(in->myIO)) {  // FITS
-    o = PyString_InternFromString("FITS");
+    o = PyUnicode_InternFromString("FITS");
     PyDict_SetItemString(outDict, "type", o);
     FITSIO = (ObitIOUVFITS*)in->myIO;
     o = PyLong_FromLong((long)FITSIO->disk);
     PyDict_SetItemString(outDict, "disk", o);
-    o = PyString_InternFromString((char*)FITSIO->FileName);
+    o = PyUnicode_InternFromString((char*)FITSIO->FileName);
     PyDict_SetItemString(outDict, "filename", o);
   } else {  // Don't know this one
-    o = PyString_InternFromString("UNKNOWN");
+    o = PyUnicode_InternFromString("UNKNOWN");
     PyDict_SetItemString(outDict, "type", o);
   }
   return outDict;
