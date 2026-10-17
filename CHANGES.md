@@ -1,4 +1,4 @@
-# 0.2.2 (Unreleased)
+# 0.2.2 (2026-10-18)
 
 - Updated SWIG wrappers for Python 3 and expanded supported Python versions.
 - Fixed UV and Image existence checks.
