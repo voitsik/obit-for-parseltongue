@@ -2508,7 +2508,7 @@ def AExist(Aname, Aclass, disk, seq, err):
     user = OSystem.PGetAIPSuser()
     ret = Obit.AIPSDirFindCNO(disk, user, Aname, Aclass, "UV", seq, err.me)
     if err.isErr:
-        return rFalse
+        return False
     # Clear any couldn't find message
     OErr.PClear(err)
     return ret > 0
