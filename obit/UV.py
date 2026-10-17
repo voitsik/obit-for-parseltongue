@@ -236,7 +236,7 @@ class UV(Obit.UV, OData.OData):
         raise AttributeError(str(name))  # Unknown
 
     def __repr__(self):
-        if self.__class__ != UV:
+        if not isinstance(self, UV):
             return
         return "<C UV instance> " + Obit.UVGetName(self.me)
 
@@ -371,7 +371,6 @@ class UV(Obit.UV, OData.OData):
         UVVis.PSet(outVis, self, err)
         if err.isErr:
             OErr.printErrMsg(err, "Error Writing UV data")
-        return
         # end WriteVis
 
     def Close(self, err):
@@ -411,12 +410,11 @@ class UV(Obit.UV, OData.OData):
             raise TypeError("outUV MUST be a Python Obit UV")
         if not OErr.OErrIsA(err):
             raise TypeError("err MUST be an OErr")
-        #
+
         Obit.UVCopy(self.me, outUV.me, err.me)
         if err.isErr:
             OErr.printErrMsg(err, "Error copying UV data")
-
-    # end Copy
+        # end Copy
 
     def Clone(self, outUV, err):
         """
@@ -434,12 +432,10 @@ class UV(Obit.UV, OData.OData):
             raise TypeError("outUV MUST be a Python Obit UV")
         if not OErr.OErrIsA(err):
             raise TypeError("err MUST be an OErr")
-        #
         Obit.UVClone(self.me, outUV.me, err.me)
         if err.isErr:
             OErr.printErrMsg(err, "Error copying UV data")
-
-    # end Clone
+        # end Clone
 
     def Scratch(self, err):
         """
