@@ -1,3 +1,8 @@
+# Unreleased
+
+- Removed C sources not reachable from the Python interface (Weather, SkyModel, DCon/DConClean, and other unused classes).
+- Removed ObitDisplay, ObitRPC, ObitXML, the `ODisplay` module and `Image.TVFit`; `xmlrpc-c` is no longer required.
+
 # 0.2.2 (2026-10-18)
 
 - Updated SWIG wrappers for Python 3 and expanded supported Python versions.

@@ -54,7 +54,7 @@ MakeCCSortStructSel (ObitTableCC *in, olong startComp, olong endComp,
 static ofloat* 
 MakeCCSortStructSel2 (ObitTableCC *in, olong startComp, olong endComp, 
 		      olong *size, olong *number, olong *ncomp,
-		      ObitSkyModelCompType *type, ObitErr *err);
+		      ObitCCCompType *type, ObitErr *err);
 
 /** Private: Sort comparison function for positions */
 static gint CCComparePos (gconstpointer in1, gconstpointer in2, 
@@ -1380,7 +1380,7 @@ ObitFArray* ObitTableCCUtilMergeSel (ObitTableCC *in, olong startComp,
  * \li ... spectralcomponents
  */
 ObitFArray* ObitTableCCUtilMergeSel2 (ObitTableCC *in, olong startComp, 
-				     olong endComp, ObitSkyModelCompType *type,
+				     olong endComp, ObitCCCompType *type,
 				     ObitErr *err)
 {
   ObitFArray *out = NULL;
@@ -2993,7 +2993,7 @@ MakeCCSortStructSel (ObitTableCC *in, olong startComp, olong endComp,
 static ofloat* 
 MakeCCSortStructSel2 (ObitTableCC *in, olong startComp, olong endComp, 
 		      olong *size, olong *number, olong *ncomp, 
-		      ObitSkyModelCompType *type, ObitErr *err)
+		      ObitCCCompType *type, ObitErr *err)
 {
   ObitIOCode retCode = OBIT_IO_SpecErr;
   ofloat *out = NULL;
@@ -3002,7 +3002,7 @@ MakeCCSortStructSel2 (ObitTableCC *in, olong startComp, olong endComp,
   olong irow, nrow, tsize, count, j, toff, off;
   olong nterms, fsize, tmpType;
   gboolean haveDeltaZ=FALSE;
-  ObitSkyModelCompType  maxType = OBIT_SkyModel_PointMod;
+  ObitCCCompType  maxType = OBIT_CC_PointMod;
   gchar *routine = "MakeCCSortStructSel2";
 
   /* error checks */

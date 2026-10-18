@@ -30,7 +30,6 @@
 
 %{
 #include "ObitErr.h"
-#include "ObitDConClean.h"
 #include "ObitDConCleanWindow.h"
 %}
 
@@ -96,7 +95,7 @@ void DeleteOWindow(PyObject *self) {
 	PyErr_SetString(PyExc_RuntimeError,"DeleteOWindow: could not recover c struct");
 	return;
    }
-   ((OWindow*)ptr)->me = ObitDConCleanUnref(((OWindow*)ptr)->me);
+   ((OWindow*)ptr)->me = ObitDConCleanWindowUnref(((OWindow*)ptr)->me);
 } // end DeleteOWindow
 
 ObitDConCleanWindow* OWindow_Get_me(PyObject *self) {

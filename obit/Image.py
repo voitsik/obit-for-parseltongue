@@ -446,34 +446,6 @@ class Image(Obit.Image, OData.OData):
         # Allow derived types
         return Obit.ImageIsA(self.me)
 
-    def TVFit(self, disp, err, file=None):
-        """
-        Fit Gaussian models. setting initial model from the TV display
-
-        Returns FitModel object after fitting
-
-        * self      = Python Image object
-        * disp      = Display to use to interactively set initial model
-        * err       = Python Obit Error/message stack
-        * file      = If given, the file to write the results to, else terminal
-        """
-        # Interactively set initial model
-        fr = FitRegion.PSetup(self, disp, err)
-        # Setup for fitting - define parameters
-        imf = ImageFit.ImageFit("ImageFit")
-        input = ImageFit.FitInput
-        input["fitImage"] = self
-        input["fitRegion"] = fr
-        input["MaxIter"] = 100
-        input["prtLv"] = 0
-        input["PosGuard"] = 1.0
-        # Fit
-        imf.Fit(err, input)
-        # Show results
-        fr.Print(self.Desc, file=file)
-        return fr
-        # end TVFit
-
     def GaussFit(
         self,
         err,

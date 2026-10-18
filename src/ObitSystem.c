@@ -38,7 +38,6 @@
 #include "ObitSystem.h"
 #include "ObitAIPS.h"
 #include "ObitFITS.h"
-#include "ObitRPC.h"
 #include "ObitImage.h"
 #include "ObitTable.h"
 #include "ObitUV.h"
@@ -168,9 +167,6 @@ ObitSystemStartup (gchar *pgmName, olong pgmNumber,
   /* make global pointer */
   mySystemInfo = (ObitSystem*)ObitRef(out);
 
-  /* Init RPC in case needed */
-  ObitRPCClassInit();
-
   /* Save error/message stack object */
   out->err = ObitErrRef (err);
 
@@ -258,9 +254,6 @@ ObitSystem* ObitSystemShutdown (ObitSystem* in)
 
   /* Shutdown FITS */
   ObitFITSShutdown();
-
-  /* Shutdown RPC */
-  ObitRPCClassShutdown();
 
   /* Get svn version */
   version = ObitVersion();

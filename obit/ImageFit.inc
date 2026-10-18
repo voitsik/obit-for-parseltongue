@@ -29,7 +29,6 @@
 /*--------------------------------------------------------------------*/
 
 %{
-#include "ObitDConClean.h"
 #include "ObitImageFit.h"
 #include "ObitImage.h"
 #include "ObitFitRegion.h"
@@ -83,7 +82,7 @@ void DeleteImageFit(PyObject *self) {
   PyErr_SetString(PyExc_RuntimeError,"DeleteImageFit: could not recover c struct");
     return;
   }
-  ((ImageFit*)ptr)->me = ObitDConCleanUnref(((ImageFit*)ptr)->me);
+  ((ImageFit*)ptr)->me = ObitImageFitUnref(((ImageFit*)ptr)->me);
 } // end DeleteImageFit
 
 ObitImageFit* ImageFit_Get_me(PyObject *self) {
@@ -97,7 +96,7 @@ ObitImageFit* ImageFit_Get_me(PyObject *self) {
   return ((ImageFit*)ptr)->me;
 } // end ImageFit_Get_me
 
-void ImageFit_Set_me(PyObject *self, ObitDConCleanWindow *me) {
+void ImageFit_Set_me(PyObject *self, ObitImageFit *me) {
   void *ptr;
   int ret,flags=0;
   ret = SWIG_Python_ConvertPtr(self, &ptr, SWIGTYPE_p_ImageFit, flags);
@@ -105,7 +104,7 @@ void ImageFit_Set_me(PyObject *self, ObitDConCleanWindow *me) {
   PyErr_SetString(PyExc_RuntimeError,"ImageFit_Set_me: could not recover c struct");
     return;
   }
-  ((ImageFit*)ptr)->me =  ObitDConCleanWindowRef(me);
+  ((ImageFit*)ptr)->me =  ObitImageFitRef(me);
 }  // end ImageFit_Set_me
 
 

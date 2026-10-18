@@ -34,7 +34,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libxmlrpc-core-c3-dev libglib2.0-dev libfftw3-dev libcfitsio-dev libgsl-dev libcurl4-gnutls-dev swig
+          sudo apt-get install -y libglib2.0-dev libfftw3-dev libcfitsio-dev libgsl-dev libcurl4-gnutls-dev swig
 
       - name: Install Python dependencies
         run: |
@@ -66,7 +66,6 @@ jobs:
           brew install fftw
           brew install gsl
           brew install swig
-          brew install xmlrpc-c
 
       - name: Install Python dependencies
         run: |

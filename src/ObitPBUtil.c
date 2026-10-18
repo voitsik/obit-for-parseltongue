@@ -29,7 +29,6 @@
 /*--------------------------------------------------------------------*/
 
 #include "ObitPBUtil.h"
-#include "ObitSkyModel.h"
 #include <math.h>
 
 /*----------------Obit: Merx mollis mortibus nuper ------------------*/

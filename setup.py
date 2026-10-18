@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import shlex
-import subprocess
 import sys
 from distutils.command.build import build
 from pathlib import Path
@@ -44,44 +42,10 @@ OBIT_EXT = Extension(
 )
 
 
-def run_command(cmd):
-    """Run `cmd` and return its stdout."""
-    if isinstance(cmd, str):
-        cmd = shlex.split(cmd)
-
-    ret = subprocess.run(cmd, capture_output=True, check=True)
-
-    return ret.stdout.decode().strip()
-
-
 def update_build_info(build_info):
     """Update LIBS_BUILD_INFO dictionary."""
     #
-    # For xmlrpc-c use xmlrpc-c-config command
-    #
-    try:
-        ret = run_command("xmlrpc-c-config --features")
-    except OSError as err:
-        print(err, file=sys.stderr)
-        print("Error: xmlrpc-c not found", file=sys.stderr)
-        sys.exit(1)
-
-    if "abyss-server" not in ret:
-        print("Error: xmlrpc-c does not support abyss-server feature", file=sys.stderr)
-        sys.exit(1)
-
-    ret = run_command("xmlrpc-c-config abyss-server client --cflags")
-    include_dirs = [x[2:] for x in ret.split() if x[0:2] == "-I"]
-    ret = run_command("xmlrpc-c-config abyss-server client --libs")
-    libraries = [x[2:] for x in ret.split() if x[0:2] == "-l"]
-    library_dirs = [x[2:] for x in ret.split() if x[0:2] == "-L"]
-
-    build_info["include_dirs"].extend(include_dirs)
-    build_info["libraries"].extend(libraries)
-    build_info["library_dirs"].extend(library_dirs)
-
-    #
-    # For the rest libs use pkg-config
+    # Use pkg-config
     #
     try:
         ret = pkgconfig.parse("glib-2.0 gthread-2.0 fftw3f gsl cfitsio")
