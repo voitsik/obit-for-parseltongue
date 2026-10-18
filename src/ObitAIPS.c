@@ -823,15 +823,15 @@ gboolean ObitAIPSBooleanF2C(oint logical)
 
 /**
  * Convert gboolean to Fortran Logical
- * \param bool boolean (TRUE or FALSE)
+ * \param boolean boolean (TRUE or FALSE)
  * \return Fortran LOGICAL value equivalent
  */
-oint ObitAIPSBooleanC2F(gboolean bool)
+oint ObitAIPSBooleanC2F(gboolean boolean)
 {
     oint out;
 
-    if (bool) out = myAIPSInfo->F_TRUE;
-    else      out = myAIPSInfo->F_FALSE;
+    if (boolean) out = myAIPSInfo->F_TRUE;
+    else         out = myAIPSInfo->F_FALSE;
 
     return out;
 } /* end ObitAIPSBooleanC2F */

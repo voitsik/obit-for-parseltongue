@@ -148,7 +148,7 @@ void ObitAIPSRename(ObitIO *in, ObitInfoList *info, ObitErr *err);
 gboolean ObitAIPSBooleanF2C(oint logical);
 
 /** Public: Convert a gboolean to a Fortran LOGICAL  */
-oint ObitAIPSBooleanC2F(gboolean bool);
+oint ObitAIPSBooleanC2F(gboolean boolean);
 
 /** Public: Mark/Unmark AIPS directory as noScrat */
 void ObitAIPSnoScrat(olong disk, gboolean noScrat, ObitErr *err);
