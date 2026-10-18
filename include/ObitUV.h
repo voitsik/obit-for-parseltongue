@@ -42,8 +42,6 @@
  * Related functions are in the
  * \link ObitUVUtil.h ObitUVUtil
  * \endlink ,
- * \link ObitUVEdit.h ObitUVEdit
- * \endlink and
  * \link ObitUVPeelUtil.h ObitUVPeelUtil
  * \endlink modules.
  *

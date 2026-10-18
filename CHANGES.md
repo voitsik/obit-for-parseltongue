@@ -2,6 +2,7 @@
 
 - Removed C sources not reachable from the Python interface (Weather, SkyModel, DCon/DConClean, and other unused classes).
 - Removed ObitDisplay, ObitRPC, ObitXML, the `ODisplay` module and `Image.TVFit`; `xmlrpc-c` is no longer required.
+- Removed `UV.PEdit*`, `OWindow`, `UVSoln` and the unused `TableOT/PT/SY` wrappers together with their C code.
 
 # 0.2.2 (2026-10-18)
 

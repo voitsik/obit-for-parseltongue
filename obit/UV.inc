@@ -34,7 +34,6 @@
 #include "ObitIOUVFITS.h"
 #include "ObitData.h"
 #include "ObitUVUtil.h"
-#include "ObitUVEdit.h"
 #include "ObitUVWeight.h"
 #include "ObitTableSNUtil.h"
 #include "ObitTableNXUtil.h"
@@ -471,32 +470,6 @@ extern void UVUtilNoise (ObitUV *inUV, ObitUV *outUV,
 extern void UVUtilAppend (ObitUV *inUV, ObitUV *outUV, ObitErr *err) {
   return ObitUVUtilAppend (inUV, outUV, err);
 } // end UVUtilAppend
-
-/* UV Edit Utility functions */
-
-extern void UVEditTD(ObitUV* in, ObitUV *out, ObitErr *err) {
-  return ObitUVEditTD (in, out, err);
-} // end UVEditTD
-
-extern void UVEditFD(ObitUV* in, ObitUV *out, ObitErr *err) {
-  return ObitUVEditFD (in, out, err);
-} // end UVEditFD
-
-extern void UVEditStokes(ObitUV* in, ObitUV *out, ObitErr *err) {
-  return ObitUVEditStokes (in, out, err);
-} // end UVEditStokes
-
-extern ObitUV* UVEditClip(ObitUV* in, long scratch, ObitUV *out, ObitErr *err) {
-  gboolean lscratch;
-  lscratch = scratch!=0;
-  return ObitUVEditClip (in, lscratch, out, err);
-} // end UVEditClip
-
-extern ObitUV* UVEditClipStokes(ObitUV* in, long scratch, ObitUV *out, ObitErr *err) {
-  gboolean lscratch;
-  lscratch = scratch!=0;
-  return ObitUVEditClipStokes (in, lscratch, out, err);
-} // end UVEditClipStokes
 
 extern long UVUtilFlag (ObitUV *inUV, ObitErr *err) {
   ObitIOCode ret;
